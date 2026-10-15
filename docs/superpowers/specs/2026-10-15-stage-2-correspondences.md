@@ -21,6 +21,7 @@ All tables follow the Stage 1 rules: `INTEGER PRIMARY KEY AUTOINCREMENT`, `versi
 - **Category**: name, icon (a Lucide icon name from a short fixed list), sort order, `starter_key`, `is_starter`.
 - **Entry**: category, name, summary (one line, up to 200 characters), full text (up to 4,000 characters), keywords (a list of short words), feast day (`MM-DD`, optional, used by saints, deities and feast days, and read by the Stage 4 calendar), traditions (any number), `starter_key`, `is_starter`.
 - **Link**: two entries, stored once (lower id first), shown on both entries. An entry can't link to itself, and a pair can't be linked twice.
+- **Upgrading the database:** before the app migrates an existing database to a newer version, it saves a copy as `backups/pre-migrate-YYYY-MM-DD-HHMM.db`. If that copy can't be written, the app stops with an error and leaves the database as it was. These copies are listed, restored and rotated like the other backups.
 
 ## Deleting
 
@@ -29,6 +30,7 @@ All tables follow the Stage 1 rules: `INTEGER PRIMARY KEY AUTOINCREMENT`, `versi
 - **Saving after a Trash change:** sending an entry or tradition to the Trash, or bringing it back, changes what linked entries show, so their version goes up. A form opened before that gets a conflict instead of dropping the hidden or restored link.
 - **A tradition in use:** the confirm says how many entries use it. The tradition goes to the Trash. Entries keep the link but don't show it while the tradition is in the Trash.
 - **Starter rows deleted forever** are recorded in `starter_removed`, as in Stage 1, so they never come back.
+- **New starter entries for a category in the Trash** (added by a later content update) go into the Trash with it, with the category's deleted time. They come back if the category is restored and are deleted forever with it.
 
 ## Reordering
 
@@ -52,6 +54,9 @@ Traditions and categories get up and down buttons. One request saves the new ord
 ## Language
 
 - **Spanish pack for the owner's copy:** `<dataDir>\locales\es\ui.json` translates every key in `en.json`. `content.json` translates every starter entry's name, summary, full text and keywords, and every starter category and tradition name. It is not committed to the repo.
+- **Editing a starter row in another language:** the edit form (entry, tradition, category) starts with the pack's text, keywords included, so saving writes what she saw in that language.
+- **Pack values are text.** Keywords in `content.json` are one comma-separated string. `npm run check-pack` flags empty or non-text values and files that aren't valid JSON.
+- **Counts:** screen text with a number `{n}` has a singular form under `<key>.one`, used when n is 1. A pack can give `<key>.one` and `<key>.other` (or just `<key>`); it never borrows the English singular.
 - **Error messages:** the server sends a stable `code` with each error (for example `required`, `too_long`, `bad_format`, `not_found`, `conflict`, `restored`, `in_use`, `unreachable`), and a code for each field error. The client shows `t('error.<code>')` and falls back to the English message.
 
 ## Owner-only entries
