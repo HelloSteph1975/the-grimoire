@@ -22,6 +22,9 @@ function expectedContentKeys(root) {
   return keys;
 }
 
+// A pack may add plural forms (`<key>.one`, `<key>.other`) to any key the app uses.
+const PLURAL = /\.(one|other)$/;
+
 export function checkPack({ dataDir, code, root = APP_ROOT }) {
   const packDir = path.join(dataDir, 'locales', code);
   const ui = readJson(path.join(packDir, 'ui.json'), {});
@@ -35,7 +38,7 @@ export function checkPack({ dataDir, code, root = APP_ROOT }) {
     missingUi: enKeys.filter(k => !(k in ui)),
     missingContent: wanted.filter(k => !(k in content)),
     extra: [
-      ...Object.keys(ui).filter(k => k !== '_name' && !enSet.has(k)),
+      ...Object.keys(ui).filter(k => k !== '_name' && !enSet.has(k) && !enSet.has(k.replace(PLURAL, ''))),
       ...Object.keys(content).filter(k => !wantedSet.has(k)),
     ],
   };

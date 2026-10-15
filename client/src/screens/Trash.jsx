@@ -20,10 +20,12 @@ export function Trash() {
 
   const restore = item => run(() => api.post(`/api/trash/${item.type}/${item.id}/restore`), t('trash.restored', { title: item.title }));
   const forever = async item => {
-    // A category takes its entries with it, so say how many.
-    const body = item.extra > 0 || item.earlier > 0
-      ? t('trash.deleteCategoryForeverBody', { extra: item.extra ?? 0, earlier: item.earlier ?? 0 })
-      : t('trash.deleteForeverBody');
+    // A category takes its entries with it, so say how many, one sentence per kind.
+    const body = [
+      item.extra > 0 && t('trash.deleteCategoryForeverWith', { n: item.extra }),
+      item.earlier > 0 && t('trash.deleteCategoryForeverEarlier', { n: item.earlier }),
+      t('trash.deleteForeverBody'),
+    ].filter(Boolean).join(' ');
     if (!await confirm({ title: t('trash.deleteForeverTitle', { title: item.title }), body, confirmLabel: t('trash.deleteForever'), danger: true })) return;
     run(() => api.del(`/api/trash/${item.type}/${item.id}`));
   };
@@ -45,6 +47,7 @@ export function Trash() {
               <span className="tag">{t(`trash.type.${item.type}`)}</span>
               <span className="grow"><strong>{item.title}</strong> <span className="muted">{fmt(item.deleted_at)}</span>
                 {item.extra > 0 && <> <span className="muted">{t('trash.withEntries', { n: item.extra })}</span></>}
+                {item.earlier > 0 && <> <span className="muted">{t('trash.earlierEntries', { n: item.earlier })}</span></>}
                 {item.categoryInTrash && <> <span className="muted">{t('trash.categoryInTrash')}</span></>}</span>
               <Button size="sm" variant="ghost" onClick={() => restore(item)}>{t('trash.restore')}</Button>
               <Button size="sm" variant="ghost" onClick={() => forever(item)}>{t('trash.deleteForever')}</Button>

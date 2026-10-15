@@ -28,6 +28,37 @@ describe('translations', () => {
   });
 });
 
+describe('plurals', () => {
+  function Count({ n }) {
+    const { t } = useT();
+    return <p>{t('trash.count', { n })}</p>;
+  }
+  const stubUi = ui => vi.stubGlobal('fetch', vi.fn(async url => new Response(JSON.stringify(url.endsWith('/ui') ? ui : {}), { status: 200 })));
+  it.each([[0, '0 items'], [1, '1 item'], [2, '2 items']])('uses the .one form only when n is 1 (%i)', (n, text) => {
+    render(<I18nProvider language="en"><Count n={n} /></I18nProvider>);
+    expect(screen.getByText(text)).toBeInTheDocument();
+  });
+  it('ignores the .one form when n is not a number', () => {
+    render(<I18nProvider language="en"><Count n="1" /></I18nProvider>);
+    expect(screen.getByText('1 items')).toBeInTheDocument();
+  });
+  it('works outside a provider too', () => {
+    render(<Count n={1} />);
+    expect(screen.getByText('1 item')).toBeInTheDocument();
+  });
+  it('takes .one and .other from a pack', async () => {
+    stubUi({ 'trash.count.one': '{n} cosa', 'trash.count.other': '{n} cosas' });
+    render(<I18nProvider language="es"><Count n={1} /><Count n={4} /></I18nProvider>);
+    expect(await screen.findByText('1 cosa')).toBeInTheDocument();
+    expect(screen.getByText('4 cosas')).toBeInTheDocument();
+  });
+  it('does not mix in the English .one form when a pack has only the plain key', async () => {
+    stubUi({ 'trash.count': '{n} elementos' });
+    render(<I18nProvider language="es"><Count n={1} /></I18nProvider>);
+    expect(await screen.findByText('1 elementos')).toBeInTheDocument();
+  });
+});
+
 describe('damaged language packs', () => {
   const stubPack = (ui, content) => vi.stubGlobal('fetch', vi.fn(async url => new Response(JSON.stringify(url.endsWith('/ui') ? ui : content), { status: 200 })));
   it.each([[null, null], [[1, 2], ['x']], [{ 'nav.today': 5, 'nav.trash': 'Papelera' }, { 'tradition.wiccan.name': { a: 1 } }]])(

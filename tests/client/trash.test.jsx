@@ -38,8 +38,21 @@ describe('Trash', () => {
     stub(); mount();
     const row = (await screen.findByText('Runes')).closest('li');
     expect(within(row).getByText('Category')).toBeInTheDocument();
-    expect(within(row).getByText('Entries in the Trash with it: 3')).toBeInTheDocument();
-    expect(within((await screen.findByText('Old path')).closest('li')).queryByText(/Entries in the Trash/)).not.toBeInTheDocument();
+    expect(within(row).getByText('3 entries went with it')).toBeInTheDocument();
+    expect(within(row).getByText('1 entry was put in the Trash earlier')).toBeInTheDocument();
+    expect(within((await screen.findByText('Old path')).closest('li')).queryByText(/went with it/)).not.toBeInTheDocument();
+  });
+  it('shows only the counts a category has, in the singular for one', async () => {
+    stub();
+    Object.assign(items[2], { extra: 1, earlier: 0 });
+    Object.assign(items[4], { extra: 0, earlier: 2 });
+    mount();
+    const runes = (await screen.findByText('Runes')).closest('li');
+    expect(within(runes).getByText('1 entry went with it')).toBeInTheDocument();
+    expect(within(runes).queryByText(/earlier/)).not.toBeInTheDocument();
+    const other = screen.getByText('Empty one').closest('li');
+    expect(within(other).getByText('2 entries were put in the Trash earlier')).toBeInTheDocument();
+    expect(within(other).queryByText(/went with it/)).not.toBeInTheDocument();
   });
   it('notes an entry whose category is in the Trash', async () => {
     stub(); mount();
@@ -50,10 +63,17 @@ describe('Trash', () => {
   it('says which entries a category takes with it before deleting it forever', async () => {
     stub(); mount();
     await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
-    expect(await screen.findByText("This also deletes forever 3 entries that went with it and 1 entries you put in the Trash earlier. This can't be undone.")).toBeInTheDocument();
+    expect(await screen.findByText("This also deletes forever the 3 entries that went to the Trash with it. It also deletes forever 1 entry of it you put in the Trash earlier. This can't be undone.")).toBeInTheDocument();
     await userEvent.click(screen.getByText('Cancel'));
     await userEvent.click(within(screen.getByText('Empty one').closest('li')).getByText('Delete forever'));
     expect(await screen.findByText("This can't be undone.")).toBeInTheDocument();
+  });
+  it('names only the entries a category has when deleting it forever', async () => {
+    stub();
+    Object.assign(items[2], { extra: 1, earlier: 0 });
+    mount();
+    await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("This also deletes forever the 1 entry that went to the Trash with it. This can't be undone.")).toBeInTheDocument();
   });
   it('restores one', async () => {
     stub(); mount();

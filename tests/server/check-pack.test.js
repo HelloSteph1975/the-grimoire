@@ -37,6 +37,12 @@ describe('checkPack', () => {
       extra: ['nav.gone', 'corr.days.tuesday.name'],
     });
   });
+  it('accepts plural forms of keys the app uses, and flags them for keys it does not', () => {
+    write(path.join(dataDir, 'locales/es/ui.json'), {
+      'nav.today': 'Hoy', 'nav.settings': 'Ajustes', 'nav.books': 'Libros', 'nav.books.one': 'Libro', 'nav.books.other': 'Libros', 'nav.gone.one': 'x',
+    });
+    expect(checkPack({ dataDir, code: 'es', root }).extra).toEqual(['nav.gone.one']);
+  });
   it('reports everything missing when the pack has no files', () => {
     const r = checkPack({ dataDir, code: 'fr', root });
     expect(r.missingUi).toEqual(['nav.today', 'nav.settings', 'nav.books']);

@@ -115,6 +115,12 @@ describe('Traditions', () => {
     await userEvent.click(within(item).getByText('Delete'));
     expect(await screen.findByText('4 entries use Wiccan. Move it to the Trash anyway? They keep it if you restore it.')).toBeInTheDocument();
   });
+  it('says "entry" when one entry uses the tradition', async () => {
+    server(); mount();
+    usage = 1;
+    await userEvent.click(within((await screen.findByText('Wiccan')).closest('li')).getByText('Delete'));
+    expect(await screen.findByText('1 entry uses Wiccan. Move it to the Trash anyway? It keeps the tradition if you restore it.')).toBeInTheDocument();
+  });
   it('does not delete when canceled or when the usage check fails', async () => {
     server(); mount();
     const item = (await screen.findByText('Wiccan')).closest('li');

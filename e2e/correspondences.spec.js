@@ -87,8 +87,7 @@ test('deleting a category takes its entries along, and restoring brings them bac
 
   await page.getByRole('link', { name: 'Trash' }).click();
   const row = page.locator('li', { hasText: 'Test shelf' });
-  // The Trash words this "Entries in the Trash with it: 2" (the brief said "and 2 entries").
-  await expect(row).toContainText('with it: 2');
+  await expect(row).toContainText('2 entries went with it');
   await row.getByRole('button', { name: 'Restore' }).click();
   await expect(page.getByText('The Trash is empty.')).toBeVisible();
 

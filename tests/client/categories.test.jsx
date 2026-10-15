@@ -105,6 +105,11 @@ describe('Categories', () => {
     await userEvent.click(screen.getAllByText('Cancel')[0]);
     expect(await screen.findByText('Leave without saving?')).toBeInTheDocument();
   });
+  it('says "entry" when the category holds one', async () => {
+    server(); usage = 1; mount();
+    await userEvent.click(within((await screen.findByText('Crystals')).closest('li')).getByText('Delete'));
+    expect(await screen.findByText('Move Crystals and its 1 entry to the Trash?')).toBeInTheDocument();
+  });
   it('warns about entries before deleting, then offers Undo', async () => {
     server(); mount();
     const item = (await screen.findByText('Crystals')).closest('li');
