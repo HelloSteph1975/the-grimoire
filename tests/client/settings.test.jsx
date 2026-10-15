@@ -65,6 +65,25 @@ describe('Settings', () => {
     await userEvent.click(screen.getAllByRole('link', { name: 'Today' })[0]);
     expect(await screen.findByText('Leave without saving?')).toBeInTheDocument();
   });
+  it('keeps the draft on screen when a save fails and the reload fails too', async () => {
+    stub();
+    window.history.pushState({}, '', '/settings');
+    render(<App />);
+    await userEvent.selectOptions(await screen.findByLabelText('Hemisphere'), 'south');
+    const ok = fetch.getMockImplementation();
+    fetch.mockImplementation(async (url, opts) => {
+      if (url === '/api/settings') throw new TypeError('Failed to fetch');
+      return ok(url, opts);
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(screen.getAllByText(/Can't reach The Grimoire/)).toHaveLength(2));
+    expect(screen.getByLabelText('Hemisphere')).toHaveValue('south');
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
+    fetch.mockImplementation(ok);
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    await vi.waitFor(() => expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument());
+    expect(screen.getByLabelText('Hemisphere')).toHaveValue('south');
+  });
   it('shows a saved time zone that is not in the list, and sends only what changed', async () => {
     stub();
     saved.time_zone = 'Mars/Base';

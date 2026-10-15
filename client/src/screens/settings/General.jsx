@@ -61,7 +61,7 @@ export function General() {
   return (
     <section>
       <h2>{t('settings.general')}</h2>
-      <LoadState loading={!settings || langs.loading} error={error ?? langs.error} onRetry={() => { reload(); langs.reload(); }}>
+      <LoadState loading={!settings || !langs.data} error={error ?? langs.error} keepChildren={Boolean(settings && langs.data)} onRetry={() => { reload(); langs.reload(); }}>
         {settings && langs.data && <GeneralForm settings={settings} save={save} languages={langs.data} />}
       </LoadState>
     </section>

@@ -32,7 +32,7 @@ export function Trash() {
       <PageHeader title={t('trash.title')}>
         {list.data?.length > 0 && <Button variant="danger" onClick={emptyAll}>{t('trash.emptyAll')}</Button>}
       </PageHeader>
-      <LoadState loading={list.loading && !list.data} error={list.error} onRetry={list.reload}>
+      <LoadState loading={list.loading && !list.data} error={list.error} keepChildren={Boolean(list.data)} onRetry={list.reload}>
         {list.data?.length === 0 && <p className="muted">{t('trash.empty')}</p>}
         <ul className="list">
           {list.data?.map(item => (

@@ -40,7 +40,7 @@ export function Traditions() {
         <h2>{t('traditions.title')}</h2>
         <Button icon={Plus} onClick={() => setEditing('new')}>{t('traditions.add')}</Button>
       </div>
-      <LoadState loading={list.loading && !list.data} error={list.error} onRetry={list.reload}>
+      <LoadState loading={list.loading && !list.data} error={list.error} keepChildren={Boolean(list.data)} onRetry={list.reload}>
         {list.data?.length === 0 && <p className="muted">{t('traditions.empty')}</p>}
         <ul className="list">
           {list.data?.map(row => (

@@ -128,6 +128,21 @@ describe('Traditions', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByLabelText('Description')).toHaveValue('first and second');
   });
+  it('keeps the list on screen when the refresh after a save fails', async () => {
+    server(); mount();
+    const real = fetch.getMockImplementation();
+    await screen.findByText('Wiccan');
+    await userEvent.click(screen.getByText('Add a tradition'));
+    // The add works but the list refresh after it fails.
+    fetch.mockImplementation(async (url, opts = {}) => {
+      if (url === '/api/traditions' && (opts.method ?? 'GET') === 'GET') throw new TypeError('Failed to fetch');
+      return real(url, opts);
+    });
+    await userEvent.type(screen.getByLabelText('Name'), 'Hedge');
+    await userEvent.click(screen.getByText('Save'));
+    expect(await screen.findByText(/Can't reach The Grimoire/)).toBeInTheDocument();
+    expect(screen.getByText('Wiccan')).toBeInTheDocument();
+  });
   it('saves with the latest version after Reload the latest', async () => {
     server(); mount();
     const item = (await screen.findByText('Wiccan')).closest('li');

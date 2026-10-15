@@ -40,7 +40,7 @@ export function Backups() {
         <p>{t('settings.dataFolder')}: <code>{folder.data.path}</code>{' '}
           <Button size="sm" variant="ghost" onClick={openFolder}>{t('settings.openFolder')}</Button></p>
       )}
-      <LoadState loading={list.loading && !list.data} error={list.error} onRetry={list.reload}>
+      <LoadState loading={list.loading && !list.data} error={list.error} keepChildren={Boolean(list.data)} onRetry={list.reload}>
         {list.data?.length === 0 && <p className="muted">{t('backups.none')}</p>}
         <ul className="list">
           {list.data?.map(b => (

@@ -16,6 +16,13 @@ describe('LoadState', () => {
     expect(onRetry).toHaveBeenCalled();
     expect(screen.queryByText('Body')).not.toBeInTheDocument();
   });
+  it('with keepChildren, shows the error above the children and keeps them mounted', async () => {
+    const { rerender } = render(<LoadState keepChildren><input aria-label="Draft" defaultValue="" /></LoadState>);
+    await userEvent.type(screen.getByLabelText('Draft'), 'kept');
+    rerender(<LoadState keepChildren error={new Error('Lost touch.')} onRetry={() => {}}><input aria-label="Draft" defaultValue="" /></LoadState>);
+    expect(screen.getByRole('alert')).toHaveTextContent('Lost touch.');
+    expect(screen.getByLabelText('Draft')).toHaveValue('kept');
+  });
   it('shows the children once loaded', () => {
     render(<LoadState><p>Body</p></LoadState>);
     expect(screen.getByText('Body')).toBeInTheDocument();
