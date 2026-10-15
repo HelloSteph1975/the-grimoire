@@ -7,6 +7,7 @@ import { ConfirmProvider } from '../../client/src/components/ConfirmProvider.jsx
 import { LeaveGuardProvider } from '../../client/src/components/LeaveGuardProvider.jsx';
 import { EntryFormRoute } from '../../client/src/screens/correspondences/EntryForm.jsx';
 import { EntryPageRoute } from '../../client/src/screens/correspondences/EntryPage.jsx';
+import { SettingsProvider } from '../../client/src/components/SettingsProvider.jsx';
 
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
 const categories = [
@@ -19,6 +20,7 @@ const traditions = [
 ];
 let rows;
 let override;
+let pack = null;
 function stub() {
   rows = {
     10: { id: 10, category_id: 2, name: 'Red', summary: 'Courage.', body: null, keywords: [], feast_day: null, is_starter: 1, starter_key: 'corr.colors.red', version: 1, traditions: [], links: [] },
@@ -35,6 +37,8 @@ function stub() {
     if (hit) return hit;
     if (url === '/api/categories') return json(categories);
     if (url === '/api/traditions') return json(traditions);
+    if (url === '/api/settings') return json({ language: pack ? 'es' : 'en', theme: 'old-book' });
+    if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? {} : pack.content);
     if (url.startsWith('/api/correspondences?')) return json(Object.values(rows));
     const linkRows = ids => ids.map(id => ({ id, name: rows[id].name, category_id: rows[id].category_id, is_starter: rows[id].is_starter, starter_key: rows[id].starter_key }));
     if (url === '/api/correspondences' && m === 'POST') {
@@ -58,9 +62,10 @@ function stub() {
   }));
 }
 let router;
-function mount(path) {
+function mount(path, { settings = false } = {}) {
+  const shell = <ToastProvider><ConfirmProvider><LeaveGuardProvider><Outlet /></LeaveGuardProvider></ConfirmProvider></ToastProvider>;
   router = createMemoryRouter([{
-    element: <ToastProvider><ConfirmProvider><LeaveGuardProvider><Outlet /></LeaveGuardProvider></ConfirmProvider></ToastProvider>,
+    element: settings ? <SettingsProvider>{shell}</SettingsProvider> : shell,
     children: [
       { path: '/correspondences', element: <p>The list</p> },
       { path: '/correspondences/new', element: <EntryFormRoute /> },
@@ -71,9 +76,34 @@ function mount(path) {
   render(<RouterProvider router={router} />);
 }
 const sent = method => fetch.mock.calls.filter(([, o]) => o?.method === method).map(([u, o]) => ({ url: u, body: o.body ? JSON.parse(o.body) : null }));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); pack = null; });
 
 describe('Entry form', () => {
+  it('fills a starter entry with the Spanish text and keywords, and saves what it shows', async () => {
+    stub();
+    Object.assign(rows[10], { body: 'Old body.', keywords: ['heat'] });
+    pack = { content: {
+      'corr.colors.red.name': 'Rojo', 'corr.colors.red.summary': 'Valor.', 'corr.colors.red.body': 'Texto.',
+      'corr.colors.red.keywords': ' Fuego, VALOR ,, fuego',
+    } };
+    mount('/correspondences/10/edit', { settings: true });
+    const name = await screen.findByLabelText('Name');
+    expect(name).toHaveValue('Rojo');
+    expect(screen.getByLabelText('Summary')).toHaveValue('Valor.');
+    expect(screen.getByLabelText('Full text')).toHaveValue('Texto.');
+    await userEvent.type(screen.getByLabelText('Summary'), ' Sí.');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(sent('PATCH')).toHaveLength(1));
+    expect(sent('PATCH')[0].body).toMatchObject({ name: 'Rojo', summary: 'Valor. Sí.', body: 'Texto.', keywords: ['fuego', 'valor'] });
+  });
+  it('keeps the stored keywords of a starter entry the pack has no keywords for', async () => {
+    stub();
+    rows[10].keywords = ['heat'];
+    pack = { content: { 'corr.colors.red.name': 'Rojo' } };
+    mount('/correspondences/10/edit', { settings: true });
+    expect(await screen.findByLabelText('Name')).toHaveValue('Rojo');
+    expect(screen.getByRole('button', { name: 'Remove heat' })).toBeInTheDocument();
+  });
   it('posts a new entry with every field, then shows its page', async () => {
     stub(); mount('/correspondences/new?category=2');
     expect(await screen.findByRole('heading', { name: 'New entry' })).toBeInTheDocument();

@@ -10,18 +10,12 @@ import { useResource } from '../../lib/useResource.js';
 import { api } from '../../lib/api.js';
 import { errorText } from '../../lib/errors.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
-import { starterText } from './Correspondences.jsx';
+import { starterText, starterKeywords } from './Correspondences.jsx';
 
 // 2024 is a leap year, so 02-29 formats too.
 export function formatFeastDay(feastDay, language) {
   const [m, d] = feastDay.split('-').map(Number);
   return new Intl.DateTimeFormat(language, { month: 'long', day: 'numeric' }).format(new Date(2024, m - 1, d));
-}
-
-// Starter keywords come from the pack as one comma-separated string.
-function keywordsOf(tc, entry) {
-  const packed = starterText(tc, entry, 'keywords', null);
-  return packed ? packed.split(',').map(s => s.trim()).filter(Boolean) : entry.keywords;
 }
 
 export function EntryPageRoute() {
@@ -84,8 +78,8 @@ export function EntryPage({ id }) {
             <dl className="entry-facts">
               {e.feast_day && <><dt>{t('corr.feastDay')}</dt><dd>{formatFeastDay(e.feast_day, language)}</dd></>}
               {tradNames.length > 0 && <><dt>{t('corr.traditions')}</dt><dd>{tradNames.join(', ')}</dd></>}
-              {keywordsOf(tc, e).length > 0 && (
-                <><dt>{t('corr.keywords')}</dt><dd><ul className="chips">{keywordsOf(tc, e).map(k => <li key={k} className="chip">{k}</li>)}</ul></dd></>
+              {starterKeywords(tc, e).length > 0 && (
+                <><dt>{t('corr.keywords')}</dt><dd><ul className="chips">{starterKeywords(tc, e).map(k => <li key={k} className="chip">{k}</li>)}</ul></dd></>
               )}
               {e.links.length > 0 && (
                 <><dt>{t('corr.links')}</dt><dd><ul className="entry-links">

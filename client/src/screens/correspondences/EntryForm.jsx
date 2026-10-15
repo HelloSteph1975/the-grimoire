@@ -11,19 +11,22 @@ import { useResource } from '../../lib/useResource.js';
 import { useRecordForm } from '../../lib/useRecordForm.js';
 import { api } from '../../lib/api.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
-import { starterText } from './Correspondences.jsx';
+import { useSettings } from '../../components/SettingsProvider.jsx';
+import { starterText, starterKeywords } from './Correspondences.jsx';
 
 const pad = n => String(n).padStart(2, '0');
 // Days per month in a leap year, so 02-29 can be picked.
 const daysIn = month => new Date(2024, Number(month), 0).getDate();
 
 // The form's values from a stored entry (or a blank one). Links keep their names for the chips.
+// A starter entry shows its text in the screen language, so saving it writes that text: she
+// saves what she saw (an accepted trade-off; the entry stops being a starter either way).
 const pickWith = tc => r => ({
-  name: r?.name ?? '',
+  name: starterText(tc, r, 'name', r?.name ?? ''),
   category_id: r?.category_id ? String(r.category_id) : '',
-  summary: r?.summary ?? '',
-  body: r?.body ?? '',
-  keywords: r?.keywords ?? [],
+  summary: starterText(tc, r, 'summary', r?.summary ?? ''),
+  body: starterText(tc, r, 'body', r?.body ?? ''),
+  keywords: starterKeywords(tc, r),
   month: r?.feast_day ? r.feast_day.slice(0, 2) : '',
   day: r?.feast_day ? r.feast_day.slice(3, 5) : '',
   traditions: r?.traditions ?? [],
@@ -48,12 +51,14 @@ export function EntryFormRoute() {
 }
 
 function EntryFormLoader({ id }) {
-  const { t } = useT();
+  const { t, ready: languageReady } = useT();
+  const { loaded: settingsLoaded } = useSettings();
   const [params] = useSearchParams();
   const entry = useResource(id ? `/api/correspondences/${id}` : null);
   const categories = useResource('/api/categories');
   const traditions = useResource('/api/traditions');
-  const ready = (!id || entry.data) && categories.data && traditions.data;
+  // The form takes its starting text once, so it waits for the language pack too.
+  const ready = (!id || entry.data) && categories.data && traditions.data && settingsLoaded && languageReady;
   const error = entry.error ?? categories.error ?? traditions.error;
   const retry = () => { if (id) entry.reload(); categories.reload(); traditions.reload(); };
   // A new entry saved with edits still open stays on this page, now as an existing entry.

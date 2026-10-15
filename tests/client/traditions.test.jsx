@@ -6,11 +6,13 @@ import { ToastProvider } from '../../client/src/components/ToastProvider.jsx';
 import { ConfirmProvider } from '../../client/src/components/ConfirmProvider.jsx';
 import { LeaveGuardProvider } from '../../client/src/components/LeaveGuardProvider.jsx';
 import { Traditions } from '../../client/src/screens/settings/Traditions.jsx';
+import { I18nProvider } from '../../client/src/i18n/I18nProvider.jsx';
 
 let rows;
 let usage = 0;
 let usageFails = false;
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
+let pack = { ui: {}, content: {} };
 function server() {
   usage = 0; usageFails = false;
   rows = [
@@ -20,6 +22,7 @@ function server() {
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
     const body = opts.body ? JSON.parse(opts.body) : null;
+    if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? pack.ui : pack.content);
     if (url.endsWith('/usage')) return usageFails ? json({ error: 'nope', code: 'server' }, 500) : json({ entries: usage });
     if (url === '/api/traditions' && m === 'GET') return json(rows);
     if (url === '/api/traditions' && m === 'POST') { const r = { id: 3, version: 1, is_starter: 0, ...body }; rows.push(r); return json(r, 201); }
@@ -39,9 +42,24 @@ function server() {
   }));
 }
 const mount = () => render(<RouterProvider router={createMemoryRouter([{ path: '/', element: <ToastProvider><ConfirmProvider><LeaveGuardProvider><Traditions /></LeaveGuardProvider></ConfirmProvider></ToastProvider> }])} />);
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); pack = { ui: {}, content: {} }; });
 
 describe('Traditions', () => {
+  it('fills the edit form of a starter tradition with the Spanish text, and saves what it shows', async () => {
+    server();
+    pack = { ui: {}, content: { 'tradition.wiccan.name': 'Wicca', 'tradition.wiccan.description': 'Una religión moderna.' } };
+    rows[0].description = 'A modern religion.';
+    render(<RouterProvider router={createMemoryRouter([{ path: '/', element: <I18nProvider language="es"><ToastProvider><ConfirmProvider><LeaveGuardProvider><Traditions /></LeaveGuardProvider></ConfirmProvider></ToastProvider></I18nProvider> }])} />);
+    const item = (await screen.findByText('Wicca')).closest('li');
+    await userEvent.click(within(item).getByText('Edit'));
+    expect(screen.getByLabelText('Name')).toHaveValue('Wicca');
+    expect(screen.getByLabelText('Description')).toHaveValue('Una religión moderna.');
+    await userEvent.type(screen.getByLabelText('Description'), ' Sí.');
+    await userEvent.click(screen.getByText('Save'));
+    await vi.waitFor(() => expect(fetch.mock.calls.some(([, o]) => o?.method === 'PATCH')).toBe(true));
+    const patch = fetch.mock.calls.find(([, o]) => o?.method === 'PATCH');
+    expect(JSON.parse(patch[1].body)).toMatchObject({ name: 'Wicca', description: 'Una religión moderna. Sí.' });
+  });
   it('reorders with the move buttons', async () => {
     server(); mount();
     await screen.findByText('Wiccan');

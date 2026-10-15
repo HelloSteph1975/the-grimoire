@@ -14,6 +14,14 @@ const FILTERS = ['category', 'tradition', 'q'];
 // Starter rows show the language pack's text; the owner's own rows show what she wrote.
 export const starterText = (tc, row, field, fallback) => tc(row?.is_starter ? row.starter_key : null, field, fallback);
 
+// Starter keywords come from the pack as one comma-separated string, cleaned the way the server
+// cleans keywords. Without a pack entry the row's own list is used.
+export function starterKeywords(tc, row) {
+  const packed = starterText(tc, row, 'keywords', null);
+  if (!packed) return row?.keywords ?? [];
+  return [...new Set(packed.split(',').map(s => s.trim().toLowerCase()).filter(Boolean))];
+}
+
 export function Correspondences() {
   const { t, tc } = useT();
   const [params, setParams] = useSearchParams();

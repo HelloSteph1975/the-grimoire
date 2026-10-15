@@ -8,11 +8,13 @@ import { ConflictDialog } from '../../components/ConflictDialog.jsx';
 import { useRecordForm } from '../../lib/useRecordForm.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 
-const pick = r => ({ name: r?.name ?? '', icon: r?.icon ?? ICONS[0] });
+// A starter row shows its text in the screen language, so saving writes that text (accepted trade-off).
+const pickWith = tc => r => ({ name: tc(r?.is_starter ? r.starter_key : null, 'name', r?.name ?? ''), icon: r?.icon ?? ICONS[0] });
 
 // `record` is null for a new category. `onSave(values, version)` returns the saved row.
 export function CategoryDialog({ record, onSave, onClose }) {
-  const { t } = useT();
+  const { t, tc } = useT();
+  const [pick] = useState(() => pickWith(tc));
   const confirm = useConfirm();
   // The version we save against. Taking the latest copy adopts its version, so the next save is not stale.
   const [version, setVersion] = useState(record?.version);

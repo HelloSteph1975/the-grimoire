@@ -9,15 +9,16 @@ const strings = obj => (obj && typeof obj === 'object' && !Array.isArray(obj)
   ? Object.fromEntries(Object.entries(obj).filter(([, v]) => typeof v === 'string')) : {});
 
 export function I18nProvider({ language = 'en', children }) {
-  const [pack, setPack] = useState({ code: 'en', ui: {}, content: {} });
+  // `for` is the language this pack was loaded for (it stays English if the pack failed).
+  const [pack, setPack] = useState({ code: 'en', for: 'en', ui: {}, content: {} });
 
   useEffect(() => {
     let live = true;
-    if (language === 'en') { setPack({ code: 'en', ui: {}, content: {} }); return undefined; }
+    if (language === 'en') { setPack({ code: 'en', for: 'en', ui: {}, content: {} }); return undefined; }
     const get = part => fetch(`/api/locales/${encodeURIComponent(language)}/${part}`).then(r => (r.ok ? r.json() : {}));
     Promise.all([get('ui'), get('content')]).then(
-      ([ui, content]) => live && setPack({ code: language, ui: strings(ui), content: strings(content) }),
-      () => live && setPack({ code: 'en', ui: {}, content: {} }),
+      ([ui, content]) => live && setPack({ code: language, for: language, ui: strings(ui), content: strings(content) }),
+      () => live && setPack({ code: 'en', for: language, ui: {}, content: {} }),
     );
     return () => { live = false; };
   }, [language]);
@@ -26,11 +27,12 @@ export function I18nProvider({ language = 'en', children }) {
 
   const t = useCallback((key, vars) => fill(pack.ui[key] ?? en[key] ?? key, vars), [pack]);
   const tc = useCallback((starterKey, field, fallback) => (starterKey && pack.content[`${starterKey}.${field}`]) || fallback, [pack]);
-  const value = useMemo(() => ({ t, tc, language: pack.code }), [t, tc, pack.code]);
+  const ready = pack.for === language;
+  const value = useMemo(() => ({ t, tc, language: pack.code, ready }), [t, tc, pack.code, ready]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
-const FALLBACK = { t: (k, v) => fill(en[k] ?? k, v), tc: (s, f, fb) => fb, language: 'en' };
+const FALLBACK = { t: (k, v) => fill(en[k] ?? k, v), tc: (s, f, fb) => fb, language: 'en', ready: true };
 
 // Works outside a provider too (tests, early errors): plain English.
 export function useT() {
