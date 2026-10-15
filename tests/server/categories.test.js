@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { makeTestContext, makeCategoryWithEntries, makeEntry } from './helpers.js';
 import { seedStarter } from '../../server/services/starter.js';
 
@@ -42,8 +42,8 @@ describe('/api/categories', () => {
     expect((await t.http().delete(`/api/categories/${cat.id}`)).body).toEqual({ ok: true });
     expect((await t.http().get(`/api/categories/${cat.id}`)).status).toBe(404);
     const trash = (await t.http().get('/api/trash')).body;
-    expect(trash.find(i => i.type === 'category')).toMatchObject({ id: cat.id, extra: 2 });
-    expect(trash.filter(i => i.type === 'correspondence').map(i => i.title)).toEqual(['Already trashed']);
+    expect(trash.find(i => i.type === 'category')).toMatchObject({ id: cat.id, extra: 2, earlier: 1 });
+    expect(trash.filter(i => i.type === 'correspondence')).toMatchObject([{ title: 'Already trashed', categoryInTrash: true }]);
     await t.http().post(`/api/trash/category/${cat.id}/restore`);
     const live = (await t.http().get(`/api/correspondences?category=${cat.id}`)).body.map(e => e.name);
     expect(live).toHaveLength(2);
@@ -101,6 +101,18 @@ describe('/api/categories', () => {
     expect(db.prepare("SELECT 1 AS x FROM starter_removed WHERE starter_key = 'corr.test.gone'").get()).toEqual({ x: 1 });
     expect((await t.http().get('/api/trash')).body).toEqual([]);
     expect((await t.http().get(`/api/correspondences/${keep.id}`)).body.links).toEqual([]);
+  });
+  it('refuses to delete a category forever while a live entry still points at it', async () => {
+    const cat = await makeCategoryWithEntries(t, 1);
+    await t.http().delete(`/api/categories/${cat.id}`);
+    t.ctx.db.prepare('UPDATE correspondences SET deleted_at = NULL WHERE category_id = ?').run(cat.id);
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await t.http().delete(`/api/trash/category/${cat.id}`);
+    logged.mockRestore();
+    expect(res.status).toBe(500);
+    expect(res.body.code).toBe('server_error');
+    expect(t.ctx.db.prepare('SELECT count(*) AS n FROM correspondences WHERE category_id = ?').get(cat.id).n).toBe(1);
+    expect(t.ctx.db.prepare('SELECT count(*) AS n FROM categories WHERE id = ?').get(cat.id).n).toBe(1);
   });
   it('reorders categories', async () => {
     const { body: list } = await t.http().get('/api/categories');

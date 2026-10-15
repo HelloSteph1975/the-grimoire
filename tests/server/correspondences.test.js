@@ -144,9 +144,56 @@ describe('/api/correspondences', () => {
     await t.http().delete(`/api/traditions/${trads[2].id}`);
     const res = await t.http().post('/api/trash/empty');
     expect(res.status).toBe(200);
-    expect(res.body.removed).toBe(6);
+    // What the owner saw: entry A, the category (its three entries grouped under it) and the tradition.
+    expect(res.body.removed).toBe(3);
     expect((await t.http().get('/api/trash')).body).toEqual([]);
     expect(t.ctx.db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
+  });
+
+  it('gives a stale form a 409 after a linked entry comes back from the Trash', async () => {
+    const a = await makeEntry(t, cat.id, 'A');
+    const b = await makeEntry(t, cat.id, 'B', { links: [a.id] });
+    await t.http().delete(`/api/correspondences/${b.id}`);
+    const open = await get(a.id); // the form shows no links
+    await t.http().post(`/api/trash/correspondence/${b.id}/restore`);
+    const res = await patch(a.id, { version: open.version, links: [] });
+    expect(res.status).toBe(409);
+    expect(res.body.current.links.map(l => l.id)).toEqual([b.id]);
+    expect(t.ctx.db.prepare('SELECT count(*) AS n FROM correspondence_links').get().n).toBe(1);
+  });
+
+  it('gives a stale form a 409 after a tradition comes back from the Trash', async () => {
+    const a = await makeEntry(t, cat.id, 'A', { traditions: [trads[0].id] });
+    await t.http().delete(`/api/traditions/${trads[0].id}`);
+    const open = await get(a.id);
+    expect(open.version).toBe(a.version + 1);
+    await t.http().post(`/api/trash/tradition/${trads[0].id}/restore`);
+    const res = await patch(a.id, { version: open.version, traditions: [] });
+    expect(res.status).toBe(409);
+    expect((await get(a.id)).traditions).toEqual([trads[0].id]);
+  });
+
+  it('gives a stale form a 409, not a 400, when a listed link went to the Trash', async () => {
+    const a = await makeEntry(t, cat.id, 'A');
+    const b = await makeEntry(t, cat.id, 'B', { links: [a.id] });
+    const open = await get(a.id);
+    await t.http().delete(`/api/correspondences/${b.id}`);
+    const res = await patch(a.id, { version: open.version, links: [b.id] });
+    expect(res.status).toBe(409);
+    expect(res.body.code).toBe('conflict');
+    expect(res.body.current.links).toEqual([]);
+  });
+
+  it('bumps entries linked across categories when a category goes to the Trash and back', async () => {
+    const other = await makeCategoryWithEntries(t, 0, 'Other');
+    const a = await makeEntry(t, other.id, 'A');
+    await makeEntry(t, cat.id, 'B', { links: [a.id] });
+    const v1 = (await get(a.id)).version;
+    await t.http().delete(`/api/categories/${cat.id}`);
+    const v2 = (await get(a.id)).version;
+    expect(v2).toBe(v1 + 1);
+    await t.http().post(`/api/categories/${cat.id}/restore`);
+    expect((await get(a.id)).version).toBe(v2 + 1);
   });
 
   it('filters by category and tradition together', async () => {

@@ -12,6 +12,7 @@ export class HttpError extends Error {
 }
 
 export const notFound = (message = 'Not found', code = 'not_found') => new HttpError(404, message, undefined, { code });
+export const notInTrash = () => new HttpError(404, 'That is not in the Trash.', undefined, { code: 'not_in_trash' });
 const DEFAULT_CODES = { 400: 'invalid', 403: 'forbidden', 404: 'not_found', 409: 'conflict' };
 
 export function idParam(req, name = 'id') {

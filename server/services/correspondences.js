@@ -2,18 +2,17 @@ import { transaction } from '../db/connection.js';
 import { NOW } from '../db/migrations.js';
 import { repos } from '../db/repos.js';
 import { VersionConflict } from '../db/repo.js';
-import { HttpError, notFound } from '../http.js';
+import { HttpError, notFound, notInTrash } from '../http.js';
 import { check } from '../validate.js';
 import { getSettings } from './settings.js';
 import { readPack } from './locales.js';
-import { notInTrash } from './categories.js';
 
 export const ENTRY_SCHEMA = {
   category_id: { type: 'int!', min: 1 },
   name: { type: 'string!', maxLength: 80 },
   summary: { type: 'string', maxLength: 200 },
   body: { type: 'string', maxLength: 4000 },
-  keywords: { type: 'strings', maxItems: 20, maxLength: 30 },
+  keywords: { type: 'strings', maxItems: 20, maxLength: 30, lowercase: true },
   feast_day: { type: 'monthDay', hintKey: 'feast_day' },
   traditions: { type: 'ids', maxItems: 20 },
   links: { type: 'ids', maxItems: 50 },
@@ -25,7 +24,6 @@ const R = db => repos(db).correspondences;
 const parseKeywords = json => {
   try { const v = JSON.parse(json ?? '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
 };
-const cleanKeywords = list => [...new Set(list.map(k => k.trim().toLowerCase()).filter(Boolean))];
 const sameSet = (a, b) => a.length === b.length && a.every(x => b.includes(x));
 
 // Lower-cased, without accents, so "Día" matches "dia".
@@ -88,7 +86,7 @@ function setLinks(db, id, wanted) {
 
 const rowData = data => {
   const out = {};
-  for (const k of FIELDS) if (data[k] !== undefined) out[k] = k === 'keywords' ? JSON.stringify(cleanKeywords(data[k])) : data[k];
+  for (const k of FIELDS) if (data[k] !== undefined) out[k] = k === 'keywords' ? JSON.stringify(data[k]) : data[k];
   return out;
 };
 
@@ -96,7 +94,7 @@ export function createEntry(db, body) {
   const data = check(ENTRY_SCHEMA, body);
   return transaction(db, () => {
     checkRefs(db, data);
-    const row = R(db).create({ ...rowData(data), keywords: JSON.stringify(cleanKeywords(data.keywords ?? [])) });
+    const row = R(db).create(rowData({ keywords: [], ...data }));
     setTraditions(db, row.id, data.traditions ?? []);
     setLinks(db, row.id, data.links ?? []);
     return getEntry(db, row.id);
@@ -109,6 +107,8 @@ export function updateEntry(db, id, body, version) {
   return transaction(db, () => {
     const stored = R(db).get(id);
     if (!stored) throw notFound();
+    // A stale form gets the conflict (with the current entry) before any check on what it lists.
+    if (stored.version !== version) throw new VersionConflict(shape(db, stored));
     checkRefs(db, data, id);
     const row = rowData(data);
     // A save that changes nothing keeps the Starter tag.
@@ -130,8 +130,22 @@ export function updateEntry(db, id, body, version) {
   });
 }
 
+// Live entries linked to any of `ids` (and not among them) get a new version, because the links
+// they show changed. Used when entries go to the Trash or come back.
+export function bumpLinked(db, ids) {
+  if (!ids.length) return;
+  const set = ids.map(() => '?').join(',');
+  db.prepare(`UPDATE correspondences SET version = version + 1, updated_at = ${NOW}
+    WHERE deleted_at IS NULL AND id NOT IN (${set}) AND id IN (
+      SELECT b_id FROM correspondence_links WHERE a_id IN (${set}) UNION SELECT a_id FROM correspondence_links WHERE b_id IN (${set}))`)
+    .run(...ids, ...ids, ...ids);
+}
+
 export function deleteEntry(db, id) {
-  transaction(db, () => { if (!R(db).remove(id)) throw notFound(); });
+  transaction(db, () => {
+    if (!R(db).remove(id)) throw notFound();
+    bumpLinked(db, [id]);
+  });
 }
 
 // An entry can only come back once its category is out of the Trash.
@@ -143,6 +157,7 @@ export function restoreEntry(db, id) {
       throw new HttpError(409, 'Its category is in the Trash. Restore the category first.', undefined, { code: 'category_in_trash' });
     }
     R(db).restore(id);
+    bumpLinked(db, [id]);
     return getEntry(db, id);
   });
 }

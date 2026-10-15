@@ -1,8 +1,9 @@
 import { repos } from '../db/repos.js';
 import { transaction } from '../db/connection.js';
-import { HttpError } from '../http.js';
+import { HttpError, notInTrash } from '../http.js';
 import { backupNow, rotateQuietly } from './backup.js';
 import { restoreCategory } from './categories.js';
+import { restoreTradition } from './traditions.js';
 import { restoreEntry, purgeEntry } from './correspondences.js';
 
 function recordRemoved(db, row) {
@@ -14,17 +15,20 @@ function purgeRow(db, repo, row) {
   repo.purge(row.id);
 }
 
-// A category takes every entry it holds with it (they are all in the Trash, since a category
-// can't be deleted without them). Entries go first so no foreign key is left pointing at it.
+// A category takes every entry of it in the Trash with it: the ones deleted with it and the ones
+// deleted earlier on their own (the Trash list tells the owner both counts). Entries go first so no
+// foreign key is left pointing at the category. A live entry here would mean broken data, so stop.
 function purgeCategory(db, row) {
-  for (const entry of db.prepare('SELECT * FROM correspondences WHERE category_id = ?').all(row.id)) purgeEntry(db, entry);
+  const live = db.prepare('SELECT count(*) AS n FROM correspondences WHERE category_id = ? AND deleted_at IS NULL').get(row.id).n;
+  if (live) throw new Error(`Category ${row.id} is in the Trash but still has ${live} live entries`);
+  for (const entry of db.prepare('SELECT * FROM correspondences WHERE category_id = ? AND deleted_at IS NOT NULL').all(row.id)) purgeEntry(db, entry);
   purgeRow(db, repos(db).categories, row);
 }
 
 // Every kind of record that can be in the Trash. Later stages add theirs here.
 // Emptying the Trash goes in this order, so entries are purged before their categories.
 export const TRASH_TYPES = {
-  tradition: { repo: db => repos(db).traditions, title: row => row.name },
+  tradition: { repo: db => repos(db).traditions, title: row => row.name, restore: restoreTradition },
   correspondence: { repo: db => repos(db).correspondences, title: row => row.name, restore: restoreEntry, purge: purgeEntry },
   category: { repo: db => repos(db).categories, title: row => row.name, restore: restoreCategory, purge: purgeCategory },
 };
@@ -34,23 +38,26 @@ function typeOf(type) {
   return TRASH_TYPES[type];
 }
 
-const notInTrash = () => new HttpError(404, 'That is not in the Trash.', undefined, { code: 'not_in_trash' });
-
 // Entries that went to the Trash with their category (same deleted time) are not listed on
-// their own; the category row counts them in `extra`.
+// their own; the category row counts them in `extra`, and the entries of it deleted earlier on
+// their own in `earlier`. Those earlier entries get `categoryInTrash: true`.
 export function listTrash(db) {
   const rows = Object.entries(TRASH_TYPES).flatMap(([type, t]) => t.repo(db).listDeleted().map(row => ({ type, t, row })));
   const categoryStamp = new Map(rows.filter(r => r.type === 'category').map(r => [r.row.id, r.row.deleted_at]));
   const extra = new Map();
   const out = [];
+  const earlier = new Map();
+  const add = (map, id) => map.set(id, (map.get(id) ?? 0) + 1);
   for (const { type, t, row } of rows) {
-    if (type === 'correspondence' && categoryStamp.get(row.category_id) === row.deleted_at) {
-      extra.set(row.category_id, (extra.get(row.category_id) ?? 0) + 1);
-      continue;
+    const item = { type, id: row.id, title: t.title(row), deleted_at: row.deleted_at };
+    if (type === 'correspondence' && categoryStamp.has(row.category_id)) {
+      if (categoryStamp.get(row.category_id) === row.deleted_at) { add(extra, row.category_id); continue; }
+      add(earlier, row.category_id);
+      item.categoryInTrash = true;
     }
-    out.push({ type, id: row.id, title: t.title(row), deleted_at: row.deleted_at });
+    out.push(item);
   }
-  for (const item of out) if (item.type === 'category') item.extra = extra.get(item.id) ?? 0;
+  for (const item of out) if (item.type === 'category') Object.assign(item, { extra: extra.get(item.id) ?? 0, earlier: earlier.get(item.id) ?? 0 });
   return out.sort((a, b) => b.deleted_at.localeCompare(a.deleted_at) || b.id - a.id);
 }
 
@@ -80,9 +87,10 @@ export function deleteForever(db, type, id) {
 export function emptyTrash(ctx, { discard } = {}) {
   const { name } = backupNow(ctx.db, ctx.config.dataDir, { kind: 'pre-empty' });
   const removed = transaction(ctx.db, () => {
-    let n = 0;
+    // Counts the rows the owner saw in the Trash list, not the entries grouped under a category.
+    const n = listTrash(ctx.db).length;
     for (const t of Object.values(TRASH_TYPES)) {
-      for (const row of t.repo(ctx.db).listDeleted()) { purge(ctx.db, t, row); n++; }
+      for (const row of t.repo(ctx.db).listDeleted()) purge(ctx.db, t, row);
     }
     return n;
   });
