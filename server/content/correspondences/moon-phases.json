@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "starter_key": "corr.moon-phases.new-moon",
+    "category": "category.moon-phases",
+    "name": "New moon",
+    "summary": "Beginnings, intentions, rest and planting seeds in the dark.",
+    "body": "At the new moon the Moon sits between Earth and Sun and shows no light. It is the start of the lunar month, a quiet pause before growth.\n\nMany practitioners use it to set intentions for the month ahead: write them down, light a single candle, and let them rest like seeds under soil. It also suits rest, reflection and simple cleansing.\n\nSome traditions separate the dark moon (the last day or so before the new moon) for banishing and inner work, and keep the first sliver of new light for beginnings.",
+    "keywords": ["beginnings", "intentions", "rest", "planning", "seeds", "dark"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.waxing-crescent",
+    "category": "category.moon-phases",
+    "name": "Waxing crescent",
+    "summary": "Hope, first steps, attraction and gathering energy.",
+    "body": "In the days after the new moon a thin crescent appears in the western sky after sunset, growing a little each night.\n\nThis is the time to take the first practical step toward an intention: send the email, buy the seeds, start the habit. Spells for attraction, encouragement and small increases fit here.\n\nIts mood is hopeful and tender. Work gently and keep going.",
+    "keywords": ["hope", "first steps", "attraction", "growth", "encouragement"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.first-quarter",
+    "category": "category.moon-phases",
+    "name": "First quarter",
+    "summary": "Decisions, effort, courage and pushing through obstacles.",
+    "body": "At the first quarter the Moon is half lit and high in the evening sky. It marks a point of tension: the plan meets the real world.\n\nUse it for decisions, extra effort, courage and getting past whatever blocks your intention. It suits workings for strength, perseverance and protection of something newly begun.\n\nIf something is not working, this is a good time to adjust rather than abandon it.",
+    "keywords": ["decisions", "effort", "courage", "obstacles", "perseverance"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.waxing-gibbous",
+    "category": "category.moon-phases",
+    "name": "Waxing gibbous",
+    "summary": "Refining, patience, building and preparing for the full moon.",
+    "body": "In the waxing gibbous phase the Moon is more than half lit and nearly full. Energy is building toward its peak.\n\nIt is a time for refining and patience: polish the work, add what is missing, rehearse, and trust that things are coming together. Spells for growth, prosperity and improvement are often set now so they ripen at the full moon.\n\nIt is also a good time to check your intention one more time and ask whether it is still what you want.",
+    "keywords": ["refining", "patience", "building", "growth", "preparation"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.full-moon",
+    "category": "category.moon-phases",
+    "name": "Full moon",
+    "summary": "Peak power, fulfillment, celebration, clarity and divination.",
+    "body": "At the full moon the whole face of the Moon is lit, rising at sunset and setting at dawn. It is the high point of the lunar month.\n\nMany witches hold their main monthly ritual now, often called an esbat. It is a time for celebration, gratitude, divination, charging tools and water, and any working that needs extra power.\n\nIt is also a time of clarity: what was hidden often comes into view. Leaving a bowl of water or a crystal in the moonlight is a common full moon practice.",
+    "keywords": ["power", "fulfillment", "celebration", "clarity", "divination", "esbat"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.waning-gibbous",
+    "category": "category.moon-phases",
+    "name": "Waning gibbous",
+    "summary": "Gratitude, sharing, teaching and beginning to let go.",
+    "body": "After the full moon the light begins to shrink. The waning gibbous Moon rises later each night and is still bright.\n\nIt suits gratitude, sharing what you have learned or gained, giving back, and starting to release what you no longer need. It is a good time to clean the altar or the house after a big ritual.\n\nThink of it as the exhale after the peak.",
+    "keywords": ["gratitude", "sharing", "teaching", "release", "giving"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.last-quarter",
+    "category": "category.moon-phases",
+    "name": "Last quarter",
+    "summary": "Release, forgiveness, breaking habits and clearing out.",
+    "body": "At the last quarter the Moon is half lit again, rising around midnight and visible in the morning sky. It is the second point of tension in the month, this time about letting go.\n\nUse it for release, forgiveness, ending bad habits, cutting cords and clearing clutter from home or mind. Banishing work traditionally belongs to the waning moon, and this phase is one of its strongest moments.\n\nIt pairs well with cleansing baths, sweeping, and writing down what you are done with and burning or burying the paper safely.",
+    "keywords": ["release", "forgiveness", "habits", "banishing", "clearing"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.moon-phases.waning-crescent",
+    "category": "category.moon-phases",
+    "name": "Waning crescent",
+    "summary": "Rest, surrender, reflection and preparing to begin again.",
+    "body": "The waning crescent is a thin sliver seen before dawn in the eastern sky. It is the last phase before the new moon, often called the balsamic moon.\n\nIt is a time for rest, reflection and surrender: finishing, sleeping, dreaming and quietly preparing for the next cycle. Many people keep magic small now, or stop altogether.\n\nUse it to review the month in your journal and notice what you want to carry into the next new moon.",
+    "keywords": ["rest", "reflection", "surrender", "endings", "balsamic"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]

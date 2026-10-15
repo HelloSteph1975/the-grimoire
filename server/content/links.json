@@ -186,5 +186,49 @@
   [
     "corr.planets.saturn",
     "corr.elements.earth"
+  ],
+  [
+    "corr.moon-phases.new-moon",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.waxing-crescent",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.first-quarter",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.waxing-gibbous",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.full-moon",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.waning-gibbous",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.last-quarter",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.waning-crescent",
+    "corr.planets.moon"
+  ],
+  [
+    "corr.moon-phases.full-moon",
+    "corr.colors.silver"
+  ],
+  [
+    "corr.moon-phases.full-moon",
+    "corr.colors.white"
+  ],
+  [
+    "corr.moon-phases.new-moon",
+    "corr.colors.black"
   ]
 ]
