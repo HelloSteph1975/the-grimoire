@@ -8,12 +8,14 @@ import { api } from '../../lib/api.js';
 import { errorText } from '../../lib/errors.js';
 import { useReorder } from '../../lib/useReorder.js';
 import { ReorderButtons } from '../../components/ReorderButtons.jsx';
+import { useConfirm } from '../../components/ConfirmProvider.jsx';
 import { useT } from '../../i18n/I18nProvider.jsx';
 import { TraditionDialog } from './TraditionDialog.jsx';
 
 export function Traditions() {
   const { t, tc } = useT();
   const toast = useToast();
+  const confirm = useConfirm();
   const list = useResource('/api/traditions');
   const [editing, setEditing] = useState(null); // null: closed, 'new', or a row
 
@@ -25,6 +27,10 @@ export function Traditions() {
   const nameOf = row => tc(row.is_starter ? row.starter_key : null, 'name', row.name);
   const remove = async row => {
     try {
+      const { entries } = await api.get(`/api/traditions/${row.id}/usage`);
+      const name = nameOf(row);
+      const title = entries > 0 ? t('traditions.deleteInUse', { name, n: entries }) : t('traditions.deleteTitle', { name });
+      if (!await confirm({ title, confirmLabel: t('common.delete'), danger: true })) return;
       await list.act(() => api.del(`/api/traditions/${row.id}`));
       toast.show({
         message: t('traditions.deleted', { name: nameOf(row) }),

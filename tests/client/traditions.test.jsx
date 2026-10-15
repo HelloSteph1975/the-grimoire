@@ -8,8 +8,11 @@ import { LeaveGuardProvider } from '../../client/src/components/LeaveGuardProvid
 import { Traditions } from '../../client/src/screens/settings/Traditions.jsx';
 
 let rows;
+let usage = 0;
+let usageFails = false;
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
 function server() {
+  usage = 0; usageFails = false;
   rows = [
     { id: 1, name: 'Wiccan', description: null, color: '#2f4a3a', version: 1, is_starter: 1, starter_key: 'tradition.wiccan' },
     { id: 2, name: 'Eclectic', description: null, color: '#6e1f24', version: 1, is_starter: 1, starter_key: 'tradition.eclectic' },
@@ -17,6 +20,7 @@ function server() {
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
     const body = opts.body ? JSON.parse(opts.body) : null;
+    if (url.endsWith('/usage')) return usageFails ? json({ error: 'nope', code: 'server' }, 500) : json({ entries: usage });
     if (url === '/api/traditions' && m === 'GET') return json(rows);
     if (url === '/api/traditions' && m === 'POST') { const r = { id: 3, version: 1, is_starter: 0, ...body }; rows.push(r); return json(r, 201); }
     if (url === '/api/traditions/reorder' && m === 'POST') {
@@ -82,8 +86,27 @@ describe('Traditions', () => {
     server(); mount();
     const item = (await screen.findByText('Wiccan')).closest('li');
     await userEvent.click(within(item).getByText('Delete'));
+    await userEvent.click(within(await screen.findByRole('dialog')).getByText('Delete'));
     expect(await screen.findByText('Moved Wiccan to the Trash.')).toBeInTheDocument();
     expect(screen.getByText('Undo')).toBeInTheDocument();
+  });
+  it('warns when entries use the tradition', async () => {
+    server(); mount();
+    usage = 4;
+    const item = (await screen.findByText('Wiccan')).closest('li');
+    await userEvent.click(within(item).getByText('Delete'));
+    expect(await screen.findByText('4 entries use Wiccan. Move it to the Trash anyway? They keep it if you restore it.')).toBeInTheDocument();
+  });
+  it('does not delete when canceled or when the usage check fails', async () => {
+    server(); mount();
+    const item = (await screen.findByText('Wiccan')).closest('li');
+    await userEvent.click(within(item).getByText('Delete'));
+    await userEvent.click(within(await screen.findByRole('dialog')).getByText('Cancel'));
+    usageFails = true;
+    await userEvent.click(within(item).getByText('Delete'));
+    await vi.waitFor(() => expect(fetch.mock.calls.filter(([u]) => u.endsWith('/usage'))).toHaveLength(2));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(fetch.mock.calls.some(([, o]) => o?.method === 'DELETE')).toBe(false);
   });
   it('asks before discarding edits, and keeps them if you stay', async () => {
     server(); mount();
