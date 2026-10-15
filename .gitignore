@@ -1,0 +1,7 @@
+node_modules/
+client/dist/
+config.json
+.superpowers/
+*.log
+test-results/
+playwright-report/
