@@ -49,6 +49,15 @@ describe('starter content files', () => {
       }
     }
   });
+  it('have lowercase, trimmed keywords with no repeats', () => {
+    for (const e of entries) {
+      for (const k of e.keywords) expect(k, e.starter_key).toBe(k.trim().toLowerCase());
+      expect(new Set(e.keywords).size, e.starter_key).toBe(e.keywords.length);
+    }
+  });
+  it('key each entry under its own category', () => {
+    for (const e of entries) expect(e.starter_key.split('.')[1], e.starter_key).toBe(e.category.replace(/^category\./, ''));
+  });
   it('have non-empty text and no TODO', () => {
     for (const e of entries) {
       for (const f of ['name', 'summary', 'body']) expect(String(e[f] ?? '').trim(), `${e.starter_key} ${f}`).not.toBe('');

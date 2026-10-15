@@ -2,10 +2,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig } from '../server/config.js';
+import { CODE } from '../server/services/locales.js';
 
 const APP_ROOT = path.join(import.meta.dirname, '..');
 
-const readJson = (file, fallback) => (fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : fallback);
+class BadJson extends Error {}
+function readJson(file, fallback) {
+  if (!fs.existsSync(file)) return fallback;
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { throw new BadJson(`${file} is not valid JSON`); }
+}
+// Every value must be text with something in it (content keywords are one comma-separated string).
+const badValues = obj => Object.entries(obj).filter(([k, v]) => k !== '_name' && (typeof v !== 'string' || !v.trim())).map(([k]) => k);
 
 // The content keys a starter row needs in content.json.
 function expectedContentKeys(root) {
@@ -41,6 +48,7 @@ export function checkPack({ dataDir, code, root = APP_ROOT }) {
       ...Object.keys(ui).filter(k => k !== '_name' && !enSet.has(k) && !enSet.has(k.replace(PLURAL, ''))),
       ...Object.keys(content).filter(k => !wantedSet.has(k)),
     ],
+    bad: [...badValues(ui), ...badValues(content)],
   };
 }
 
@@ -50,13 +58,24 @@ function main() {
     console.log('Usage: npm run check-pack -- <language code>, for example: npm run check-pack -- es');
     process.exit(1);
   }
+  if (!CODE.test(code)) {
+    console.log(`"${code}" is not a language code. Use one like es or pt-BR.`);
+    process.exit(1);
+  }
   const { dataDir } = loadConfig({ root: APP_ROOT });
   const packDir = path.join(dataDir, 'locales', code);
   if (!fs.existsSync(packDir)) {
     console.log(`No language pack found at ${packDir}`);
     process.exit(1);
   }
-  const r = checkPack({ dataDir, code });
+  let r;
+  try {
+    r = checkPack({ dataDir, code });
+  } catch (err) {
+    if (!(err instanceof BadJson)) throw err;
+    console.log(err.message);
+    process.exit(1);
+  }
   const show = (title, list) => {
     console.log(`${title}: ${list.length}`);
     for (const k of list.slice(0, 50)) console.log(`  ${k}`);
@@ -65,7 +84,8 @@ function main() {
   show('Missing from ui.json', r.missingUi);
   show('Missing from content.json', r.missingContent);
   show('Not used by the app', r.extra);
-  process.exit(r.missingUi.length || r.missingContent.length ? 1 : 0);
+  show('Empty or not text', r.bad);
+  process.exit(r.missingUi.length || r.missingContent.length || r.bad.length ? 1 : 0);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

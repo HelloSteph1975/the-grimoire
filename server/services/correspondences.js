@@ -185,7 +185,8 @@ function contentPack(db, dataDir) {
   try { return readPack(dataDir, language, 'content'); } catch { return {}; }
 }
 
-const packText = v => (Array.isArray(v) ? v.join(' ') : typeof v === 'string' ? v : '');
+// Pack values are text (keywords too, as one comma-separated string); anything else is ignored.
+const packText = v => (typeof v === 'string' ? v : '');
 
 // Live entries, ordered by name. `q` matches name, summary, full text and keywords, ignoring
 // case and accents; in another language it also matches the translated text of rows that are still starters.

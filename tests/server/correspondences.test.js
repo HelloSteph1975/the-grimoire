@@ -233,7 +233,7 @@ describe('/api/correspondences', () => {
     const es = path.join(t.dataDir, 'locales', 'es');
     fs.mkdirSync(es, { recursive: true });
     fs.writeFileSync(path.join(es, 'ui.json'), JSON.stringify({ _name: 'Español' }));
-    fs.writeFileSync(path.join(es, 'content.json'), JSON.stringify({ 'corr.test.salt.summary': 'Protección del hogar', 'corr.test.salt.keywords': ['umbral'] }));
+    fs.writeFileSync(path.join(es, 'content.json'), JSON.stringify({ 'corr.test.salt.summary': 'Protección del hogar', 'corr.test.salt.keywords': 'umbral, sal', 'corr.test.salt.body': ['lista'] }));
     const salt = await makeEntry(t, cat.id, 'Salt', { summary: 'Guards the home' });
     t.ctx.db.prepare("UPDATE correspondences SET starter_key = 'corr.test.salt', is_starter = 1 WHERE id = ?").run(salt.id);
     const q = async s => (await t.http().get(`/api/correspondences?q=${encodeURIComponent(s)}`)).body.map(e => e.name);
@@ -242,6 +242,8 @@ describe('/api/correspondences', () => {
     expect(await q('proteccion')).toEqual(['Salt']);
     expect(await q('umbral')).toEqual(['Salt']);
     expect(await q('guards')).toEqual(['Salt']);
+    // Pack values are text only; a list is ignored.
+    expect(await q('lista')).toEqual([]);
     const row = await get(salt.id);
     await patch(salt.id, { version: row.version, summary: 'My own words' });
     expect(await q('hogar')).toEqual([]);

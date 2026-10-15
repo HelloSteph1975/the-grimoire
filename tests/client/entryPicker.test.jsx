@@ -47,6 +47,14 @@ describe('EntryPicker', () => {
     expect(screen.queryByRole('button', { name: 'Moonwort' })).toBeNull();
   });
 
+  it('says there are no matches when every result is excluded or already chosen', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(rows.slice(0, 2))));
+    render(<Harness excludeId={1} start={[{ id: 2, name: 'Moonwort' }]} />);
+    type('moon');
+    await settle(260);
+    expect(screen.getByRole('status')).toHaveTextContent('No matches');
+  });
+
   it('ignores a slow first reply that arrives after a newer one', async () => {
     let releaseFirst;
     const fetchMock = vi.fn(url => (url.endsWith('q=mo')

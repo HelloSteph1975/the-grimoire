@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { HttpError } from '../http.js';
 
-const CODE = /^[a-z]{2,3}(-[A-Z]{2})?$/;
+export const CODE = /^[a-z]{2,3}(-[A-Z]{2})?$/;
 const PARTS = new Set(['ui', 'content']);
 const dirOf = dataDir => path.join(dataDir, 'locales');
 

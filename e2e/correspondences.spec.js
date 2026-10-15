@@ -77,6 +77,8 @@ test('deleting a category takes its entries along, and restoring brings them bac
   const cat = await makeCategory('Test shelf', 'gem');
   await makeEntry(cat.id, 'Quartz');
   await makeEntry(cat.id, 'Amber');
+  const colors = (await call('GET', '/api/categories')).find(c => c.name === 'Colors');
+  await makeEntry(colors.id, 'Indigo');
 
   await page.goto('/settings');
   await page.locator('li', { hasText: 'Test shelf' }).getByRole('button', { name: 'Delete' }).click();
@@ -84,6 +86,14 @@ test('deleting a category takes its entries along, and restoring brings them bac
   await expect(confirm).toContainText('Move Test shelf and its 2 entries to the Trash?');
   await confirm.getByRole('button', { name: 'Delete' }).click();
   await expect(page.locator('li', { hasText: 'Test shelf' })).toHaveCount(0);
+
+  // Its entries left the list with it.
+  await page.goto('/correspondences');
+  // Wait for the list to load, so the checks below are not trivially true.
+  await expect(page.getByRole('link', { name: /Indigo/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Test shelf' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /Quartz/ })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /Amber/ })).toHaveCount(0);
 
   await page.getByRole('link', { name: 'Trash' }).click();
   const row = page.locator('li', { hasText: 'Test shelf' });

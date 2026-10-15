@@ -160,5 +160,5 @@ section + section { margin-top: 36px; }
 .icon-choice { position: relative; display: inline-flex; }
 .icon-choice input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .icon-choice span { display: inline-flex; padding: 8px; border: 1px solid var(--ink-soft); border-radius: 6px; }
-.icon-choice input:checked + span { border-width: 2px; padding: 7px; background: var(--ink-soft); }
+.icon-choice input:checked + span { border-width: 2px; padding: 7px; background: var(--ink-soft); color: var(--parchment); }
 .icon-choice input:focus-visible + span { outline: 2px solid currentColor; outline-offset: 2px; }

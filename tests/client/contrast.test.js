@@ -34,6 +34,14 @@ describe('theme contrast (WCAG AA)', () => {
         expect(ratio(resolve(tokens, fg), resolve(tokens, bg))).toBeGreaterThanOrEqual(4.5);
       });
     }
+    // The chosen category icon is a non-text mark, so 3:1 against its filled box.
+    it(`${name}: chosen category icon (3:1)`, () => {
+      const rule = globalCss.slice(globalCss.indexOf('.icon-choice input:checked + span {'));
+      const body = rule.slice(rule.indexOf('{') + 1, rule.indexOf('}'));
+      const decl = prop => body.split(';').map(d => d.split(':').map(x => x.trim())).find(([p]) => p === prop)?.[1]?.slice(6, -1);
+      expect(decl('color'), 'color missing').toBeDefined();
+      expect(ratio(resolve(tokens, decl('color')), resolve(tokens, decl('background')))).toBeGreaterThanOrEqual(3);
+    });
     // Focus rings are non-text, so 3:1. Dark areas (.sidebar, .topbar) set their own light ring.
     const dark = { ...tokens, ...block('.sidebar, .topbar', globalCss) };
     for (const [bg, scope] of [['leather-800', dark], ['leather-900', dark], ['parchment', tokens], ['parchment-deep', tokens]]) {

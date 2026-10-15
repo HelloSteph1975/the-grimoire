@@ -62,7 +62,7 @@ export function EntryPicker({ value = [], onChange, excludeId }) {
       )}
       <input ref={inputRef} type="text" className="input" aria-label={t('picker.search')} value={q} onChange={e => setQ(e.target.value)} />
       {error && <small className="field-error" role="alert">{error}</small>}
-      <div role="status" className="picker-none">{!error && done && results.length === 0 ? t('picker.none') : null}</div>
+      <div role="status" className="picker-none">{!error && done && shown.length === 0 ? t('picker.none') : null}</div>
       {shown.length > 0 && (
         <ul className="picker-results">
           {shown.map(r => (
