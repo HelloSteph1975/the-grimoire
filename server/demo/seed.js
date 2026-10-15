@@ -17,5 +17,5 @@ export function seedDemo(ctx, { reset = false } = {}) {
       t.remove(h.id);
     }
   });
-  seedStarter(db);
+  seedStarter(db, ctx.config?.contentDir ? { content: ctx.config.contentDir } : undefined);
 }

@@ -82,4 +82,5 @@ npm run test:e2e           # browser tests (Playwright), throwaway data folder, 
 
 - Work on a branch, not `main`. Run `npm test` before committing, and `npm run test:e2e` for UI changes.
 - Tests use throwaway folders. Never point them at the real data folder, and don't use port 4209 for experiments.
+- `GRIMOIRE_CONTENT_DIR` (tests only) makes the server seed starter content from another folder, which must hold `traditions.json` and `categories.json`. The tests point it at `tests/fixtures/base-content`.
 - Keep text plain and warm, with no em dashes.

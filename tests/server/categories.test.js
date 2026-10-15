@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { makeTestContext, makeCategoryWithEntries, makeEntry } from './helpers.js';
+import { makeTestContext, makeCategoryWithEntries, makeEntry, BASE_CONTENT } from './helpers.js';
 import { seedStarter } from '../../server/services/starter.js';
 
 let t;
@@ -79,7 +79,7 @@ describe('/api/categories', () => {
     const days = cats.find(c => c.starter_key === 'category.days');
     await t.http().delete(`/api/categories/${days.id}`);
     await t.http().delete(`/api/trash/category/${days.id}`);
-    expect(seedStarter(t.ctx.db)).toBe(0);
+    expect(seedStarter(t.ctx.db, { content: BASE_CONTENT })).toBe(0);
     expect((await t.http().get('/api/categories')).body.map(c => c.starter_key)).not.toContain('category.days');
   });
   it('purges the entries, their links and traditions when a category is deleted forever', async () => {

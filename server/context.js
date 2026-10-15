@@ -3,18 +3,18 @@ import { seedStarter } from './services/starter.js';
 import { readEpoch } from './services/epoch.js';
 
 // Opening (and reopening after a restore) always tops up starter content.
-function open(dataDir) {
+function open(dataDir, contentDir) {
   const db = openDb(dataDir);
-  seedStarter(db);
+  seedStarter(db, contentDir ? { content: contentDir } : undefined);
   return db;
 }
 
 export function createContext(config) {
   const ctx = {
     config,
-    db: open(config.dataDir),
+    db: open(config.dataDir, config.contentDir),
     epoch: readEpoch(config.dataDir),
-    reopen() { ctx.db = open(config.dataDir); return ctx.db; },
+    reopen() { ctx.db = open(config.dataDir, config.contentDir); return ctx.db; },
   };
   return ctx;
 }

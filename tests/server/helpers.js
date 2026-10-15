@@ -5,9 +5,11 @@ import request from 'supertest';
 import { createContext } from '../../server/context.js';
 import { createApp } from '../../server/app.js';
 
-export function makeTestContext({ onShutdown, dataDir } = {}) {
+export const BASE_CONTENT = path.join(import.meta.dirname, '..', 'fixtures', 'base-content');
+
+export function makeTestContext({ onShutdown, dataDir, contentDir = BASE_CONTENT } = {}) {
   const dir = dataDir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'grimoire-test-'));
-  const ctx = createContext({ dataDir: dir, port: 0, demo: false });
+  const ctx = createContext({ dataDir: dir, port: 0, demo: false, contentDir });
   const app = createApp(ctx, { onShutdown });
   return {
     ctx, app, dataDir: dir,

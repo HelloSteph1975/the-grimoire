@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { makeTestContext } from './helpers.js';
+import { makeTestContext, BASE_CONTENT } from './helpers.js';
 import { seedStarter } from '../../server/services/starter.js';
 import { emptyTrash } from '../../server/services/trash.js';
 import { backupNow, listBackups } from '../../server/services/backup.js';
@@ -78,7 +78,7 @@ describe('/api/trash', () => {
     const w = list.find(r => r.starter_key === 'tradition.wiccan');
     await t.http().delete(`/api/traditions/${w.id}`);
     await t.http().delete(`/api/trash/tradition/${w.id}`);
-    expect(seedStarter(t.ctx.db)).toBe(0);
+    expect(seedStarter(t.ctx.db, { content: BASE_CONTENT })).toBe(0);
     expect((await t.http().get('/api/traditions')).body.map(r => r.name)).not.toContain('Wiccan');
   });
 });

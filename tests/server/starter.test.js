@@ -7,6 +7,7 @@ import { seedStarter } from '../../server/services/starter.js';
 import { repos } from '../../server/db/repos.js';
 import { deleteForever, emptyTrash, restoreFromTrash } from '../../server/services/trash.js';
 
+import { BASE_CONTENT } from './helpers.js';
 const FIXTURE = path.join(import.meta.dirname, 'fixtures', 'content');
 let dir, db, extra;
 beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-seed-')); db = openDb(dir); extra = []; });
@@ -26,30 +27,30 @@ function copyFixtureWith(changes) {
 
 describe('seedStarter', () => {
   it('adds the starter traditions and categories once', () => {
-    expect(seedStarter(db)).toBe(3 + 9);
-    expect(seedStarter(db)).toBe(0);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(3 + 9);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(0);
     expect(repos(db).traditions.list()).toHaveLength(3);
     expect(repos(db).categories.list()).toHaveLength(9);
   });
   it('never overwrites an edited starter entry', () => {
-    seedStarter(db);
+    seedStarter(db, { content: BASE_CONTENT });
     const w = repos(db).traditions.list().find(r => r.starter_key === 'tradition.wiccan');
     repos(db).traditions.update(w.id, { description: 'Mine', is_starter: 0 }, w.version);
-    seedStarter(db);
+    seedStarter(db, { content: BASE_CONTENT });
     expect(repos(db).traditions.get(w.id).description).toBe('Mine');
   });
   it('does not bring back a starter entry that is in the Trash', () => {
-    seedStarter(db);
+    seedStarter(db, { content: BASE_CONTENT });
     const w = repos(db).traditions.list().find(r => r.starter_key === 'tradition.wiccan');
     repos(db).traditions.remove(w.id);
-    expect(seedStarter(db)).toBe(0);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(0);
     expect(repos(db).traditions.list()).toHaveLength(2);
   });
   it('does not bring back a starter entry deleted forever', () => {
-    seedStarter(db);
+    seedStarter(db, { content: BASE_CONTENT });
     db.prepare("INSERT INTO starter_removed (starter_key) VALUES ('tradition.wiccan')").run();
     db.prepare("DELETE FROM traditions WHERE starter_key = 'tradition.wiccan'").run();
-    expect(seedStarter(db)).toBe(0);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(0);
   });
   it('seeds categories, entries, traditions and links, and skips entries with no category', () => {
     const n = seedStarter(db, { content: FIXTURE });
