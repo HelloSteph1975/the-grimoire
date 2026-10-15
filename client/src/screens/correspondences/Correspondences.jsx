@@ -27,16 +27,14 @@ export function Correspondences() {
   const categories = useResource('/api/categories');
   const traditions = useResource('/api/traditions');
 
-  // While a new filter loads, keep showing the last results instead of flashing "Loading".
-  const last = useRef(null);
-  if (list.data) last.current = list.data;
-  const rows = list.data ?? last.current;
-
-  const setFilter = (key, value, opts) => setParams(prev => {
-    const next = new URLSearchParams(prev);
+  // The newest query and setter, so a timer that fires later changes only its own key.
+  const url = useRef({ params, setParams });
+  url.current = { params, setParams };
+  const setFilter = (key, value, opts) => {
+    const next = new URLSearchParams(url.current.params);
     if (value) next.set(key, value); else next.delete(key);
-    return next;
-  }, opts);
+    url.current.setParams(next, opts);
+  };
 
   // The search box updates the URL 250 ms after the last key. Back and Forward update the box.
   const [text, setText] = useState(q);
@@ -46,22 +44,28 @@ export function Correspondences() {
     if (text.trim() === q) return undefined;
     const timer = setTimeout(() => { typed.current = text.trim(); setFilter('q', text.trim(), { replace: true }); }, 250);
     return () => clearTimeout(timer);
-  }, [text, q]);
+  }, [text, q]); // setFilter reads the newest URL through a ref, so it is safe to leave out.
+
+  // A category that isn't there (in the Trash, say) means All.
+  const known = !category || !categories.data || categories.data.some(c => String(c.id) === category);
+  useEffect(() => { if (!known) setFilter('category', '', { replace: true }); }, [known]);
+  const selected = known ? category : '';
 
   const catById = new Map((categories.data ?? []).map(c => [c.id, c]));
-  const filtering = Boolean(category || tradition || q);
+  const filtering = Boolean(selected || tradition || q);
   const error = list.error ?? categories.error ?? traditions.error;
   const retry = () => { list.reload(); categories.reload(); traditions.reload(); };
+  const rows = list.data;
 
   return (
     <>
       <PageHeader title={t('nav.correspondences')}>
-        <Button as={Link} icon={Plus} to={category ? `/correspondences/new?category=${category}` : '/correspondences/new'}>{t('corr.add')}</Button>
+        <Button as={Link} icon={Plus} to={selected ? `/correspondences/new?category=${selected}` : '/correspondences/new'}>{t('corr.add')}</Button>
       </PageHeader>
-      <div className="corr-tabs" role="tablist" aria-label={t('corr.category')}>
-        <button type="button" role="tab" className="corr-tab" aria-selected={!category} onClick={() => setFilter('category', '')}>{t('corr.all')}</button>
+      <div className="corr-tabs" role="group" aria-label={t('corr.category')}>
+        <button type="button" className="corr-tab" aria-pressed={!selected} onClick={() => setFilter('category', '')}>{t('corr.all')}</button>
         {categories.data?.map(c => (
-          <button key={c.id} type="button" role="tab" className="corr-tab" aria-selected={category === String(c.id)}
+          <button key={c.id} type="button" className="corr-tab" aria-pressed={selected === String(c.id)}
             onClick={() => setFilter('category', String(c.id))}>
             <CategoryIcon name={c.icon} size={16} />{starterText(tc, c, 'name', c.name)}
           </button>
@@ -74,8 +78,9 @@ export function Correspondences() {
         <input type="search" className="input" aria-label={t('corr.search')} placeholder={t('corr.search')}
           value={text} onChange={e => setText(e.target.value)} />
       </div>
-      <LoadState loading={list.loading && !rows} error={error} keepChildren={Boolean(rows)} onRetry={retry}>
-        {rows?.length === 0 && list.data && <p className="muted">{filtering ? t('corr.noMatches') : t('corr.empty')}</p>}
+      {/* A new filter shows Loading, not the last filter's rows; an error shows only the error. */}
+      <LoadState loading={!rows} error={error} onRetry={retry}>
+        {rows?.length === 0 && <p className="muted">{filtering ? t('corr.noMatches') : t('corr.empty')}</p>}
         <ul className="list corr-list">
           {rows?.map(row => {
             const cat = catById.get(row.category_id);

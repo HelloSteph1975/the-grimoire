@@ -65,6 +65,7 @@
   "corr.noMatches": "No entries match.",
   "corr.name": "Name",
   "corr.category": "Category",
+  "corr.chooseCategory": "Choose a category",
   "corr.summary": "Summary",
   "corr.summaryCount": "{n} of 200",
   "corr.body": "Full text",

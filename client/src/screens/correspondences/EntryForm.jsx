@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button } from '../../components/Button.jsx';
 import { PageHeader } from '../../components/PageHeader.jsx';
@@ -56,13 +56,15 @@ function EntryFormLoader({ id }) {
   const ready = (!id || entry.data) && categories.data && traditions.data;
   const error = entry.error ?? categories.error ?? traditions.error;
   const retry = () => { if (id) entry.reload(); categories.reload(); traditions.reload(); };
+  // A new entry saved with edits still open stays on this page, now as an existing entry.
+  const [created, setCreated] = useState(false);
   return (
     <>
-      <PageHeader title={id ? t('corr.edit') : t('corr.new')} />
+      <PageHeader title={id || created ? t('corr.edit') : t('corr.new')} />
       <LoadState loading={!ready} error={ready ? null : error} onRetry={retry}>
         {ready && (
           <EntryForm record={id ? entry.data : null} presetCategory={params.get('category') ?? ''}
-            categories={categories.data} traditions={traditions.data} />
+            categories={categories.data} traditions={traditions.data} onCreated={setCreated} />
         )}
       </LoadState>
       {!ready && error && <p><Link to="/correspondences">{t('corr.back')}</Link></p>}
@@ -70,7 +72,7 @@ function EntryFormLoader({ id }) {
   );
 }
 
-function EntryForm({ record, presetCategory, categories, traditions }) {
+function EntryForm({ record, presetCategory, categories, traditions, onCreated }) {
   const { t, tc, language } = useT();
   const navigate = useNavigate();
   const pick = useMemo(() => pickWith(tc), [tc]);
@@ -87,11 +89,15 @@ function EntryForm({ record, presetCategory, categories, traditions }) {
     const out = target
       ? await api.patch(`/api/correspondences/${target.id}`, { ...body, version: forced ?? target.version })
       : await api.post('/api/correspondences', body);
+    if (!target) onCreated(true);
     setTarget({ id: out.id, version: out.version });
     return out;
-  }, [target]);
+  }, [target, onCreated]);
   const f = useRecordForm({ initial, submit });
   const v = f.values;
+  const ids = useId();
+  const errId = key => (f.errors[key] ? `${ids}-${key}` : undefined);
+  const groupError = key => f.errors[key] && <small id={errId(key)} className="field-error" role="alert">{f.errors[key]}</small>;
 
   const done = out => { if (out && !f.isDirtyNow()) navigate(`/correspondences/${out.id}`); };
   const save = async e => done(await f.onSubmit(e));
@@ -120,7 +126,7 @@ function EntryForm({ record, presetCategory, categories, traditions }) {
           </Field>
           <Field label={t('corr.category')} error={f.errors.category_id}>
             <Select value={v.category_id} onChange={e => f.set('category_id', e.target.value)}
-              placeholder={record ? undefined : ''} options={categories.map(c => ({ value: String(c.id), label: starterText(tc, c, 'name', c.name) }))} />
+              placeholder={record ? undefined : t('corr.chooseCategory')} options={categories.map(c => ({ value: String(c.id), label: starterText(tc, c, 'name', c.name) }))} />
           </Field>
           <Field label={t('corr.summary')} error={f.errors.summary} hint={t('corr.summaryCount', { n: v.summary.length })}>
             <TextInput value={v.summary} onChange={e => f.set('summary', e.target.value)} maxLength={200} />
@@ -133,29 +139,33 @@ function EntryForm({ record, presetCategory, categories, traditions }) {
           </Field>
           <fieldset className="field field-group">
             <legend>{t('corr.feastDay')}</legend>
-            <div className="feast-day">
-              <Field label={t('corr.month')}>
-                <Select value={v.month} onChange={e => setMonth(e.target.value)} placeholder={t('corr.none')} options={months} />
-              </Field>
-              <Field label={t('corr.day')}>
-                <Select value={v.day} onChange={e => f.set('day', e.target.value)} placeholder={t('corr.none')} options={days} />
-              </Field>
+            <div className={f.errors.feast_day ? 'feast-day has-error' : 'feast-day'}>
+              <div className="field">
+                <label htmlFor={`${ids}-month`}>{t('corr.month')}</label>
+                <Select id={`${ids}-month`} value={v.month} onChange={e => setMonth(e.target.value)} placeholder={t('corr.none')} options={months}
+                  aria-invalid={Boolean(f.errors.feast_day)} aria-describedby={errId('feast_day')} />
+              </div>
+              <div className="field">
+                <label htmlFor={`${ids}-day`}>{t('corr.day')}</label>
+                <Select id={`${ids}-day`} value={v.day} onChange={e => f.set('day', e.target.value)} placeholder={t('corr.none')} options={days}
+                  aria-invalid={Boolean(f.errors.feast_day)} aria-describedby={errId('feast_day')} />
+              </div>
             </div>
-            {f.errors.feast_day && <small className="field-error" role="alert">{f.errors.feast_day}</small>}
+            {groupError('feast_day')}
           </fieldset>
-          <fieldset className="field field-group">
+          <fieldset className="field field-group" aria-describedby={errId('traditions')}>
             <legend>{t('corr.traditions')}</legend>
             <div className="checks">
               {traditions.map(r => (
                 <Checkbox key={r.id} label={starterText(tc, r, 'name', r.name)} checked={v.traditions.includes(r.id)} onChange={() => toggleTradition(r.id)} />
               ))}
             </div>
-            {f.errors.traditions && <small className="field-error" role="alert">{f.errors.traditions}</small>}
+            {groupError('traditions')}
           </fieldset>
-          <fieldset className="field field-group">
+          <fieldset className="field field-group" aria-describedby={errId('links')}>
             <legend>{t('corr.links')}</legend>
             <EntryPicker value={v.links} onChange={l => f.set('links', l)} excludeId={target?.id} />
-            {f.errors.links && <small className="field-error" role="alert">{f.errors.links}</small>}
+            {groupError('links')}
           </fieldset>
         </fieldset>
         {f.formError && <p className="form-error" role="alert">{f.formError}</p>}

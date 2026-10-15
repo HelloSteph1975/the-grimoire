@@ -48,7 +48,9 @@ export function EntryPage({ id }) {
     try {
       await api.del(`/api/correspondences/${e.id}`);
     } catch (err) {
+      // It may have changed or gone meanwhile, so show what is there now.
       toast.show({ message: errorText(err, t) });
+      entry.reload();
       return;
     }
     navigate('/correspondences');
@@ -70,6 +72,9 @@ export function EntryPage({ id }) {
               <Button as={Link} variant="ghost" icon={Pencil} to={`/correspondences/${e.id}/edit`}>{t('common.edit')}</Button>
               <Button variant="ghost" icon={Trash2} onClick={remove}>{t('common.delete')}</Button>
             </PageHeader>
+            {/* Category and tradition names: the entry stays readable if they fail to load. */}
+            <LoadState error={categories.error ?? traditions.error} keepChildren
+              onRetry={() => { if (categories.error) categories.reload(); if (traditions.error) traditions.reload(); }} />
             <p className="entry-meta">
               {category && <span className="corr-cat"><CategoryIcon name={category.icon} size={16} />{starterText(tc, category, 'name', category.name)}</span>}
               {e.is_starter === 1 && <span className="tag">{t('common.starter')}</span>}

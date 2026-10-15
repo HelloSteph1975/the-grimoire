@@ -29,7 +29,10 @@ function stub({ language = 'en', pack = {}, list = () => entries } = {}) {
     if (url === '/api/categories') return json(categories);
     if (url === '/api/traditions') return json(traditions);
     if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? (pack.ui ?? {}) : (pack.content ?? {}));
-    if (url.startsWith('/api/correspondences?')) return json(list(new URLSearchParams(url.split('?')[1])));
+    if (url.startsWith('/api/correspondences?')) {
+      const out = list(new URLSearchParams(url.split('?')[1]));
+      return out instanceof Response || out?.then ? out : json(out);
+    }
     return json({ error: 'Not found', code: 'not_found' }, 404);
   }));
 }
@@ -45,12 +48,12 @@ const listCalls = () => fetch.mock.calls.map(([u]) => u).filter(u => u.startsWit
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('Correspondences list', () => {
-  it('shows the tabs in order with All first', async () => {
+  it('shows the category buttons in order with All first', async () => {
     stub(); mount();
-    const tabs = within(await screen.findByRole('tablist')).getAllByRole('tab');
-    await vi.waitFor(() => expect(tabs.length).toBe(4));
-    expect(within(screen.getByRole('tablist')).getAllByRole('tab').map(t => t.textContent)).toEqual(['All', 'Days', 'Colors', 'Crystals']);
-    expect(screen.getByRole('tab', { name: 'All' })).toHaveAttribute('aria-selected', 'true');
+    const group = await screen.findByRole('group', { name: 'Category' });
+    await vi.waitFor(() => expect(within(group).getAllByRole('button').map(b => b.textContent)).toEqual(['All', 'Days', 'Colors', 'Crystals']));
+    expect(within(group).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(group).getByRole('button', { name: 'Colors' })).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByRole('heading', { name: 'Correspondences' })).toBeInTheDocument();
     expect(screen.getByText('Add an entry')).toBeInTheDocument();
   });
@@ -63,13 +66,13 @@ describe('Correspondences list', () => {
     expect(within(row).getByRole('link')).toHaveAttribute('href', '/correspondences/10');
     expect(within(screen.getByText('Monday').closest('li')).queryByText('Starter')).not.toBeInTheDocument();
   });
-  it('filters by category with the tabs, in the URL and the request', async () => {
+  it('filters by category with the buttons, in the URL and the request', async () => {
     stub(); mount();
     await screen.findByText('Red');
-    await userEvent.click(await screen.findByRole('tab', { name: 'Colors' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Colors' }));
     expect(router.state.location.search).toBe('?category=2');
     await vi.waitFor(() => expect(listCalls().at(-1)).toContain('category=2'));
-    expect(screen.getByRole('tab', { name: 'Colors' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('button', { name: 'Colors' })).toHaveAttribute('aria-pressed', 'true');
   });
   it('filters by tradition', async () => {
     stub(); mount();
@@ -94,6 +97,46 @@ describe('Correspondences list', () => {
     expect(router.state.location.search).toBe('?q=moon');
     expect(listCalls().filter(u => u.includes('q='))).toEqual(['/api/correspondences?q=moon']);
   });
+  it('keeps a category picked while a search is still waiting to run', async () => {
+    stub(); mount();
+    await screen.findByText('Red');
+    vi.useFakeTimers();
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'moon' } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+    fireEvent.click(screen.getByRole('button', { name: 'Colors' }));
+    expect(router.state.location.search).toBe('?category=2');
+    await act(async () => { await vi.advanceTimersByTimeAsync(250); });
+    expect(new URLSearchParams(router.state.location.search).get('category')).toBe('2');
+    expect(new URLSearchParams(router.state.location.search).get('q')).toBe('moon');
+    expect(screen.getByRole('button', { name: 'Colors' })).toHaveAttribute('aria-pressed', 'true');
+  });
+  it('shows Loading, not the last rows, while a new filter loads', async () => {
+    let release;
+    stub({ list: p => (p.get('category') ? new Promise(r => { release = () => r(json([entries[0]])); }) : entries) }); mount();
+    await screen.findByText('Monday');
+    await userEvent.click(await screen.findByRole('button', { name: 'Colors' }));
+    expect(await screen.findByText('Loading…')).toBeInTheDocument();
+    expect(screen.queryByText('Monday')).not.toBeInTheDocument();
+    await act(async () => release());
+    expect(await screen.findByText('Red')).toBeInTheDocument();
+    expect(screen.queryByText('Monday')).not.toBeInTheDocument();
+  });
+  it('shows only the error, with Try again, when a filter fails to load', async () => {
+    let fail = true;
+    stub({ list: p => (p.get('category') && fail ? json({ error: 'Boom', code: 'server_error' }, 500) : entries) }); mount();
+    await screen.findByText('Monday');
+    await userEvent.click(await screen.findByRole('button', { name: 'Colors' }));
+    expect(await screen.findByText('Something went wrong on our side.')).toBeInTheDocument();
+    expect(screen.queryByText('Monday')).not.toBeInTheDocument();
+    fail = false;
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Monday')).toBeInTheDocument();
+  });
+  it('treats a category that is not there as All and drops it from the URL', async () => {
+    stub(); mount('/correspondences?category=99&q=red');
+    await vi.waitFor(() => expect(router.state.location.search).toBe('?q=red'));
+    expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+  });
   it('says nothing matches when a filter finds nothing', async () => {
     stub({ list: p => (p.get('q') ? [] : entries) }); mount('/correspondences?q=zzz');
     expect(await screen.findByText('No entries match.')).toBeInTheDocument();
@@ -109,7 +152,7 @@ describe('Correspondences list', () => {
     const row = (await screen.findByText('Rojo')).closest('li');
     expect(within(row).getByText('Valor.')).toBeInTheDocument();
     expect(within(row).getByText('Colores')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Todo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Todo' })).toBeInTheDocument();
     expect(screen.getByText('Monday')).toBeInTheDocument();
   });
 });

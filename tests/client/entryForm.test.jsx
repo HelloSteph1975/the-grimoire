@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { ToastProvider } from '../../client/src/components/ToastProvider.jsx';
@@ -147,14 +147,47 @@ describe('Entry form', () => {
     stub(); mount('/correspondences/new?category=1');
     override = (url, m) => (m === 'POST' ? json({
       error: 'Please fix the highlighted fields.', code: 'invalid',
-      details: { name: 'Too long', feast_day: 'Bad' },
-      detailCodes: { name: { code: 'too_long', max: 80 }, feast_day: { code: 'bad_format', hint: 'feast_day' } },
+      details: { name: 'Too long', feast_day: 'Bad', traditions: 'Not found', links: 'Self' },
+      detailCodes: { name: { code: 'too_long', max: 80 }, feast_day: { code: 'bad_format', hint: 'feast_day' }, traditions: { code: 'not_found' }, links: { code: 'self_link' } },
     }, 400) : null);
     await userEvent.type(await screen.findByLabelText('Name'), 'x');
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(await screen.findByText('Keep it to 80 characters or fewer')).toBeInTheDocument();
     expect(screen.getByText('Use a day like 12-12 (month-day)')).toBeInTheDocument();
+    for (const label of ['Month', 'Day']) {
+      expect(screen.getByLabelText(label)).toHaveAttribute('aria-invalid', 'true');
+      expect(screen.getByLabelText(label)).toHaveAccessibleDescription('Use a day like 12-12 (month-day)');
+    }
+    expect(screen.getByRole('group', { name: 'Traditions' })).toHaveAccessibleDescription("That isn't here any more. It may have been deleted.");
+    expect(screen.getByRole('group', { name: 'Linked entries' })).toHaveAccessibleDescription("An entry can't link to itself.");
     expect(router.state.location.pathname).toBe('/correspondences/new');
+  });
+  it('asks for a category on a new entry', async () => {
+    stub(); mount('/correspondences/new');
+    const category = await screen.findByLabelText('Category');
+    expect(category).toHaveValue('');
+    expect(within(category).getAllByRole('option')[0]).toHaveTextContent('Choose a category');
+  });
+  it('keeps edits made during the first save, and saves them to the new entry', async () => {
+    stub(); mount('/correspondences/new?category=1');
+    let release;
+    const real = fetch.getMockImplementation();
+    fetch.mockImplementation((url, opts = {}) => (opts.method === 'POST' && !release
+      ? new Promise(r => { release = () => r(real(url, opts)); })
+      : real(url, opts)));
+    const name = await screen.findByLabelText('Name');
+    await userEvent.type(name, 'Tuesday');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(release).toBeDefined());
+    fireEvent.change(name, { target: { value: 'Tuesday!' } });
+    await act(async () => { release(); });
+    expect(await screen.findByRole('heading', { name: 'Edit entry' })).toBeInTheDocument();
+    expect(name).toHaveValue('Tuesday!');
+    expect(router.state.location.pathname).toBe('/correspondences/new');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/correspondences/20'));
+    expect(sent('PATCH').at(-1)).toMatchObject({ url: '/api/correspondences/20', body: { version: 1, name: 'Tuesday!' } });
+    expect(sent('POST')).toHaveLength(1);
   });
   it('asks before leaving with changes', async () => {
     stub(); mount('/correspondences/11/edit');
@@ -204,6 +237,30 @@ describe('Entry page', () => {
     await userEvent.click(screen.getByText('Undo'));
     await vi.waitFor(() => expect(sent('POST').map(c => c.url)).toEqual(['/api/correspondences/11/restore']));
     expect(await screen.findByRole('heading', { name: 'Monday' })).toBeInTheDocument();
+  });
+  it('reloads the entry when the delete fails', async () => {
+    stub(); mount('/correspondences/11');
+    await screen.findByRole('heading', { name: 'Monday' });
+    override = (url, m) => (m === 'DELETE' ? json({ error: 'Boom', code: 'server_error' }, 500) : null);
+    const gets = () => fetch.mock.calls.filter(([u, o]) => u === '/api/correspondences/11' && (o?.method ?? 'GET') === 'GET').length;
+    const before = gets();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    expect(await screen.findByText('Something went wrong on our side.')).toBeInTheDocument();
+    await vi.waitFor(() => expect(gets()).toBe(before + 1));
+    expect(router.state.location.pathname).toBe('/correspondences/11');
+  });
+  it('shows a category load error with Try again, and keeps the entry', async () => {
+    stub();
+    let fail = true;
+    override = url => (url === '/api/categories' && fail ? json({ error: 'Boom', code: 'server_error' }, 500) : null);
+    mount('/correspondences/11');
+    expect(await screen.findByText('Something went wrong on our side.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Monday' })).toBeInTheDocument();
+    fail = false;
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Days')).toBeInTheDocument();
+    expect(screen.queryByText('Something went wrong on our side.')).not.toBeInTheDocument();
   });
   it('keeps the entry when the delete is cancelled', async () => {
     stub(); mount('/correspondences/11');
