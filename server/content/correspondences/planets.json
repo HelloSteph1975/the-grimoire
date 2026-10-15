@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "starter_key": "corr.planets.sun",
+    "category": "category.planets",
+    "name": "Sun",
+    "summary": "Success, vitality, confidence, recognition and the self.",
+    "body": "The Sun is not a planet to astronomers, but in the classical scheme of seven lights it leads them all. It stands for the self at its brightest: confidence, success, recognition, energy and good cheer.\n\nIt rules Sunday. Its colors are gold and yellow, its element is fire, and its metal is gold. Sunflowers, marigolds, citrus, bay and frankincense are among its plants and scents.\n\nCall on the Sun for career success, visibility, courage to be seen, and celebrations of what has gone right.",
+    "keywords": ["success", "vitality", "confidence", "recognition", "self", "gold"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.moon",
+    "category": "category.planets",
+    "name": "Moon",
+    "summary": "Intuition, dreams, emotions, cycles, home and the inner life.",
+    "body": "The Moon is the closest light in the sky and the quickest to change, so it rules cycles, moods, memory and everything that waxes and wanes.\n\nIt rules Monday. Its colors are silver and white, its element is water, and its metal is silver. Jasmine, white flowers, willow and moonstone are among its plants and stones.\n\nCall on the Moon for intuition, dreams, divination, home and family, emotional balance, and any work timed to its phases.",
+    "keywords": ["intuition", "dreams", "emotions", "cycles", "home", "silver"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.mercury",
+    "category": "category.planets",
+    "name": "Mercury",
+    "summary": "Communication, learning, travel, trade and quick wits.",
+    "body": "Mercury is the fastest planet, named for the Roman messenger god. It rules words and how they move: speech, writing, study, contracts, trade, short journeys and clever solutions.\n\nIt rules Wednesday. Its colors are orange and yellow, its element is air, and its metal is quicksilver, which is never handled in practice; many people use a coin or a key instead. Lavender, dill and mint are among its plants.\n\nCall on Mercury for exams, interviews, paperwork, sales and clear conversations. When Mercury appears to move backward in the sky, many practitioners take extra care with plans and messages.",
+    "keywords": ["communication", "learning", "travel", "trade", "writing", "wit"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.venus",
+    "category": "category.planets",
+    "name": "Venus",
+    "summary": "Love, beauty, pleasure, friendship, art and harmony.",
+    "body": "Venus, the bright morning and evening star, is named for the Roman goddess of love. It rules attraction, affection, beauty, art, music, pleasure and peace between people.\n\nIt rules Friday. Its colors are pink and green, its element is water or earth, and its metal is copper. Rose, apple, vanilla and rose quartz belong to Venus.\n\nCall on Venus for love and friendship, self-love, beauty, creative work, and smoothing over quarrels.",
+    "keywords": ["love", "beauty", "pleasure", "friendship", "art", "harmony"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.mars",
+    "category": "category.planets",
+    "name": "Mars",
+    "summary": "Courage, action, protection, strength and healthy anger.",
+    "body": "Mars, the red planet, is named for the Roman god of war. It rules drive and defense: courage, competition, physical energy, protection and the clean anger that sets a boundary.\n\nIt rules Tuesday. Its color is red, its element is fire, and its metal is iron. Basil, chili, ginger and thorny plants are among its plants.\n\nCall on Mars to start something hard, to protect yourself or your home, or to cut a tie. Aim its force at the problem, not at a person.",
+    "keywords": ["courage", "action", "protection", "strength", "boundaries", "iron"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.jupiter",
+    "category": "category.planets",
+    "name": "Jupiter",
+    "summary": "Abundance, luck, growth, wisdom, justice and generosity.",
+    "body": "Jupiter is the largest planet, named for the king of the Roman gods. It rules expansion: wealth, good fortune, opportunity, higher learning, law and generosity.\n\nIt rules Thursday. Its colors are royal blue and purple, its element is given as air or fire, and its metal is tin. Cinnamon, sage, nutmeg and oak belong to Jupiter.\n\nCall on Jupiter for money and career growth, legal matters, study, and asking for wise guidance.",
+    "keywords": ["abundance", "luck", "growth", "wisdom", "justice", "generosity"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.planets.saturn",
+    "category": "category.planets",
+    "name": "Saturn",
+    "summary": "Time, limits, endings, discipline, binding and the ancestors.",
+    "body": "Saturn is the slowest and farthest of the seven classical lights, named for the Roman god of time and harvest. It rules structure and limits: discipline, patience, endings, old age and what lasts.\n\nIt rules Saturday. Its colors are black and dark purple, its element is earth, and its metal is lead, which is not used in practice; many people use iron or a dark stone instead. Cypress, myrrh and patchouli belong to Saturn.\n\nCall on Saturn for banishing, binding, breaking habits, long projects and honoring the dead.",
+    "keywords": ["time", "limits", "endings", "discipline", "banishing", "ancestors"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]
