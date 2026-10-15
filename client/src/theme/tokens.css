@@ -1,0 +1,36 @@
+:root {
+  --leather-900: #1f130d;
+  --leather-800: #2e1d14;
+  --leather-700: #47301f;
+  --parchment: #efe3c8;
+  --parchment-deep: #e2d1ab;
+  --parchment-edge: #b9a074;
+  --ink: #2b1a10;
+  --ink-soft: #5b4430;
+  --text-on-leather: #eadcc0;
+  --oxblood: #6e1f24;
+  --oxblood-wash: #f1d9d3;
+  --gold: #b08d57;
+  --accent: #b08d57;
+  --accent-ink: #6f521f;
+  --leaf: #4a6440;
+  --marigold: #e8890c;
+  --candle: #f2b33d;
+  --rosa: #b0244f;
+  --turquesa: #1f7a7a;
+
+  --font-head: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+  --radius: 4px;
+  --sidebar-w: 236px;
+  --gutter: clamp(16px, 3vw, 40px);
+  --focus: var(--oxblood);
+}
+
+/* Book & Folk: the same book with marigold, candle and papel picado accents. */
+[data-theme='book-folk'] {
+  --accent: #e8890c;
+  --accent-ink: #9a3b07;
+  --leather-700: #5a2e1a;
+  --focus: #9a3b07;
+}
