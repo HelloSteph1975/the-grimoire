@@ -42,5 +42,57 @@
   [
     "corr.colors.gold",
     "corr.days.sunday"
+  ],
+  [
+    "corr.elements.earth",
+    "corr.colors.brown"
+  ],
+  [
+    "corr.elements.earth",
+    "corr.colors.green"
+  ],
+  [
+    "corr.elements.earth",
+    "corr.days.saturday"
+  ],
+  [
+    "corr.elements.air",
+    "corr.colors.yellow"
+  ],
+  [
+    "corr.elements.air",
+    "corr.days.wednesday"
+  ],
+  [
+    "corr.elements.fire",
+    "corr.colors.red"
+  ],
+  [
+    "corr.elements.fire",
+    "corr.days.tuesday"
+  ],
+  [
+    "corr.elements.fire",
+    "corr.days.sunday"
+  ],
+  [
+    "corr.elements.water",
+    "corr.colors.blue"
+  ],
+  [
+    "corr.elements.water",
+    "corr.days.monday"
+  ],
+  [
+    "corr.elements.water",
+    "corr.days.friday"
+  ],
+  [
+    "corr.elements.spirit",
+    "corr.colors.white"
+  ],
+  [
+    "corr.elements.spirit",
+    "corr.colors.purple"
   ]
 ]
