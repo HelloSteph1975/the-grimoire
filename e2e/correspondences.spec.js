@@ -184,19 +184,29 @@ test('screenshots of the list and an entry page, phone and desktop', async ({ pa
   const phone = { width: 390, height: 844 };
   const desktop = { width: 1400, height: 900 };
   // Set the size first, then load the page, so the phone layout starts closed like a real visit.
-  const shot = async (name, size, url, heading) => {
+  // `ready` names something that loads late (the data folder path) to wait for before measuring.
+  const shot = async (name, size, url, heading, ready) => {
     await page.setViewportSize(size);
     await page.goto(url);
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+    if (ready) await expect(page.locator(ready)).toBeVisible();
+    // Nothing may stick out past the screen edge (the page must not scroll sideways).
+    const widths = await page.evaluate(() => ({ page: document.documentElement.scrollWidth, screen: window.innerWidth }));
+    expect(widths.page, `${name} is wider than the screen`).toBeLessThanOrEqual(widths.screen);
     await page.screenshot({ path: `test-results/${name}.png`, fullPage: true });
   };
   const list = '/correspondences';
   const entryUrl = `/correspondences/${entry.id}`;
 
   await shot('corr-list-phone', phone, list, 'Correspondences');
+  // On a phone the category tabs scroll sideways inside the page.
+  const tabs = await page.locator('.corr-tabs').evaluate(el => ({ scroll: el.scrollWidth, box: el.clientWidth, right: el.getBoundingClientRect().right }));
+  expect(tabs.scroll).toBeGreaterThan(tabs.box);
+  expect(tabs.right).toBeLessThanOrEqual(phone.width);
   await shot('corr-list-desktop', desktop, list, 'Correspondences');
   await shot('corr-entry-phone', phone, entryUrl, 'Crimson');
   await shot('corr-entry-desktop', desktop, entryUrl, 'Crimson');
+  await shot('settings-phone', phone, '/settings', 'Settings', 'code');
 
   await page.goto('/settings');
   await page.getByLabel('Look').selectOption('book-folk');

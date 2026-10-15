@@ -1,5 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
+/* Behind the fixed body gradient, so a tall page never shows a white strip past it. */
+html { background: var(--leather-900); }
 body {
   font-family: var(--font-body); font-size: 18px; line-height: 1.55; color: var(--ink);
   background: radial-gradient(ellipse at center, var(--leather-700), var(--leather-900) 75%) fixed;
@@ -9,6 +11,8 @@ h1 { font-size: 2.2rem; letter-spacing: .02em; }
 h2 { font-size: 1.5rem; }
 a { color: var(--oxblood); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* Long paths (the data folder) wrap instead of pushing the page wider. */
+code { overflow-wrap: anywhere; }
 .muted { color: var(--ink-soft); font-style: italic; }
 /* Forms wrap their fields in a fieldset only to lock them while saving; it adds no box. */
 fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -92,7 +96,10 @@ section + section { margin-top: 36px; }
 .toast-action { background: none; border: 1px solid var(--gold); color: var(--text-on-leather); border-radius: var(--radius); cursor: pointer; }
 
 @media (max-width: 860px) {
-  .app-shell { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr) and min-width: 0 let the page shrink to the screen instead of growing to fit
+     its widest child (the category tabs), so only the tabs scroll sideways. */
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .main { min-width: 0; }
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: var(--leather-900); color: var(--text-on-leather); }
   .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w); transform: translateX(-100%); visibility: hidden; transition: transform .2s, visibility 0s .2s; z-index: 40; }
   .sidebar.is-open { transform: none; visibility: visible; transition: transform .2s, visibility 0s 0s; }
