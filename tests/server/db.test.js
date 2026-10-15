@@ -11,8 +11,28 @@ describe('database', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
     const db = openDb(dir);
     expect(db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
+    expect(migrations.length).toBe(3);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
-    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed']));
+    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed', 'categories', 'correspondences', 'correspondence_traditions', 'correspondence_links']));
+    db.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  it('migrates a version 2 database to 3 and keeps its data', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
+    fs.mkdirSync(dir, { recursive: true });
+    const raw = new DatabaseSync(path.join(dir, 'grimoire.db'));
+    raw.exec(migrations[0]);
+    raw.exec(migrations[1]);
+    raw.exec('PRAGMA user_version = 2');
+    raw.prepare("INSERT INTO traditions (name, description, starter_key, is_starter) VALUES ('Wiccan', 'Mine', 'tradition.wiccan', 1)").run();
+    raw.prepare("INSERT INTO settings (key, value) VALUES ('theme', 'book-folk')").run();
+    raw.close();
+    const db = openDb(dir);
+    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(3);
+    expect(db.prepare('SELECT name, description, version, content_version FROM traditions').all())
+      .toEqual([{ name: 'Wiccan', description: 'Mine', version: 1, content_version: 1 }]);
+    expect(db.prepare("SELECT value FROM settings WHERE key = 'theme'").get().value).toBe('book-folk');
+    expect(db.prepare('SELECT count(*) n FROM categories').get().n).toBe(0);
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
   });

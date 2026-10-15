@@ -16,6 +16,21 @@ export const migrations = [
     sort_order INTEGER NOT NULL DEFAULT 0, starter_key TEXT UNIQUE, is_starter INTEGER NOT NULL DEFAULT 0, ${TS});
   CREATE TABLE starter_removed (starter_key TEXT PRIMARY KEY, removed_at TEXT NOT NULL DEFAULT (${NOW}));
   `,
+  // 3: categories, correspondences, their tradition joins and links; starter content versions for traditions.
+  `
+  ALTER TABLE traditions ADD COLUMN content_version INTEGER NOT NULL DEFAULT 1;
+  CREATE TABLE categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, icon TEXT NOT NULL DEFAULT 'star',
+    sort_order INTEGER NOT NULL DEFAULT 0, starter_key TEXT UNIQUE, is_starter INTEGER NOT NULL DEFAULT 0,
+    content_version INTEGER NOT NULL DEFAULT 1, ${TS});
+  CREATE TABLE correspondences (id INTEGER PRIMARY KEY AUTOINCREMENT, category_id INTEGER NOT NULL REFERENCES categories(id),
+    name TEXT NOT NULL, summary TEXT, body TEXT, keywords TEXT NOT NULL DEFAULT '[]', feast_day TEXT,
+    starter_key TEXT UNIQUE, is_starter INTEGER NOT NULL DEFAULT 0, content_version INTEGER NOT NULL DEFAULT 1, ${TS});
+  CREATE INDEX idx_corr_category ON correspondences(category_id);
+  CREATE TABLE correspondence_traditions (correspondence_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE,
+    tradition_id INTEGER NOT NULL REFERENCES traditions(id) ON DELETE CASCADE, PRIMARY KEY (correspondence_id, tradition_id));
+  CREATE TABLE correspondence_links (a_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE,
+    b_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE, PRIMARY KEY (a_id, b_id), CHECK (a_id < b_id));
+  `,
 ];
 
 export function migrate(db) {

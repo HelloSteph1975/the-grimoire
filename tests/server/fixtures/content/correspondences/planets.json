@@ -1,0 +1,4 @@
+[
+  { "starter_key": "corr.planets.moon", "category": "category.planets", "name": "Moon", "summary": "Our nearest neighbor.", "body": "The moon keeps time for tides and calendars.", "keywords": ["tides"], "traditions": [] },
+  { "starter_key": "corr.planets.ghost", "category": "category.missing", "name": "Ghost", "summary": "No home.", "body": "Its category does not exist.", "keywords": [], "traditions": [] }
+]

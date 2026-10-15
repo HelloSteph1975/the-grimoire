@@ -6,15 +6,29 @@ import { openDb } from '../../server/db/connection.js';
 import { seedStarter } from '../../server/services/starter.js';
 import { repos } from '../../server/db/repos.js';
 
-let dir, db;
-beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-seed-')); db = openDb(dir); });
-afterEach(() => { db.close(); fs.rmSync(dir, { recursive: true, force: true }); });
+const FIXTURE = path.join(import.meta.dirname, 'fixtures', 'content');
+let dir, db, extra;
+beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-seed-')); db = openDb(dir); extra = []; });
+afterEach(() => { db.close(); fs.rmSync(dir, { recursive: true, force: true }); for (const d of extra) fs.rmSync(d, { recursive: true, force: true }); });
+
+// Copies the fixture folder to a temp dir and applies a transform to each named file.
+function copyFixtureWith(changes) {
+  const to = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-fix-'));
+  extra.push(to);
+  fs.cpSync(FIXTURE, to, { recursive: true });
+  for (const [rel, fn] of Object.entries(changes)) {
+    const file = path.join(to, rel);
+    fs.writeFileSync(file, JSON.stringify(fn(JSON.parse(fs.readFileSync(file, 'utf8')))));
+  }
+  return to;
+}
 
 describe('seedStarter', () => {
-  it('adds the starter traditions once', () => {
-    expect(seedStarter(db)).toBe(3);
+  it('adds the starter traditions and categories once', () => {
+    expect(seedStarter(db)).toBe(3 + 9);
     expect(seedStarter(db)).toBe(0);
     expect(repos(db).traditions.list()).toHaveLength(3);
+    expect(repos(db).categories.list()).toHaveLength(9);
   });
   it('never overwrites an edited starter entry', () => {
     seedStarter(db);
@@ -35,5 +49,67 @@ describe('seedStarter', () => {
     db.prepare("INSERT INTO starter_removed (starter_key) VALUES ('tradition.wiccan')").run();
     db.prepare("DELETE FROM traditions WHERE starter_key = 'tradition.wiccan'").run();
     expect(seedStarter(db)).toBe(0);
+  });
+  it('seeds categories, entries, traditions and links, and skips entries with no category', () => {
+    const n = seedStarter(db, { content: FIXTURE });
+    expect(n).toBe(3 + 2 + 2);
+    const monday = db.prepare("SELECT * FROM correspondences WHERE starter_key='corr.days.monday'").get();
+    expect(JSON.parse(monday.keywords)).toEqual(['moon', 'intuition']);
+    expect(db.prepare('SELECT count(*) n FROM correspondence_traditions WHERE correspondence_id = ?').get(monday.id).n).toBe(1);
+    expect(db.prepare('SELECT count(*) n FROM correspondence_links').get().n).toBe(1);
+    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.planets.ghost'").get()).toBeUndefined();
+  });
+  it('does not re-add a link the owner removed', () => {
+    seedStarter(db, { content: FIXTURE });
+    db.exec('DELETE FROM correspondence_links');
+    seedStarter(db, { content: FIXTURE });
+    expect(db.prepare('SELECT count(*) n FROM correspondence_links').get().n).toBe(0);
+  });
+  it('skips entries whose category was deleted forever', () => {
+    db.prepare("INSERT INTO starter_removed (starter_key) VALUES ('category.days')").run();
+    seedStarter(db, { content: FIXTURE });
+    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeUndefined();
+  });
+  it('still finds a category that is in the Trash', () => {
+    seedStarter(db, { content: FIXTURE });
+    db.exec("UPDATE categories SET deleted_at = '2026-01-01T00:00:00.000Z' WHERE starter_key = 'category.days'");
+    db.exec("DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences WHERE starter_key = 'corr.days.monday'");
+    expect(seedStarter(db, { content: FIXTURE })).toBe(1);
+    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeDefined();
+  });
+  it('updates unedited starter rows when content_version goes up, and leaves edited ones alone', () => {
+    seedStarter(db, { content: FIXTURE });
+    const bumped = copyFixtureWith({ 'correspondences/days.json': d => d.map(e => ({ ...e, summary: 'New text', content_version: 2 })) });
+    const moon = db.prepare("SELECT * FROM correspondences WHERE starter_key='corr.planets.moon'").get();
+    db.prepare("UPDATE correspondences SET is_starter = 0, summary = 'Mine' WHERE id = ?").run(moon.id);
+    seedStarter(db, { content: bumped });
+    const monday = db.prepare("SELECT * FROM correspondences WHERE starter_key='corr.days.monday'").get();
+    expect(monday).toMatchObject({ summary: 'New text', content_version: 2, version: 2 });
+    expect(db.prepare('SELECT summary FROM correspondences WHERE id = ?').get(moon.id).summary).toBe('Mine');
+  });
+  it('does not update a starter row that is in the Trash', () => {
+    seedStarter(db, { content: FIXTURE });
+    db.exec("UPDATE correspondences SET deleted_at = '2026-01-01T00:00:00.000Z' WHERE starter_key = 'corr.days.monday'");
+    const bumped = copyFixtureWith({ 'correspondences/days.json': d => d.map(e => ({ ...e, summary: 'New text', content_version: 2 })) });
+    seedStarter(db, { content: bumped });
+    expect(db.prepare("SELECT summary FROM correspondences WHERE starter_key='corr.days.monday'").get().summary).toBe('The day of the moon.');
+  });
+  it('updates a starter tradition and category when content_version goes up', () => {
+    seedStarter(db, { content: FIXTURE });
+    const bumped = copyFixtureWith({
+      'traditions.json': d => d.map(e => ({ ...e, description: 'Fresh', content_version: 2 })),
+      'categories.json': d => d.map(e => ({ ...e, name: 'Renamed', content_version: 2 })),
+    });
+    seedStarter(db, { content: bumped });
+    expect(db.prepare("SELECT description, content_version, version FROM traditions WHERE starter_key='tradition.wiccan'").get())
+      .toMatchObject({ description: 'Fresh', content_version: 2, version: 2 });
+    expect(db.prepare("SELECT name FROM categories WHERE starter_key='category.days'").get().name).toBe('Renamed');
+  });
+  it('refreshes the tradition joins on update', () => {
+    seedStarter(db, { content: FIXTURE });
+    const bumped = copyFixtureWith({ 'correspondences/days.json': d => d.map(e => ({ ...e, traditions: ['tradition.wiccan', 'tradition.mexican-folk'], content_version: 2 })) });
+    seedStarter(db, { content: bumped });
+    const id = db.prepare("SELECT id FROM correspondences WHERE starter_key='corr.days.monday'").get().id;
+    expect(db.prepare('SELECT count(*) n FROM correspondence_traditions WHERE correspondence_id = ?').get(id).n).toBe(2);
   });
 });
