@@ -101,3 +101,13 @@ section + section { margin-top: 36px; }
   .page { padding: 48px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Keyword chips and the entry picker */
+.chips { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 10px; border: 1px solid var(--parchment-edge); border-radius: 999px; background: var(--parchment-deep); color: var(--ink); }
+.chip-remove { display: inline-flex; align-items: center; padding: 2px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); cursor: pointer; }
+.chip-remove:hover { color: var(--oxblood); }
+.picker-results { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--parchment-edge); border-radius: var(--radius); background: #fbf6ea; }
+.picker-results button { display: block; width: 100%; text-align: left; padding: 6px 10px; border: 0; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.picker-results button:hover { background: var(--parchment-deep); }
+.picker-none { color: var(--ink-soft); min-height: 1em; }

@@ -44,3 +44,14 @@ describe('damaged language packs', () => {
     expect(document.documentElement.lang).toBe('en');
   });
 });
+
+describe('useT outside a provider', () => {
+  it('returns the same t on every render', () => {
+    const seen = [];
+    function Probe() { seen.push(useT().t); return null; }
+    const { rerender } = render(<Probe />);
+    rerender(<Probe />);
+    expect(seen.length).toBeGreaterThan(1);
+    expect(new Set(seen).size).toBe(1);
+  });
+});

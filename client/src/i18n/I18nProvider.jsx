@@ -30,7 +30,9 @@ export function I18nProvider({ language = 'en', children }) {
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+const FALLBACK = { t: (k, v) => fill(en[k] ?? k, v), tc: (s, f, fb) => fb, language: 'en' };
+
 // Works outside a provider too (tests, early errors): plain English.
 export function useT() {
-  return useContext(Ctx) ?? { t: (k, v) => fill(en[k] ?? k, v), tc: (s, f, fb) => fb, language: 'en' };
+  return useContext(Ctx) ?? FALLBACK;
 }

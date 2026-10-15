@@ -64,6 +64,16 @@ describe('ChipsInput', () => {
   });
 });
 
+describe('ChipsInput focus', () => {
+  it('returns focus to the input after removing a chip, and stays enabled at max', async () => {
+    const user = userEvent.setup();
+    render(<Harness start={['a', 'b']} max={2} />);
+    expect(box()).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Remove a' }));
+    expect(box()).toHaveFocus();
+  });
+});
+
 describe('CategoryIcon', () => {
   it('renders every named icon and falls back for unknown names, hidden from screen readers', () => {
     expect(ICONS).toHaveLength(12);

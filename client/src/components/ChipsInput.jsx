@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useT } from '../i18n/I18nProvider.jsx';
 
 export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30, label }) {
   const { t } = useT();
   const [text, setText] = useState('');
+  const inputRef = useRef(null);
   const full = value.length >= max;
 
   function commit(raw) {
@@ -30,14 +31,14 @@ export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30,
           <li key={item} className="chip">
             <span>{item}</span>
             <button type="button" className="chip-remove" aria-label={t('chips.remove', { item })}
-              onClick={() => onChange(value.filter(v => v !== item))}>
+              onClick={() => { onChange(value.filter(v => v !== item)); inputRef.current?.focus(); }}>
               <X size={12} aria-hidden="true" />
             </button>
           </li>
         ))}
       </ul>
-      <input id={id} type="text" className="input" aria-label={label} value={text} maxLength={maxLength + 1}
-        onChange={e => setText(e.target.value.replace(/,/g, ''))} onKeyDown={onKeyDown} disabled={full} />
+      <input ref={inputRef} id={id} type="text" className="input" aria-label={label} value={text} maxLength={maxLength + 1}
+        onChange={e => setText(e.target.value.replace(/,/g, ''))} onKeyDown={onKeyDown} />
       <small className="field-hint">{t('chips.limit', { max })}</small>
     </div>
   );

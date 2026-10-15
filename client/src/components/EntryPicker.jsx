@@ -10,13 +10,13 @@ export function EntryPicker({ value = [], onChange, excludeId }) {
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
   const seq = useRef(0);
-  // Outside a provider t changes every render; the search must only restart when the text does.
-  const tRef = useRef(t);
-  tRef.current = t;
+  const inputRef = useRef(null);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const term = q.trim();
     const mine = ++seq.current;
+    setDone(false);
     if (!term) { setResults([]); setError(null); return undefined; }
     const timer = setTimeout(async () => {
       try {
@@ -24,14 +24,15 @@ export function EntryPicker({ value = [], onChange, excludeId }) {
         if (mine !== seq.current) return;
         setResults(rows);
         setError(null);
+        setDone(true);
       } catch (err) {
         if (mine !== seq.current) return;
         setResults([]);
-        setError(errorText(err, tRef.current));
+        setError(errorText(err, t));
       }
     }, 250);
     return () => clearTimeout(timer);
-  }, [q]);
+  }, [q, t]);
 
   const chosen = new Set(value.map(v => v.id));
   const shown = results.filter(r => r.id !== excludeId && !chosen.has(r.id)).slice(0, 10);
@@ -41,6 +42,7 @@ export function EntryPicker({ value = [], onChange, excludeId }) {
     onChange([...value, { id: r.id, name: nameOf(r) }]);
     setQ('');
     setResults([]);
+    inputRef.current?.focus();
   }
 
   return (
@@ -51,15 +53,16 @@ export function EntryPicker({ value = [], onChange, excludeId }) {
             <li key={v.id} className="chip">
               <span>{v.name}</span>
               <button type="button" className="chip-remove" aria-label={t('chips.remove', { item: v.name })}
-                onClick={() => onChange(value.filter(x => x.id !== v.id))}>
+                onClick={() => { onChange(value.filter(x => x.id !== v.id)); inputRef.current?.focus(); }}>
                 <X size={12} aria-hidden="true" />
               </button>
             </li>
           ))}
         </ul>
       )}
-      <input type="text" className="input" aria-label={t('picker.search')} value={q} onChange={e => setQ(e.target.value)} />
+      <input ref={inputRef} type="text" className="input" aria-label={t('picker.search')} value={q} onChange={e => setQ(e.target.value)} />
       {error && <small className="field-error" role="alert">{error}</small>}
+      <div role="status" className="picker-none">{!error && done && results.length === 0 ? t('picker.none') : null}</div>
       {shown.length > 0 && (
         <ul className="picker-results">
           {shown.map(r => (

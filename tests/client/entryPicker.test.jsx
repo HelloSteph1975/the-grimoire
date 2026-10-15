@@ -71,4 +71,25 @@ describe('EntryPicker', () => {
     await settle(260);
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
+
+  it('returns focus to the input after picking and after removing', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(rows)));
+    render(<Harness />);
+    const input = screen.getByLabelText('Find an entry to link');
+    type('mo');
+    await settle(260);
+    fireEvent.click(screen.getByRole('button', { name: 'Moonstone' }));
+    expect(input).toHaveFocus();
+    input.blur();
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Moonstone' }));
+    expect(input).toHaveFocus();
+  });
+
+  it('says No matches when a search returns nothing', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json([])));
+    render(<Harness />);
+    type('zz');
+    await settle(260);
+    expect(screen.getByRole('status')).toHaveTextContent('No matches');
+  });
 });
