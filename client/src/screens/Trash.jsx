@@ -5,6 +5,7 @@ import { useConfirm } from '../components/ConfirmProvider.jsx';
 import { useToast } from '../components/ToastProvider.jsx';
 import { useResource } from '../lib/useResource.js';
 import { api } from '../lib/api.js';
+import { errorText } from '../lib/errors.js';
 import { useT } from '../i18n/I18nProvider.jsx';
 
 export function Trash() {
@@ -14,7 +15,7 @@ export function Trash() {
   const list = useResource('/api/trash');
   const fmt = iso => new Date(iso).toLocaleString(language, { dateStyle: 'medium', timeStyle: 'short' });
   const run = async (fn, message) => {
-    try { await list.act(fn); if (message) toast.show({ message }); } catch (err) { toast.show({ message: err.message }); }
+    try { await list.act(fn); if (message) toast.show({ message }); } catch (err) { toast.show({ message: errorText(err, t) }); }
   };
 
   const restore = item => run(() => api.post(`/api/trash/${item.type}/${item.id}/restore`), t('trash.restored', { title: item.title }));

@@ -1,5 +1,7 @@
+import { Router } from 'express';
 import { crudRouter } from './crud.js';
 import { repos } from '../db/repos.js';
+import { reorder, reorderItems } from '../services/reorder.js';
 
 export const TRADITION_SCHEMA = {
   name: { type: 'string!', maxLength: 60 },
@@ -8,4 +10,9 @@ export const TRADITION_SCHEMA = {
   sort_order: { type: 'int', min: 0, max: 10000 },
 };
 
-export const traditionsRouter = ctx => crudRouter(ctx, { repo: db => repos(db).traditions, schema: TRADITION_SCHEMA, starter: true });
+export function traditionsRouter(ctx) {
+  const r = Router();
+  r.post('/reorder', (req, res) => { reorder(ctx.db, 'traditions', reorderItems(req.body)); res.json(repos(ctx.db).traditions.list()); });
+  r.use(crudRouter(ctx, { repo: db => repos(db).traditions, schema: TRADITION_SCHEMA, starter: true }));
+  return r;
+}

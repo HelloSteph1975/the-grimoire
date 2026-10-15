@@ -10,12 +10,19 @@ import { Traditions } from '../../client/src/screens/settings/Traditions.jsx';
 let rows;
 const json = (b, s = 200) => new Response(JSON.stringify(b), { status: s });
 function server() {
-  rows = [{ id: 1, name: 'Wiccan', description: null, color: '#2f4a3a', version: 1, is_starter: 1, starter_key: 'tradition.wiccan' }];
+  rows = [
+    { id: 1, name: 'Wiccan', description: null, color: '#2f4a3a', version: 1, is_starter: 1, starter_key: 'tradition.wiccan' },
+    { id: 2, name: 'Eclectic', description: null, color: '#6e1f24', version: 1, is_starter: 1, starter_key: 'tradition.eclectic' },
+  ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
     const body = opts.body ? JSON.parse(opts.body) : null;
     if (url === '/api/traditions' && m === 'GET') return json(rows);
-    if (url === '/api/traditions' && m === 'POST') { const r = { id: 2, version: 1, is_starter: 0, ...body }; rows.push(r); return json(r, 201); }
+    if (url === '/api/traditions' && m === 'POST') { const r = { id: 3, version: 1, is_starter: 0, ...body }; rows.push(r); return json(r, 201); }
+    if (url === '/api/traditions/reorder' && m === 'POST') {
+      rows = body.items.map((it, i) => ({ ...rows.find(r => r.id === it.id), sort_order: (i + 1) * 10 }));
+      return json(rows);
+    }
     const id = Number(url.split('/')[3]);
     if (m === 'PATCH') {
       const r = rows.find(x => x.id === id);
@@ -31,6 +38,15 @@ const mount = () => render(<RouterProvider router={createMemoryRouter([{ path: '
 afterEach(() => vi.unstubAllGlobals());
 
 describe('Traditions', () => {
+  it('reorders with the move buttons', async () => {
+    server(); mount();
+    await screen.findByText('Wiccan');
+    expect(screen.getByRole('button', { name: 'Move Wiccan up' })).toBeDisabled();
+    await userEvent.click(screen.getByRole('button', { name: 'Move Wiccan down' }));
+    const post = fetch.mock.calls.find(([u]) => u === '/api/traditions/reorder');
+    expect(JSON.parse(post[1].body).items).toEqual([{ id: 2, version: 1 }, { id: 1, version: 1 }]);
+    await vi.waitFor(() => expect(screen.getAllByRole('listitem')[0]).toHaveTextContent('Eclectic'));
+  });
   it('lists traditions with the Starter tag', async () => {
     server(); mount();
     const item = (await screen.findByText('Wiccan')).closest('li');

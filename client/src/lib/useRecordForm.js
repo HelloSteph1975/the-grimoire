@@ -1,9 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import { useLeaveGuard } from './useLeaveGuard.js';
+import { errorText, fieldErrors } from './errors.js';
+import { useT } from '../i18n/I18nProvider.jsx';
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export function useRecordForm({ initial, submit }) {
+  const { t } = useT();
   const [values, setValues] = useState(initial);
   const [baseline, setBaseline] = useState(initial);
   const [errors, setErrors] = useState({});
@@ -38,14 +41,14 @@ export function useRecordForm({ initial, submit }) {
       return out;
     } catch (err) {
       if (err.status === 409 && err.current) setConflict(err.current);
-      else if (err.status === 400 && err.details && Object.keys(err.details).length) setErrors(err.details);
-      else setFormError(err.message);
+      else if (err.status === 400 && err.details && Object.keys(err.details).length) setErrors(fieldErrors(err, t));
+      else setFormError(errorText(err, t));
       return null;
     } finally {
       busy.current = false;
       setSaving(false);
     }
-  }, [submit, values, markSaved, isDirtyNow]);
+  }, [submit, values, markSaved, isDirtyNow, t]);
 
   const onSubmit = useCallback(e => { e?.preventDefault?.(); return run(undefined); }, [run]);
   const keepMine = useCallback(() => run(conflict?.version), [run, conflict]);
