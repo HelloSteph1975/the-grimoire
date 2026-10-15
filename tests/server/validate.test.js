@@ -24,4 +24,28 @@ describe('validate', () => {
     const r = validate(s, { b: 'abc', c: 0, d: 'nope', e: 'z' });
     expect(r.codes).toEqual({ a: { code: 'required' }, b: { code: 'too_long', max: 2 }, c: { code: 'too_small', min: 1 }, d: { code: 'not_date' }, e: { code: 'not_one_of' } });
   });
+  it('checks lists of strings', () => {
+    const s = { k: { type: 'strings', maxItems: 2, maxLength: 3 } };
+    expect(validate(s, { k: ['a', 'b'] }).data).toEqual({ k: ['a', 'b'] });
+    expect(validate(s, { k: ['a', 'b', 'c'] }).codes.k).toEqual({ code: 'too_many', max: 2 });
+    expect(validate(s, { k: ['abcd'] }).codes.k).toEqual({ code: 'too_long', max: 3 });
+    expect(validate(s, { k: 'a' }).codes.k).toEqual({ code: 'not_text' });
+    expect(validate(s, { k: [1] }).codes.k).toEqual({ code: 'not_text' });
+    expect(validate(s, { k: null }).data).toEqual({ k: [] });
+  });
+  it('checks lists of ids', () => {
+    const s = { ids: { type: 'ids', maxItems: 2 } };
+    expect(validate(s, { ids: [3, 1, 3] }).data).toEqual({ ids: [3, 1] });
+    expect(validate(s, { ids: [1, 2, 3] }).codes.ids).toEqual({ code: 'too_many', max: 2 });
+    expect(validate(s, { ids: [0] }).codes.ids).toEqual({ code: 'bad_id' });
+    expect(validate(s, { ids: ['1'] }).codes.ids).toEqual({ code: 'bad_id' });
+    expect(validate(s, { ids: 1 }).codes.ids).toEqual({ code: 'bad_id' });
+  });
+  it('checks month-days, leap day included', () => {
+    const s = { d: { type: 'monthDay', hintKey: 'feast_day' } };
+    expect(validate(s, { d: '02-29' }).data).toEqual({ d: '02-29' });
+    expect(validate(s, { d: '12-31' }).data).toEqual({ d: '12-31' });
+    for (const bad of ['13-01', '02-30', '04-31', '1-01', '00-10', 1231]) expect(validate(s, { d: bad }).codes.d).toEqual({ code: 'bad_format', hint: 'feast_day' });
+    expect(validate(s, { d: '' }).data).toEqual({ d: null });
+  });
 });

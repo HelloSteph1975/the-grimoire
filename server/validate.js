@@ -1,12 +1,36 @@
 import { HttpError } from './http.js';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_DAY = /^\d{2}-\d{2}$/;
 
 function isRealDate(v) {
   if (!DATE.test(v)) return false;
   const [y, m, d] = v.split('-').map(Number);
   const dt = new Date(Date.UTC(y, m - 1, d));
   return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
+// A real day in a leap year, so 02-29 is allowed.
+function isRealMonthDay(v) {
+  if (typeof v !== 'string' || !MONTH_DAY.test(v)) return false;
+  const [m, d] = v.split('-').map(Number);
+  const dt = new Date(Date.UTC(2024, m - 1, d));
+  return dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
+function checkStrings(v, rule) {
+  if (!Array.isArray(v) || !v.every(x => typeof x === 'string')) return { error: 'Must be a list of text', code: 'not_text' };
+  if (rule.maxItems !== undefined && v.length > rule.maxItems) return { error: `No more than ${rule.maxItems}`, code: 'too_many', vars: { max: rule.maxItems } };
+  if (rule.maxLength && v.some(x => x.trim().length > rule.maxLength)) return { error: `Keep each one to ${rule.maxLength} characters or fewer`, code: 'too_long', vars: { max: rule.maxLength } };
+  return { value: v.map(x => x.trim()) };
+}
+
+// A list of record ids, without repeats.
+function checkIds(v, rule) {
+  if (!Array.isArray(v) || !v.every(x => Number.isInteger(x) && x >= 1)) return { error: 'That link is broken', code: 'bad_id' };
+  const ids = [...new Set(v)];
+  if (rule.maxItems !== undefined && ids.length > rule.maxItems) return { error: `No more than ${rule.maxItems}`, code: 'too_many', vars: { max: rule.maxItems } };
+  return { value: ids };
 }
 
 function normalizeRule(raw) {
@@ -44,7 +68,7 @@ export function validate(schema, body, { partial = false } = {}) {
     if (v === '' || v === undefined) v = null;
     if (v === null) {
       if (rule.required || rule.nullable === false) fail(errors, codes, key, 'Required', 'required');
-      else data[key] = null;
+      else data[key] = rule.type === 'strings' || rule.type === 'ids' ? [] : null;
       continue;
     }
     if (Array.isArray(rule.type)) {
@@ -66,6 +90,11 @@ export function validate(schema, body, { partial = false } = {}) {
       case 'bool': out = { value: v === true || v === 1 || v === '1' || v === 'true' ? 1 : 0 }; break;
       case 'date':
         out = typeof v === 'string' && isRealDate(v) ? { value: v } : { error: 'Must be a date (YYYY-MM-DD)', code: 'not_date' };
+        break;
+      case 'strings': out = checkStrings(v, rule); break;
+      case 'ids': out = checkIds(v, rule); break;
+      case 'monthDay':
+        out = isRealMonthDay(v) ? { value: v } : { error: 'Use a day like 12-12 (month-day)', code: 'bad_format', vars: rule.hintKey ? { hint: rule.hintKey } : {} };
         break;
       default: throw new Error(`Unknown rule type for ${key}`);
     }
