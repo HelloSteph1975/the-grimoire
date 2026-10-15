@@ -1,1 +1,65 @@
-[]
+[
+  {
+    "starter_key": "corr.days.monday",
+    "category": "category.days",
+    "name": "Monday",
+    "summary": "The Moon's day: dreams, intuition, home and the tides of feeling.",
+    "body": "Monday takes its name from the Moon, and many practitioners keep it for quiet, inward work. It suits dream work, divination, cleansing the home, and anything that asks you to listen rather than push.\n\nIts usual colors are silver and white, and its element is water. Spells for family, comfort, sleep and emotional balance are often set for a Monday, especially when the Moon itself is waxing or full.\n\nSome people simply use it as a soft start to the week: a candle at the window, a bowl of water, a few minutes of stillness.",
+    "keywords": ["moon", "intuition", "dreams", "home", "emotions", "cleansing"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.tuesday",
+    "category": "category.days",
+    "name": "Tuesday",
+    "summary": "Mars's day: courage, protection, drive and clearing obstacles.",
+    "body": "Tuesday belongs to Mars, the planet of action and defense. It is the day many witches choose for protection work, for finding the nerve to start something hard, and for cutting ties that hold them back.\n\nRed is its color and fire its element. Iron, nails, thorny plants and hot spices turn up often in Tuesday workings.\n\nBecause Mars energy is quick and sharp, it is worth stating your intention clearly before you begin: aim it at the obstacle, not at a person.",
+    "keywords": ["mars", "courage", "protection", "strength", "action", "boundaries"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.wednesday",
+    "category": "category.days",
+    "name": "Wednesday",
+    "summary": "Mercury's day: words, study, travel, trade and messages.",
+    "body": "Wednesday is ruled by Mercury, the messenger. It favors anything that moves information: writing, learning, signing papers, sending letters, job interviews and short trips.\n\nIts colors are orange and yellow, sometimes purple, and its element is air. Spells for clear speech, good memory, smooth paperwork and fair business deals are often set on a Wednesday.\n\nIt is also a good day to start a new journal, a course of study, or a page in this book.",
+    "keywords": ["mercury", "communication", "study", "travel", "business", "writing"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.thursday",
+    "category": "category.days",
+    "name": "Thursday",
+    "summary": "Jupiter's day: growth, abundance, luck, wisdom and good fortune.",
+    "body": "Thursday takes its energy from Jupiter, the largest planet and a traditional sign of expansion and generosity. It is a favored day for money, career growth, legal matters, and anything you hope will get bigger.\n\nIts colors are royal blue and purple, and its element is often given as fire or air depending on the source. Cinnamon, oak and coins appear in many Thursday workings.\n\nJupiter is also linked with teachers and good counsel, so Thursday suits asking for guidance as well as asking for gain.",
+    "keywords": ["jupiter", "abundance", "prosperity", "luck", "growth", "wisdom"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.friday",
+    "category": "category.days",
+    "name": "Friday",
+    "summary": "Venus's day: love, friendship, beauty, pleasure and harmony.",
+    "body": "Friday is Venus's day. It is the classic day for love spells, but its reach is wider: friendship, self-love, beauty, art, music, peace in the household and simple pleasure all belong here.\n\nPink and green are its colors, and its element is water or earth. Roses, copper, rose quartz and anything sweet are common Friday ingredients.\n\nMany practitioners use Friday for care rather than spells at all: a ritual bath, flowers on the altar, a meal shared with people they love.",
+    "keywords": ["venus", "love", "friendship", "beauty", "harmony", "self-love"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.saturday",
+    "category": "category.days",
+    "name": "Saturday",
+    "summary": "Saturn's day: endings, banishing, boundaries, discipline and the ancestors.",
+    "body": "Saturday is ruled by Saturn, the slow outer planet of the classical sky, tied to time, limits and endings. It is the traditional day for banishing, binding, breaking bad habits and closing what needs to close.\n\nIts color is black, sometimes deep purple or gray, and its element is earth. Salt, iron, cypress and dark candles are common in Saturday work.\n\nSaturday is also a good day for steady, unglamorous tasks: cleaning the altar, sorting supplies, tending graves or honoring the ancestors.",
+    "keywords": ["saturn", "banishing", "endings", "boundaries", "discipline", "ancestors"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.days.sunday",
+    "category": "category.days",
+    "name": "Sunday",
+    "summary": "The Sun's day: success, vitality, confidence and joy.",
+    "body": "Sunday belongs to the Sun. It is a bright, open day for success, recognition, confidence and renewed energy, and for anything you want to see clearly.\n\nGold and yellow are its colors, and its element is fire. Sunflowers, marigolds, citrus, bay leaf and gold-colored candles are typical Sunday choices.\n\nIt pairs well with gratitude: naming what went well during the week, or setting a hopeful intention for the week ahead.",
+    "keywords": ["sun", "success", "vitality", "confidence", "joy", "gratitude"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]
