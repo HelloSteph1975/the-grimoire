@@ -116,5 +116,9 @@
   "error.backup_newer": "That backup was made by a newer version of The Grimoire. Update the app first; nothing was changed.",
   "error.backup_foreign": "That file isn't a Grimoire backup, so nothing was changed.",
   "error.in_use": "Restore stopped: a database file is in use by another program. Nothing was changed.",
-  "error.restore_failed": "Restore failed; your data was put back from the safety copy."
+  "error.restore_failed": "Restore failed; your data was put back from the safety copy.",
+  "chips.remove": "Remove {item}",
+  "chips.limit": "Up to {max}",
+  "picker.search": "Find an entry to link",
+  "picker.none": "No matches"
 }
