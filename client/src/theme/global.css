@@ -117,7 +117,7 @@ section + section { margin-top: 36px; }
 .corr-tab { display: inline-flex; align-items: center; gap: 6px; font: inherit; padding: 4px 12px; cursor: pointer;
   border: 1px solid var(--parchment-edge); border-radius: 999px; background: transparent; color: var(--ink); }
 .corr-tab:hover { background: var(--parchment-deep); }
-.corr-tab[aria-selected='true'] { background: var(--oxblood); border-color: var(--oxblood); color: var(--parchment); }
+.corr-tab[aria-pressed='true'] { background: var(--oxblood); border-color: var(--oxblood); color: var(--parchment); }
 .corr-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .corr-filters input[type='search'] { flex: 1; min-width: 12em; }
 .corr-row { flex: 1; display: grid; grid-template-columns: minmax(8em, 12em) 1fr; column-gap: 16px; text-decoration: none; color: var(--ink); }
