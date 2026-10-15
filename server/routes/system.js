@@ -14,7 +14,9 @@ export function systemRouter(ctx, { onShutdown }) {
   });
   r.post('/backups/restore', localOnly, (req, res) => {
     const { name } = check({ name: 'string!' }, req.body);
-    res.json(restoreBackup(ctx, name));
+    const out = restoreBackup(ctx, name);
+    res.set('X-Grimoire-Epoch', ctx.epoch); // the restore just changed it
+    res.json(out);
   });
   r.get('/data-folder', localOnly, (req, res) => res.json({ path: ctx.config.dataDir }));
   r.post('/data-folder/open', localOnly, (req, res) => {

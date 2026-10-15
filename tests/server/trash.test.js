@@ -1,6 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import { makeTestContext } from './helpers.js';
 import { seedStarter } from '../../server/services/starter.js';
+import { emptyTrash } from '../../server/services/trash.js';
+import { backupNow, listBackups } from '../../server/services/backup.js';
 
 let t;
 beforeEach(() => { t = makeTestContext(); });
@@ -49,6 +53,25 @@ describe('/api/trash', () => {
     expect(res.body.removed).toBe(2);
     expect(res.body.backup).toMatch(/^pre-empty-/);
     expect((await t.http().get('/api/trash')).body).toEqual([]);
+  });
+  it('keeps 30 backups after emptying, including the pre-empty one', async () => {
+    for (let i = 0; i < 30; i++) backupNow(t.ctx.db, t.dataDir, { now: new Date(2026, 0, 1 + i, 9, 0) });
+    await addAndDelete('One');
+    const discarded = [];
+    const out = emptyTrash(t.ctx, { discard: f => { discarded.push(path.basename(f)); fs.rmSync(f); } });
+    expect(discarded).toEqual(['grimoire-2026-01-01-0900.db']);
+    const left = listBackups(t.dataDir).map(b => b.name);
+    expect(left).toHaveLength(30);
+    expect(left).toContain(out.backup);
+  });
+  it('logs a failed rotation after emptying and still empties the Trash', async () => {
+    for (let i = 0; i < 30; i++) backupNow(t.ctx.db, t.dataDir, { now: new Date(2026, 0, 1 + i, 9, 0) });
+    await addAndDelete('One');
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const out = emptyTrash(t.ctx, { discard: () => { throw new Error('locked'); } });
+    expect(out.removed).toBe(1);
+    expect(logged).toHaveBeenCalled();
+    logged.mockRestore();
   });
   it('keeps a starter entry deleted forever from coming back', async () => {
     const { body: list } = await t.http().get('/api/traditions');

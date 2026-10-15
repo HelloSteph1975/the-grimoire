@@ -4,7 +4,7 @@ The Grimoire is a personal Book of Shadows. It runs on the user's own computer. 
 
 ## Golden rules
 
-1. Never delete, move, overwrite or reset the data folder. By default it is `Documents\The Grimoire Data` in the user's home folder, or the `dataDir` folder named in `config.json`. It holds the database (`grimoire.db`), backups (`backups\`) and language packs (`locales\`).
+1. Never delete, move, overwrite or reset the data folder. By default it is `Documents\The Grimoire Data` in the user's home folder, or the `dataDir` folder named in `config.json`. It holds the database (`grimoire.db`), backups (`backups\`), language packs (`locales\`) and `epoch.txt`, which changes on every restore so pages opened before it reload instead of saving over the restored data.
 2. Never run `npm run demo -- --reset` unless the user asks for it. It is meant for the separate demo folder only.
 3. Don't change code unless the user asks you to.
 4. Explain each step in plain language, in short messages. Ask before anything that changes the system: scheduled tasks, Desktop shortcuts, antivirus exceptions.

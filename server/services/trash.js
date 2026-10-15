@@ -1,7 +1,7 @@
 import { repos } from '../db/repos.js';
 import { transaction } from '../db/connection.js';
 import { HttpError } from '../http.js';
-import { backupNow } from './backup.js';
+import { backupNow, rotateQuietly } from './backup.js';
 
 // Every kind of record that can be in the Trash. Later stages add theirs here.
 export const TRASH_TYPES = {
@@ -41,7 +41,7 @@ export function deleteForever(db, type, id) {
   return true;
 }
 
-export function emptyTrash(ctx) {
+export function emptyTrash(ctx, { discard } = {}) {
   const { name } = backupNow(ctx.db, ctx.config.dataDir, { kind: 'pre-empty' });
   const removed = transaction(ctx.db, () => {
     let n = 0;
@@ -51,5 +51,6 @@ export function emptyTrash(ctx) {
     }
     return n;
   });
+  rotateQuietly(ctx.config.dataDir, discard);
   return { removed, backup: name };
 }

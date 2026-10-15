@@ -40,6 +40,22 @@ export function localOnly(req, res, next) {
   next();
 }
 
+export const RESTORED = 'Your data was restored from a backup in another window. Reload the page to continue.';
+
+// Every API response names the current data epoch. A write that names an older one comes
+// from a page loaded before a restore, whose ids and versions may now point at other records.
+// Writes without the header (scripts, stop.js, tests) are allowed.
+export function epochGuard(ctx) {
+  return (req, res, next) => {
+    res.set('X-Grimoire-Epoch', ctx.epoch);
+    const sent = req.get('X-Grimoire-Epoch');
+    if (req.method !== 'GET' && req.method !== 'HEAD' && sent !== undefined && sent !== ctx.epoch) {
+      return res.status(409).json({ error: RESTORED, restored: true });
+    }
+    next();
+  };
+}
+
 // Express recognises an error handler by its four parameters, so `next` stays even though it is unused.
 export function errorHandler(err, req, res, next) {
   if (err instanceof VersionConflict) {

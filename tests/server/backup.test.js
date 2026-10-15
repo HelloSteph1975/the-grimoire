@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -73,6 +73,25 @@ describe('backups', () => {
     expect(() => restoreBackup(t.ctx, name)).toThrow(/newer version/);
     expect(repos(t.ctx.db).traditions.list().map(r => r.name)).toContain('Still here');
   });
+  it('keeps 30 backups after a restore, including its safety copy', () => {
+    t = makeTestContext();
+    for (let i = 0; i < 30; i++) backupNow(t.ctx.db, t.dataDir, { now: new Date(2026, 0, 1 + i, 9, 0) });
+    const discarded = [];
+    const out = restoreBackup(t.ctx, 'grimoire-2026-01-30-0900.db', { discard: f => { discarded.push(path.basename(f)); fs.rmSync(f); } });
+    expect(discarded).toEqual(['grimoire-2026-01-01-0900.db']);
+    const left = listBackups(t.dataDir).map(b => b.name);
+    expect(left).toHaveLength(30);
+    expect(left).toContain(out.safetyCopy);
+  });
+  it('logs a failed rotation after a restore and still reports the restore', () => {
+    t = makeTestContext();
+    for (let i = 0; i < 30; i++) backupNow(t.ctx.db, t.dataDir, { now: new Date(2026, 0, 1 + i, 9, 0) });
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const out = restoreBackup(t.ctx, 'grimoire-2026-01-30-0900.db', { discard: () => { throw new Error('locked'); } });
+    expect(out.restored).toBe('grimoire-2026-01-30-0900.db');
+    expect(logged).toHaveBeenCalled();
+    logged.mockRestore();
+  });
   it('refuses a damaged file', () => {
     t = makeTestContext();
     fs.writeFileSync(path.join(t.dataDir, 'backups', 'grimoire-2026-01-01-0900.db'), 'not a database');
@@ -120,19 +139,36 @@ describe('restore when something goes wrong', () => {
     expect(err.message).toBe('Restore failed; your data was put back from the safety copy.');
     expect(names()).toEqual(before);
   });
-  it('stops before swapping when a database file is still in use', () => {
+  it('stops before deleting or swapping anything when a database file is still in use', () => {
     const { name, live, tmp } = setUp();
     const renames = [];
+    const removed = [];
     const fsOps = {
       ...realFs,
       exists: p => (p === `${live}-wal` ? true : realFs.exists(p)),
       rename: (a, b) => { renames.push([a, b]); realFs.rename(a, b); },
+      rm: p => { removed.push(p); realFs.rm(p); },
     };
     const err = errorOf(() => restoreBackup(t.ctx, name, { fsOps }));
     expect(err.status).toBe(500);
     expect(err.message).toBe('Restore stopped: a database file is in use by another program. Nothing was changed.');
     expect(renames).toEqual([]);
+    // Only the temporary copy goes; the other program's log and shared-memory files stay.
+    expect(removed).toEqual([tmp]);
     expect(fs.existsSync(tmp)).toBe(false);
     expect(names()).toContain('Added after backup');
+  });
+  it('removes the shared-memory file only after the log check passes, and never the log', () => {
+    const { name, live } = setUp();
+    const order = [];
+    const fsOps = {
+      ...realFs,
+      exists: p => { if (p === `${live}-wal`) order.push('check-wal'); return realFs.exists(p); },
+      rm: p => { order.push(path.basename(p)); realFs.rm(p); },
+    };
+    restoreBackup(t.ctx, name, { fsOps, discard: () => {} });
+    expect(order[0]).toBe('check-wal');
+    expect(order).toContain('grimoire.db-shm');
+    expect(order).not.toContain('grimoire.db-wal');
   });
 });

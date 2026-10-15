@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { apiRouter } from './routes/index.js';
-import { errorHandler, hostGuard } from './http.js';
+import { epochGuard, errorHandler, hostGuard } from './http.js';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -12,6 +12,7 @@ export function createApp(ctx, { onShutdown = () => {} } = {}) {
   app.disable('x-powered-by');
   app.use((req, res, next) => { res.set('X-Content-Type-Options', 'nosniff'); next(); });
   app.use('/api', hostGuard);
+  app.use('/api', epochGuard(ctx));
   app.use(express.json({ limit: '1mb' }));
   app.use('/api', apiRouter(ctx, { onShutdown }));
   const dist = path.join(ROOT, 'client', 'dist');

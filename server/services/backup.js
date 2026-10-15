@@ -5,6 +5,7 @@ import { HttpError } from '../http.js';
 import { migrations } from '../db/migrations.js';
 import { DB_FILE } from '../db/connection.js';
 import { sendToRecycleBin } from '../lib/recycle.js';
+import { newEpoch } from './epoch.js';
 
 const pad = n => String(n).padStart(2, '0');
 const stampOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
@@ -47,6 +48,15 @@ export function rotateBackups(dataDir, { keep = 30, discard = f => sendToRecycle
   return extra.map(b => b.name);
 }
 
+// After a safety backup: a rotation problem is logged, never allowed to fail the operation.
+export function rotateQuietly(dataDir, discard) {
+  try {
+    rotateBackups(dataDir, { discard });
+  } catch (err) {
+    console.error('Could not rotate old backups:', err);
+  }
+}
+
 export function ensureTodayBackup(db, dataDir, now = new Date()) {
   const today = `grimoire-${stampOf(now).slice(0, 10)}-`;
   if (listBackups(dataDir).some(b => b.name.startsWith(today))) return false;
@@ -84,7 +94,7 @@ const removeSidecars = (live, fsOps) => { for (const ext of ['-wal', '-shm']) qu
 const FAILED = 'Restore failed; your data was put back from the safety copy.';
 const IN_USE = 'Restore stopped: a database file is in use by another program. Nothing was changed.';
 
-export function restoreBackup(ctx, name, { fsOps = defaultFsOps } = {}) {
+export function restoreBackup(ctx, name, { fsOps = defaultFsOps, discard } = {}) {
   if (!NAME.test(String(name))) throw new HttpError(400, 'That is not a Grimoire backup.');
   const dataDir = ctx.config.dataDir;
   const src = path.join(dirOf(dataDir), name);
@@ -122,13 +132,14 @@ export function restoreBackup(ctx, name, { fsOps = defaultFsOps } = {}) {
   };
 
   ctx.db.close();
-  removeSidecars(live, fsOps);
-  // Another program still holds the database: swapping now could mix the old log into the new file.
+  // Closing our only connection removes the log, so a log still there belongs to another
+  // program. Check before deleting anything: removing its log would lose its writes.
   if (fsOps.exists(`${live}-wal`)) {
     quietly(() => fsOps.rm(tmp));
     reopen();
     throw new HttpError(500, IN_USE);
   }
+  quietly(() => fsOps.rm(`${live}-shm`));
   try {
     fsOps.rename(tmp, live);
   } catch {
@@ -147,5 +158,8 @@ export function restoreBackup(ctx, name, { fsOps = defaultFsOps } = {}) {
     putBack();
     throw new HttpError(500, FAILED);
   }
+  // Ids and versions just rolled back, so pages loaded before now must reload before saving.
+  ctx.epoch = newEpoch(dataDir);
+  rotateQuietly(dataDir, discard);
   return { restored: name, safetyCopy: safety.name };
 }
