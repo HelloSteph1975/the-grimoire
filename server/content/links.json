@@ -1,1 +1,46 @@
-[]
+[
+  [
+    "corr.colors.red",
+    "corr.days.tuesday"
+  ],
+  [
+    "corr.colors.orange",
+    "corr.days.wednesday"
+  ],
+  [
+    "corr.colors.yellow",
+    "corr.days.sunday"
+  ],
+  [
+    "corr.colors.green",
+    "corr.days.friday"
+  ],
+  [
+    "corr.colors.blue",
+    "corr.days.thursday"
+  ],
+  [
+    "corr.colors.purple",
+    "corr.days.thursday"
+  ],
+  [
+    "corr.colors.pink",
+    "corr.days.friday"
+  ],
+  [
+    "corr.colors.white",
+    "corr.days.monday"
+  ],
+  [
+    "corr.colors.black",
+    "corr.days.saturday"
+  ],
+  [
+    "corr.colors.silver",
+    "corr.days.monday"
+  ],
+  [
+    "corr.colors.gold",
+    "corr.days.sunday"
+  ]
+]
