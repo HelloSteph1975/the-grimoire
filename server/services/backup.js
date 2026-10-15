@@ -10,7 +10,7 @@ import { newEpoch } from './epoch.js';
 const pad = n => String(n).padStart(2, '0');
 const stampOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
 const dirOf = dataDir => path.join(dataDir, 'backups');
-const NAME = /^(grimoire|pre-restore|pre-empty)-\d{4}-\d{2}-\d{2}-\d{4}(-\d+)?\.db$/;
+const NAME = /^(grimoire|pre-restore|pre-empty|pre-migrate)-\d{4}-\d{2}-\d{2}-\d{4}(-\d+)?\.db$/;
 const sqlQuote = s => `'${s.replace(/'/g, "''")}'`;
 
 export function backupNow(db, dataDir, { kind = 'grimoire', now = new Date() } = {}) {
