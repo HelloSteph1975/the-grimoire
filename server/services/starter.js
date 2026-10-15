@@ -53,18 +53,21 @@ function setTraditions(db, corrId, keys = []) {
   }
 }
 
-// Adds entries that were never here. Returns the keys it inserted.
+// Adds entries that were never here. Returns the keys it inserted. An entry whose category is in
+// the Trash goes in with the category's deleted time, so it restores and purges with the category.
 function seedEntries(db, dir) {
   const removed = db.prepare('SELECT 1 FROM starter_removed WHERE starter_key = ?');
+  const category = db.prepare('SELECT id, deleted_at FROM categories WHERE starter_key = ?');
   const insert = db.prepare(`INSERT INTO correspondences
-    (category_id, name, summary, body, keywords, feast_day, starter_key, is_starter, content_version) VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)`);
+    (category_id, name, summary, body, keywords, feast_day, starter_key, is_starter, content_version, deleted_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`);
   const inserted = new Set();
   for (const e of entryFiles(dir)) {
     if (idOf(db, 'correspondences', e.starter_key) || removed.get(e.starter_key)) continue;
-    const categoryId = idOf(db, 'categories', e.category);
-    if (!categoryId) continue;
-    const r = insert.run(categoryId, e.name, e.summary ?? null, e.body ?? null, JSON.stringify(e.keywords ?? []),
-      e.feast_day ?? null, e.starter_key, e.content_version ?? 1);
+    const cat = category.get(e.category);
+    if (!cat) continue;
+    const r = insert.run(cat.id, e.name, e.summary ?? null, e.body ?? null, JSON.stringify(e.keywords ?? []),
+      e.feast_day ?? null, e.starter_key, e.content_version ?? 1, cat.deleted_at ?? null);
     setTraditions(db, Number(r.lastInsertRowid), e.traditions);
     inserted.add(e.starter_key);
   }

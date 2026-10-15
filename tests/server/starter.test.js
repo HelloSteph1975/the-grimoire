@@ -5,6 +5,7 @@ import path from 'node:path';
 import { openDb } from '../../server/db/connection.js';
 import { seedStarter } from '../../server/services/starter.js';
 import { repos } from '../../server/db/repos.js';
+import { deleteForever, emptyTrash, restoreFromTrash } from '../../server/services/trash.js';
 
 const FIXTURE = path.join(import.meta.dirname, 'fixtures', 'content');
 let dir, db, extra;
@@ -70,12 +71,38 @@ describe('seedStarter', () => {
     seedStarter(db, { content: FIXTURE });
     expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeUndefined();
   });
-  it('still finds a category that is in the Trash', () => {
+  // Re-seeds Monday while its category sits in the Trash; returns the category's stamp.
+  function seedIntoTrashedCategory() {
     seedStarter(db, { content: FIXTURE });
-    db.exec("UPDATE categories SET deleted_at = '2026-01-01T00:00:00.000Z' WHERE starter_key = 'category.days'");
+    const stamp = '2026-01-01T00:00:00.000Z';
+    db.exec(`UPDATE categories SET deleted_at = '${stamp}' WHERE starter_key = 'category.days'`);
     db.exec("DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences WHERE starter_key = 'corr.days.monday'");
     expect(seedStarter(db, { content: FIXTURE })).toBe(1);
-    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeDefined();
+    return stamp;
+  }
+  it('puts an entry whose category is in the Trash into the Trash with it', () => {
+    const stamp = seedIntoTrashedCategory();
+    expect(db.prepare("SELECT deleted_at FROM correspondences WHERE starter_key='corr.days.monday'").get().deleted_at).toBe(stamp);
+  });
+  it('lets that category be deleted forever, and records the entry as removed', () => {
+    seedIntoTrashedCategory();
+    const cat = db.prepare("SELECT id FROM categories WHERE starter_key='category.days'").get();
+    deleteForever(db, 'category', cat.id);
+    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeUndefined();
+    expect(db.prepare("SELECT 1 FROM starter_removed WHERE starter_key='corr.days.monday'").get()).toBeDefined();
+  });
+  it('lets the Trash be emptied with that category in it', () => {
+    seedIntoTrashedCategory();
+    const ctx = { db, config: { dataDir: dir } };
+    emptyTrash(ctx);
+    expect(db.prepare('SELECT count(*) n FROM categories WHERE deleted_at IS NOT NULL').get().n).toBe(0);
+    expect(db.prepare("SELECT 1 FROM correspondences WHERE starter_key='corr.days.monday'").get()).toBeUndefined();
+  });
+  it('brings that entry back live when the category is restored', () => {
+    seedIntoTrashedCategory();
+    const cat = db.prepare("SELECT id FROM categories WHERE starter_key='category.days'").get();
+    restoreFromTrash(db, 'category', cat.id);
+    expect(db.prepare("SELECT deleted_at FROM correspondences WHERE starter_key='corr.days.monday'").get().deleted_at).toBeNull();
   });
   it('updates unedited starter rows when content_version goes up, and leaves edited ones alone', () => {
     seedStarter(db, { content: FIXTURE });
