@@ -49,6 +49,8 @@ The app's screens are English. To add another language, make a folder `locales\<
 - `ui.json` holds every key from `client/src/i18n/en.json`, translated, plus a non-empty `"_name"` with the language's own name (like `"Español"`). A pack without `"_name"` is skipped.
 - `content.json` translates starter entries by key, like `"tradition.wiccan.name"` and `"tradition.wiccan.description"`. Keys are `<starter_key>.<field>`. The starter keys are in `server/content/*.json`.
 
+To see what is still untranslated, run `npm run check-pack -- <code>` (for example `npm run check-pack -- es`); it lists missing and unused keys.
+
 Reload the page, then pick the language in Settings. Packs live in the data folder, so updates never overwrite them.
 
 ## Troubleshooting

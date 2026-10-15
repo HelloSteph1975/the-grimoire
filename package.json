@@ -19,7 +19,8 @@
     "setup": "npm install && npm run build && node scripts/setup.js",
     "install-windows": "node scripts/setup.js --windows",
     "uninstall-windows": "powershell -NoProfile -ExecutionPolicy Bypass -File windows/uninstall-windows.ps1",
-    "stop": "node scripts/stop.js"
+    "stop": "node scripts/stop.js",
+    "check-pack": "node scripts/check-pack.js"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
