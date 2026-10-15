@@ -16,7 +16,16 @@ const entryFiles = dir => {
   return fs.readdirSync(folder).filter(f => f.endsWith('.json')).sort().flatMap(f => readJson(dir, `correspondences/${f}`));
 };
 
-const idOf = (db, table, key) => db.prepare(`SELECT id FROM ${table} WHERE starter_key = ?`).get(key)?.id;
+// Prepared once per table and handle.
+const prepared = new WeakMap();
+function stmt(db, sql) {
+  let m = prepared.get(db);
+  if (!m) prepared.set(db, (m = new Map()));
+  if (!m.has(sql)) m.set(sql, db.prepare(sql));
+  return m.get(sql);
+}
+
+const idOf = (db, table, key) => stmt(db, `SELECT id FROM ${table} WHERE starter_key = ?`).get(key)?.id;
 
 // Seeds one simple table (traditions, categories). Returns how many rows were added.
 function seedSimple(db, table, columns, rows) {
@@ -77,19 +86,20 @@ function seedLinks(db, dir, inserted) {
 }
 
 // Copies newer file content onto rows that are still untouched starters and not in the Trash.
+// sort_order is set only on insert, so the owner's order survives.
 function applyUpdates(db, dir) {
   const sets = [
-    ['traditions', ['name', 'description', 'color', 'sort_order'], readJson(dir, 'traditions.json')],
-    ['categories', ['name', 'icon', 'sort_order'], readJson(dir, 'categories.json')],
+    ['traditions', ['name', 'description', 'color'], readJson(dir, 'traditions.json')],
+    ['categories', ['name', 'icon'], readJson(dir, 'categories.json')],
   ];
-  const stale = (table, e) => db.prepare(
-    `SELECT id FROM ${table} WHERE starter_key = ? AND is_starter = 1 AND deleted_at IS NULL AND content_version < ?`,
+  const stale = (table, e) => stmt(
+    db, `SELECT id FROM ${table} WHERE starter_key = ? AND is_starter = 1 AND deleted_at IS NULL AND content_version < ?`,
   ).get(e.starter_key, e.content_version ?? 1);
   for (const [table, columns, rows] of sets) {
     for (const e of rows) {
       const row = stale(table, e);
       if (!row) continue;
-      db.prepare(`UPDATE ${table} SET ${columns.map(c => `${c} = ?`).join(', ')}, content_version = ?, version = version + 1, updated_at = ${NOW} WHERE id = ?`)
+      stmt(db, `UPDATE ${table} SET ${columns.map(c => `${c} = ?`).join(', ')}, content_version = ?, version = version + 1, updated_at = ${NOW} WHERE id = ?`)
         .run(...columns.map(c => e[c] ?? null), e.content_version ?? 1, row.id);
     }
   }

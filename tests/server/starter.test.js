@@ -105,6 +105,17 @@ describe('seedStarter', () => {
       .toMatchObject({ description: 'Fresh', content_version: 2, version: 2 });
     expect(db.prepare("SELECT name FROM categories WHERE starter_key='category.days'").get().name).toBe('Renamed');
   });
+  it('keeps the owner order when content_version goes up, but updates the text', () => {
+    seedStarter(db, { content: FIXTURE });
+    db.exec("UPDATE categories SET sort_order = 99 WHERE starter_key = 'category.days'; UPDATE traditions SET sort_order = 77 WHERE starter_key = 'tradition.wiccan'");
+    const bumped = copyFixtureWith({
+      'traditions.json': d => d.map(e => ({ ...e, description: 'Fresh', content_version: 2 })),
+      'categories.json': d => d.map(e => ({ ...e, name: 'Renamed', content_version: 2 })),
+    });
+    seedStarter(db, { content: bumped });
+    expect(db.prepare("SELECT name, sort_order FROM categories WHERE starter_key='category.days'").get()).toMatchObject({ name: 'Renamed', sort_order: 99 });
+    expect(db.prepare("SELECT description, sort_order FROM traditions WHERE starter_key='tradition.wiccan'").get()).toMatchObject({ description: 'Fresh', sort_order: 77 });
+  });
   it('refreshes the tradition joins on update', () => {
     seedStarter(db, { content: FIXTURE });
     const bumped = copyFixtureWith({ 'correspondences/days.json': d => d.map(e => ({ ...e, traditions: ['tradition.wiccan', 'tradition.mexican-folk'], content_version: 2 })) });

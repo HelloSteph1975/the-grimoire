@@ -19,7 +19,6 @@ describe('database', () => {
   });
   it('migrates a version 2 database to 3 and keeps its data', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
-    fs.mkdirSync(dir, { recursive: true });
     const raw = new DatabaseSync(path.join(dir, 'grimoire.db'));
     raw.exec(migrations[0]);
     raw.exec(migrations[1]);
