@@ -14,6 +14,6 @@ export function apiRouter(ctx, { onShutdown }) {
   r.use('/settings', settingsRouter(ctx));
   r.use('/locales', localesRouter(ctx));
   r.use(systemRouter(ctx, { onShutdown }));
-  r.use((req, res, next) => next(new HttpError(404, 'No such API route')));
+  r.use((req, res, next) => next(new HttpError(404, 'No such API route', undefined, { code: 'not_found' })));
   return r;
 }

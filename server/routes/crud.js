@@ -5,7 +5,7 @@ import { transaction } from '../db/connection.js';
 
 function versionOf(body) {
   const v = body?.version;
-  if (!Number.isInteger(v) || v < 1) throw new HttpError(400, 'Please reload and try again.', { version: 'Missing version' });
+  if (!Number.isInteger(v) || v < 1) throw new HttpError(400, 'Please reload and try again.', { version: 'Missing version' }, { code: 'missing_version' });
   return v;
 }
 

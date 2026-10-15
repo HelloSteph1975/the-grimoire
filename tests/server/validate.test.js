@@ -19,4 +19,9 @@ describe('validate', () => {
   it('skips missing fields in partial mode', () => {
     expect(validate({ name: 'string!' }, {}, { partial: true }).data).toEqual({});
   });
+  it('returns a code for every error', () => {
+    const s = { a: 'string!', b: { type: 'string', maxLength: 2 }, c: { type: 'int', min: 1 }, d: 'date', e: ['x', 'y'] };
+    const r = validate(s, { b: 'abc', c: 0, d: 'nope', e: 'z' });
+    expect(r.codes).toEqual({ a: { code: 'required' }, b: { code: 'too_long', max: 2 }, c: { code: 'too_small', min: 1 }, d: { code: 'not_date' }, e: { code: 'not_one_of' } });
+  });
 });

@@ -9,7 +9,7 @@ export const TRASH_TYPES = {
 };
 
 function typeOf(type) {
-  if (!Object.hasOwn(TRASH_TYPES, type)) throw new HttpError(404, 'Unknown kind of record');
+  if (!Object.hasOwn(TRASH_TYPES, type)) throw new HttpError(404, 'Unknown kind of record', undefined, { code: 'unknown_kind' });
   return TRASH_TYPES[type];
 }
 
@@ -22,7 +22,7 @@ export function listTrash(db) {
 export function restoreFromTrash(db, type, id) {
   const t = typeOf(type);
   const ok = transaction(db, () => t.repo(db).restore(id));
-  if (!ok) throw new HttpError(404, 'That is not in the Trash.');
+  if (!ok) throw new HttpError(404, 'That is not in the Trash.', undefined, { code: 'not_in_trash' });
   return t.repo(db).get(id);
 }
 
@@ -35,7 +35,7 @@ export function deleteForever(db, type, id) {
   const t = typeOf(type);
   transaction(db, () => {
     const row = t.repo(db).get(id, { includeDeleted: true });
-    if (!row || !row.deleted_at) throw new HttpError(404, 'That is not in the Trash.');
+    if (!row || !row.deleted_at) throw new HttpError(404, 'That is not in the Trash.', undefined, { code: 'not_in_trash' });
     purgeRow(db, t.repo(db), row);
   });
   return true;

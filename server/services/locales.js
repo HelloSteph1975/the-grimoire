@@ -34,7 +34,7 @@ export function listLocales(dataDir) {
 }
 
 export function readPack(dataDir, code, part) {
-  if (!PARTS.has(part) || code === 'en' || !listLocales(dataDir).some(l => l.code === code)) throw new HttpError(404, 'No such language pack');
+  if (!PARTS.has(part) || code === 'en' || !listLocales(dataDir).some(l => l.code === code)) throw new HttpError(404, 'No such language pack', undefined, { code: 'not_found' });
   const file = path.join(dirOf(dataDir), code, `${part}.json`);
   if (!fs.existsSync(file)) return {};
   try {
