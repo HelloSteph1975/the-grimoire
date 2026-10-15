@@ -32,6 +32,8 @@ describe('validate', () => {
     expect(validate(s, { k: 'a' }).codes.k).toEqual({ code: 'not_text' });
     expect(validate(s, { k: [1] }).codes.k).toEqual({ code: 'not_text' });
     expect(validate(s, { k: null }).data).toEqual({ k: [] });
+    expect(validate(s, { k: [' a ', 'a', '', '  ', 'b'] }).data).toEqual({ k: ['a', 'b'] });
+    expect(validate({ k: { type: 'strings', maxItems: 2, lowercase: true } }, { k: ['A', 'a', 'B'] }).data).toEqual({ k: ['a', 'b'] });
   });
   it('checks lists of ids', () => {
     const s = { ids: { type: 'ids', maxItems: 2 } };

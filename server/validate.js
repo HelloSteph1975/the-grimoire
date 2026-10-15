@@ -18,11 +18,13 @@ function isRealMonthDay(v) {
   return dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
 }
 
+// A list of text, trimmed, without blanks or repeats (`lowercase: true` lower-cases first).
 function checkStrings(v, rule) {
   if (!Array.isArray(v) || !v.every(x => typeof x === 'string')) return { error: 'Must be a list of text', code: 'not_text' };
-  if (rule.maxItems !== undefined && v.length > rule.maxItems) return { error: `No more than ${rule.maxItems}`, code: 'too_many', vars: { max: rule.maxItems } };
-  if (rule.maxLength && v.some(x => x.trim().length > rule.maxLength)) return { error: `Keep each one to ${rule.maxLength} characters or fewer`, code: 'too_long', vars: { max: rule.maxLength } };
-  return { value: v.map(x => x.trim()) };
+  const list = [...new Set(v.map(x => (rule.lowercase ? x.trim().toLowerCase() : x.trim())).filter(Boolean))];
+  if (rule.maxItems !== undefined && list.length > rule.maxItems) return { error: `No more than ${rule.maxItems}`, code: 'too_many', vars: { max: rule.maxItems } };
+  if (rule.maxLength && list.some(x => x.length > rule.maxLength)) return { error: `Keep each one to ${rule.maxLength} characters or fewer`, code: 'too_long', vars: { max: rule.maxLength } };
+  return { value: list };
 }
 
 // A list of record ids, without repeats.
