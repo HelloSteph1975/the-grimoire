@@ -1,0 +1,3 @@
+{ "name": "The Grimoire", "short_name": "Grimoire", "start_url": "/", "display": "standalone",
+  "background_color": "#1f130d", "theme_color": "#2e1d14",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }] }
