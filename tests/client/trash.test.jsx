@@ -63,7 +63,7 @@ describe('Trash', () => {
   it('says which entries a category takes with it before deleting it forever', async () => {
     stub(); mount();
     await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
-    expect(await screen.findByText("This also deletes forever the 3 entries that went to the Trash with it. It also deletes forever 1 entry of it you put in the Trash earlier. This can't be undone.")).toBeInTheDocument();
+    expect(await screen.findByText("The 3 entries that went to the Trash with it will also be deleted forever. One entry from this category that you put in the Trash earlier will also be deleted forever. This can't be undone.")).toBeInTheDocument();
     await userEvent.click(screen.getByText('Cancel'));
     await userEvent.click(within(screen.getByText('Empty one').closest('li')).getByText('Delete forever'));
     expect(await screen.findByText("This can't be undone.")).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('Trash', () => {
     Object.assign(items[2], { extra: 1, earlier: 0 });
     mount();
     await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
-    expect(await screen.findByText("This also deletes forever the 1 entry that went to the Trash with it. This can't be undone.")).toBeInTheDocument();
+    expect(await screen.findByText("The entry that went to the Trash with it will also be deleted forever. This can't be undone.")).toBeInTheDocument();
   });
   it('restores one', async () => {
     stub(); mount();
