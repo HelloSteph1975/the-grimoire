@@ -17,8 +17,9 @@ export function TraditionDialog({ record, onSave, onClose }) {
   const [version, setVersion] = useState(record?.version);
   const submit = useCallback((values, { version: forced }) => onSave(values, forced ?? version), [onSave, version]);
   const f = useRecordForm({ initial: pick(record), submit });
-  const save = async e => { const out = await f.onSubmit(e); if (out) { f.markSaved(); onClose(); } };
-  const keep = async () => { const out = await f.keepMine(); if (out) { f.markSaved(); onClose(); } };
+  // Close only when everything is saved: a change typed during the save keeps the dialog open.
+  const save = async e => { const out = await f.onSubmit(e); if (out && !f.isDirtyNow()) onClose(); };
+  const keep = async () => { const out = await f.keepMine(); if (out && !f.isDirtyNow()) onClose(); };
   // Saving an untouched record would only drop its Starter tag. A new one needs a name first.
   const canSave = record ? f.dirty : Boolean(f.values.name);
   const takeTheirs = () => { setVersion(f.conflict.version); f.takeTheirs(pick); };
@@ -36,15 +37,17 @@ export function TraditionDialog({ record, onSave, onClose }) {
           </>
         )}>
         <form id="tradition-form" onSubmit={save}>
-          <Field label={t('traditions.name')} error={f.errors.name}>
-            <TextInput value={f.values.name} onChange={e => f.set('name', e.target.value)} maxLength={60} data-autofocus="" />
-          </Field>
-          <Field label={t('traditions.description')} error={f.errors.description}>
-            <TextArea value={f.values.description} onChange={e => f.set('description', e.target.value)} maxLength={600} />
-          </Field>
-          <Field label={t('traditions.color')} error={f.errors.color}>
-            <input type="color" className="input" value={f.values.color} onChange={e => f.set('color', e.target.value)} />
-          </Field>
+          <fieldset disabled={f.saving}>
+            <Field label={t('traditions.name')} error={f.errors.name}>
+              <TextInput value={f.values.name} onChange={e => f.set('name', e.target.value)} maxLength={60} data-autofocus="" />
+            </Field>
+            <Field label={t('traditions.description')} error={f.errors.description}>
+              <TextArea value={f.values.description} onChange={e => f.set('description', e.target.value)} maxLength={600} />
+            </Field>
+            <Field label={t('traditions.color')} error={f.errors.color}>
+              <input type="color" className="input" value={f.values.color} onChange={e => f.set('color', e.target.value)} />
+            </Field>
+          </fieldset>
           {f.formError && <p className="form-error" role="alert">{f.formError}</p>}
         </form>
       </Dialog>

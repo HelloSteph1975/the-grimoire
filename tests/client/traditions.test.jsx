@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { ToastProvider } from '../../client/src/components/ToastProvider.jsx';
@@ -107,6 +107,26 @@ describe('Traditions', () => {
     await userEvent.click(screen.getByText('Cancel'));
     await vi.waitFor(() => expect(screen.queryByLabelText('Description')).not.toBeInTheDocument());
     expect(screen.queryByText('Leave without saving?')).not.toBeInTheDocument();
+  });
+  it('locks the fields while saving, and stays open with edits made during the save', async () => {
+    server(); mount();
+    const real = fetch.getMockImplementation();
+    let release;
+    fetch.mockImplementation((url, opts = {}) => (opts.method === 'PATCH'
+      ? new Promise(r => { release = () => r(real(url, opts)); })
+      : real(url, opts)));
+    const item = (await screen.findByText('Wiccan')).closest('li');
+    await userEvent.click(within(item).getByText('Edit'));
+    const description = screen.getByLabelText('Description');
+    await userEvent.type(description, 'first');
+    await userEvent.click(screen.getByText('Save'));
+    expect(description).toBeDisabled();
+    // A change that slips in anyway (fieldset locks only the mouse and keyboard).
+    fireEvent.change(description, { target: { value: 'first and second' } });
+    await act(async () => release());
+    await vi.waitFor(() => expect(description).toBeEnabled());
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByLabelText('Description')).toHaveValue('first and second');
   });
   it('saves with the latest version after Reload the latest', async () => {
     server(); mount();

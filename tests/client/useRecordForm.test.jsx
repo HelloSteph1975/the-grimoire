@@ -145,6 +145,30 @@ describe('useRecordForm', () => {
     expect(screen.getByTestId('dirty')).toHaveTextContent('false');
   });
 
+  it('keeps edits made while a save is in flight, and still asks before leaving', async () => {
+    let release;
+    const submit = vi.fn(v => new Promise(r => { release = () => r({ ...v, version: 2 }); }));
+    setup(submit);
+    await userEvent.type(screen.getByLabelText('Name'), 'B');
+    await userEvent.click(screen.getByText('Save'));
+    expect(submit).toHaveBeenCalledWith({ name: 'AB' }, { version: undefined });
+    await userEvent.type(screen.getByLabelText('Name'), 'C');
+    await act(async () => release());
+    expect(screen.getByLabelText('Name')).toHaveValue('ABC');
+    expect(screen.getByTestId('dirty')).toHaveTextContent('true');
+    await userEvent.click(screen.getByText('Away'));
+    expect(await screen.findByText('Leave without saving?')).toBeInTheDocument();
+  });
+
+  it('a 409 restored error shows as a form error, not a conflict', async () => {
+    setup(vi.fn(async () => { throw new ApiError('Your data was restored from a backup in another window. Reload the page to continue.', 409); }));
+    await userEvent.type(screen.getByLabelText('Name'), 'B');
+    await userEvent.click(screen.getByText('Save'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Reload the page to continue.');
+    expect(screen.queryByText('Keep mine')).not.toBeInTheDocument();
+    expect(screen.getByTestId('dirty')).toHaveTextContent('true');
+  });
+
   it('a 400 leaves the form dirty', async () => {
     setup(vi.fn(async () => { throw new ApiError('Fix', 400, { name: 'Required' }); }));
     await userEvent.type(screen.getByLabelText('Name'), 'B');

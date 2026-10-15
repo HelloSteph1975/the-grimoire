@@ -11,11 +11,16 @@ export function useRecordForm({ initial, submit }) {
   const [saving, setSaving] = useState(false);
   const [conflict, setConflict] = useState(null);
   const busy = useRef(false);
+  // The newest values and baseline, readable after an await (state in the closure would be stale).
+  const latest = useRef(initial);
+  const saved = useRef(initial);
   const dirty = !same(values, baseline);
   const markSaved = useLeaveGuard(dirty);
 
-  const set = useCallback((key, value) => setValues(v => ({ ...v, [key]: value })), []);
-  const setAll = useCallback(next => { setValues(next); setBaseline(next); }, []);
+  const set = useCallback((key, value) => setValues(v => { latest.current = { ...v, [key]: value }; return latest.current; }), []);
+  const setAll = useCallback(next => { latest.current = next; saved.current = next; setValues(next); setBaseline(next); }, []);
+  // True when the form holds changes that are not saved, including ones typed during a save.
+  const isDirtyNow = useCallback(() => !same(latest.current, saved.current), []);
 
   const run = useCallback(async version => {
     if (busy.current) return null;
@@ -24,11 +29,13 @@ export function useRecordForm({ initial, submit }) {
     setErrors({});
     setFormError(null);
     try {
-      const saved = await submit(values, { version });
+      const out = await submit(values, { version });
+      saved.current = values;
       setBaseline(values);
-      markSaved();
+      // Edits made while the save was in flight are not saved, so the leave guard stays on.
+      if (!isDirtyNow()) markSaved();
       setConflict(null);
-      return saved;
+      return out;
     } catch (err) {
       if (err.status === 409 && err.current) setConflict(err.current);
       else if (err.status === 400 && err.details && Object.keys(err.details).length) setErrors(err.details);
@@ -38,7 +45,7 @@ export function useRecordForm({ initial, submit }) {
       busy.current = false;
       setSaving(false);
     }
-  }, [submit, values, markSaved]);
+  }, [submit, values, markSaved, isDirtyNow]);
 
   const onSubmit = useCallback(e => { e?.preventDefault?.(); return run(undefined); }, [run]);
   const keepMine = useCallback(() => run(conflict?.version), [run, conflict]);
@@ -46,5 +53,5 @@ export function useRecordForm({ initial, submit }) {
 
   const dismissConflict = useCallback(() => setConflict(null), []);
 
-  return { dismissConflict, values, set, setAll, dirty, errors, formError, saving, conflict, onSubmit, keepMine, takeTheirs, markSaved };
+  return { dismissConflict, values, set, setAll, dirty, errors, formError, saving, conflict, onSubmit, keepMine, takeTheirs, markSaved, isDirtyNow };
 }

@@ -29,23 +29,25 @@ function GeneralForm({ settings, save, languages }) {
   const showLanguage = languages.some(l => l.code !== 'en') || settings.language !== 'en';
   return (
     <form onSubmit={f.onSubmit}>
-      {showLanguage && (
-        <Field label={t('settings.language')} error={f.errors.language}>
-          <Select value={f.values.language} onChange={e => f.set('language', e.target.value)}
-            options={withCurrent(languages.map(l => ({ value: l.code, label: l.name })), settings.language)} />
+      <fieldset disabled={f.saving}>
+        {showLanguage && (
+          <Field label={t('settings.language')} error={f.errors.language}>
+            <Select value={f.values.language} onChange={e => f.set('language', e.target.value)}
+              options={withCurrent(languages.map(l => ({ value: l.code, label: l.name })), settings.language)} />
+          </Field>
+        )}
+        <Field label={t('settings.theme')} error={f.errors.theme}>
+          <Select value={f.values.theme} onChange={e => f.set('theme', e.target.value)}
+            options={['old-book', 'book-folk'].map(v => ({ value: v, label: t(`settings.theme.${v}`) }))} />
         </Field>
-      )}
-      <Field label={t('settings.theme')} error={f.errors.theme}>
-        <Select value={f.values.theme} onChange={e => f.set('theme', e.target.value)}
-          options={['old-book', 'book-folk'].map(v => ({ value: v, label: t(`settings.theme.${v}`) }))} />
-      </Field>
-      <Field label={t('settings.hemisphere')} error={f.errors.hemisphere}>
-        <Select value={f.values.hemisphere} onChange={e => f.set('hemisphere', e.target.value)}
-          options={['north', 'south'].map(v => ({ value: v, label: t(`settings.hemisphere.${v}`) }))} />
-      </Field>
-      <Field label={t('settings.timeZone')} error={f.errors.time_zone}>
-        <Select value={f.values.time_zone} onChange={e => f.set('time_zone', e.target.value)} options={withCurrent(ZONES.map(z => ({ value: z, label: z })), settings.time_zone)} />
-      </Field>
+        <Field label={t('settings.hemisphere')} error={f.errors.hemisphere}>
+          <Select value={f.values.hemisphere} onChange={e => f.set('hemisphere', e.target.value)}
+            options={['north', 'south'].map(v => ({ value: v, label: t(`settings.hemisphere.${v}`) }))} />
+        </Field>
+        <Field label={t('settings.timeZone')} error={f.errors.time_zone}>
+          <Select value={f.values.time_zone} onChange={e => f.set('time_zone', e.target.value)} options={withCurrent(ZONES.map(z => ({ value: z, label: z })), settings.time_zone)} />
+        </Field>
+      </fieldset>
       {f.formError && <p className="form-error" role="alert">{f.formError}</p>}
       <Button type="submit" disabled={f.saving || !f.dirty}>{f.saving ? t('common.saving') : t('common.save')}</Button>
     </form>

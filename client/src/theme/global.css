@@ -10,6 +10,8 @@ h2 { font-size: 1.5rem; }
 a { color: var(--oxblood); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .muted { color: var(--ink-soft); font-style: italic; }
+/* Forms wrap their fields in a fieldset only to lock them while saving; it adds no box. */
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 
 .skip-link { position: absolute; left: -999px; top: 8px; background: var(--parchment); padding: 8px 12px; z-index: 50; }
 .skip-link:focus { left: 8px; }
