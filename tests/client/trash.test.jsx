@@ -12,7 +12,9 @@ function stub() {
   items = [
     { type: 'tradition', id: 4, title: 'Old path', deleted_at: '2026-10-14T10:00:00.000Z' },
     { type: 'tradition', id: 5, title: 'Other', deleted_at: '2026-10-13T10:00:00.000Z' },
-    { type: 'category', id: 6, title: 'Runes', deleted_at: '2026-10-12T10:00:00.000Z', extra: 3 },
+    { type: 'category', id: 6, title: 'Runes', deleted_at: '2026-10-12T10:00:00.000Z', extra: 3, earlier: 1 },
+    { type: 'correspondence', id: 7, title: 'Thurisaz', deleted_at: '2026-10-11T10:00:00.000Z', categoryInTrash: true },
+    { type: 'category', id: 8, title: 'Empty one', deleted_at: '2026-10-10T10:00:00.000Z', extra: 0, earlier: 0 },
   ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
@@ -38,6 +40,20 @@ describe('Trash', () => {
     expect(within(row).getByText('Category')).toBeInTheDocument();
     expect(within(row).getByText('Entries in the Trash with it: 3')).toBeInTheDocument();
     expect(within((await screen.findByText('Old path')).closest('li')).queryByText(/Entries in the Trash/)).not.toBeInTheDocument();
+  });
+  it('notes an entry whose category is in the Trash', async () => {
+    stub(); mount();
+    const row = (await screen.findByText('Thurisaz')).closest('li');
+    expect(within(row).getByText('Entry')).toBeInTheDocument();
+    expect(within(row).getByText('Its category is in the Trash')).toBeInTheDocument();
+  });
+  it('says which entries a category takes with it before deleting it forever', async () => {
+    stub(); mount();
+    await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("This also deletes forever 3 entries that went with it and 1 entries you put in the Trash earlier. This can't be undone.")).toBeInTheDocument();
+    await userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(within(screen.getByText('Empty one').closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("This can't be undone.")).toBeInTheDocument();
   });
   it('restores one', async () => {
     stub(); mount();

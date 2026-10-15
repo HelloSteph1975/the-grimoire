@@ -79,6 +79,8 @@
   "trash.type.category": "Category",
   "trash.type.correspondence": "Entry",
   "trash.withEntries": "Entries in the Trash with it: {n}",
+  "trash.categoryInTrash": "Its category is in the Trash",
+  "trash.deleteCategoryForeverBody": "This also deletes forever {extra} entries that went with it and {earlier} entries you put in the Trash earlier. This can't be undone.",
   "reorder.up": "Move {name} up",
   "reorder.down": "Move {name} down",
   "error.invalid": "Please fix the highlighted fields.",

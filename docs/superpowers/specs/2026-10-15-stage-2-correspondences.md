@@ -25,7 +25,8 @@ All tables follow the Stage 1 rules: `INTEGER PRIMARY KEY AUTOINCREMENT`, `versi
 ## Deleting
 
 - **An entry:** goes to the Trash. Its links stay stored but are hidden while it's in the Trash, and come back when it's restored. Deleting it forever removes its links.
-- **A category with entries:** the confirm says how many entries it holds. The category and its entries go to the Trash together, with the same deleted time. Restoring the category brings back the entries that went with it. Deleting the category forever also deletes those entries forever.
+- **A category with entries:** the confirm says how many entries it holds. The category and its entries go to the Trash together, with the same deleted time. Restoring the category brings back the entries that went with it. Deleting the category forever also deletes forever every entry of it in the Trash: the ones that went with it, and the ones put in the Trash earlier on their own. The Trash shows both counts on the category, its delete-forever confirm names them, and an entry whose category is in the Trash is marked as such (it can't be restored until the category is).
+- **Saving after a Trash change:** sending an entry or tradition to the Trash, or bringing it back, changes what linked entries show, so their version goes up. A form opened before that gets a conflict instead of dropping the hidden or restored link.
 - **A tradition in use:** the confirm says how many entries use it. The tradition goes to the Trash. Entries keep the link but don't show it while the tradition is in the Trash.
 - **Starter rows deleted forever** are recorded in `starter_removed`, as in Stage 1, so they never come back.
 
