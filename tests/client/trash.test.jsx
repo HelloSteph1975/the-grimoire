@@ -12,6 +12,7 @@ function stub() {
   items = [
     { type: 'tradition', id: 4, title: 'Old path', deleted_at: '2026-10-14T10:00:00.000Z' },
     { type: 'tradition', id: 5, title: 'Other', deleted_at: '2026-10-13T10:00:00.000Z' },
+    { type: 'category', id: 6, title: 'Runes', deleted_at: '2026-10-12T10:00:00.000Z', extra: 3 },
   ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
@@ -30,6 +31,13 @@ describe('Trash', () => {
     stub(); mount();
     const row = (await screen.findByText('Old path')).closest('li');
     expect(within(row).getByText('Tradition')).toBeInTheDocument();
+  });
+  it('says how many entries went with a category', async () => {
+    stub(); mount();
+    const row = (await screen.findByText('Runes')).closest('li');
+    expect(within(row).getByText('Category')).toBeInTheDocument();
+    expect(within(row).getByText('Entries in the Trash with it: 3')).toBeInTheDocument();
+    expect(within((await screen.findByText('Old path')).closest('li')).queryByText(/Entries in the Trash/)).not.toBeInTheDocument();
   });
   it('restores one', async () => {
     stub(); mount();

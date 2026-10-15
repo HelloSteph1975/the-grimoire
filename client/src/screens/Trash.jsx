@@ -39,7 +39,8 @@ export function Trash() {
           {list.data?.map(item => (
             <li key={`${item.type}-${item.id}`}>
               <span className="tag">{t(`trash.type.${item.type}`)}</span>
-              <span className="grow"><strong>{item.title}</strong> <span className="muted">{fmt(item.deleted_at)}</span></span>
+              <span className="grow"><strong>{item.title}</strong> <span className="muted">{fmt(item.deleted_at)}</span>
+                {item.extra > 0 && <> <span className="muted">{t('trash.withEntries', { n: item.extra })}</span></>}</span>
               <Button size="sm" variant="ghost" onClick={() => restore(item)}>{t('trash.restore')}</Button>
               <Button size="sm" variant="ghost" onClick={() => forever(item)}>{t('trash.deleteForever')}</Button>
             </li>
