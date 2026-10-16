@@ -239,6 +239,24 @@ describe('Spell form', () => {
     });
   });
 
+  it('Reload the latest also reloads the kinds and traditions lists', async () => {
+    stub(); await loadEdit();
+    const later = { id: 3, name: 'Moonwork', is_starter: 0, starter_key: null, version: 1 };
+    const laterTradition = { id: 4, name: 'Hedgecraft', is_starter: 0, starter_key: null, version: 1 };
+    spell = { ...stored(), version: 6, kind_id: 3, traditions: [4] };
+    override = url => {
+      if (url === '/api/spell-kinds') return json([...kinds, later]);
+      if (url === '/api/traditions') return json([...traditions, laterTradition]);
+      return null;
+    };
+    await userEvent.type(screen.getByLabelText('Purpose'), ' x');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(await screen.findByText('Reload the latest'));
+    await vi.waitFor(() => expect(screen.getByLabelText('Kind')).toHaveValue('3'));
+    expect(screen.getByRole('option', { name: 'Moonwork' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Hedgecraft')).toBeChecked();
+  });
+
   it('names a line without a name by its number', async () => {
     stub(); await loadEdit();
     const [hidden] = rowsOf('Ingredients and tools');

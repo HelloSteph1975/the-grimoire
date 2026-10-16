@@ -329,6 +329,70 @@ describe('spells and the Trash', () => {
     expect(res.body.detailCodes).toMatchObject({ kind_id: { code: 'not_found' }, traditions: { code: 'not_found' }, feasts: { code: 'not_found' } });
   });
 
+  // Keep mine after a conflict: the form still holds an id that another window deleted forever.
+  describe('references deleted forever in another window', () => {
+    const purge = async (path, type, id) => {
+      expect((await del(`${path}/${id}`)).status).toBe(200);
+      expect((await del(`/api/trash/${type}/${id}`)).status).toBe(200);
+    };
+
+    it('a kind is dropped and the other edits save', async () => {
+      const k = (await t.http().post('/api/spell-kinds').send({ name: 'Short lived' })).body;
+      const s = (await post({ title: 'S', kind_id: k.id })).body;
+      await purge('/api/spell-kinds', 'kind', k.id);
+      const now = await get(s.id);
+      expect(now.version).toBeGreaterThan(s.version);
+      const res = await patch(s.id, { title: 'Changed', kind_id: k.id, version: now.version });
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ title: 'Changed', kind_id: null });
+    });
+
+    it('a tradition is dropped and the other edits save', async () => {
+      const tr = (await t.http().post('/api/traditions').send({ name: 'Short lived' })).body;
+      const s = (await post({ title: 'S', traditions: [tr.id, trads[0].id] })).body;
+      await purge('/api/traditions', 'tradition', tr.id);
+      const now = await get(s.id);
+      const res = await patch(s.id, { title: 'Changed', traditions: [tr.id, trads[0].id], version: now.version });
+      expect(res.status).toBe(200);
+      expect(res.body.title).toBe('Changed');
+      expect(res.body.traditions).toEqual([trads[0].id]);
+    });
+
+    it('a feast entry is dropped and the other edits save', async () => {
+      const { f, s } = await linked();
+      await purge('/api/correspondences', 'correspondence', f.id);
+      const now = await get(s.id);
+      const res = await patch(s.id, { title: 'Changed', feasts: [f.id], version: now.version });
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ title: 'Changed', feasts: [] });
+    });
+
+    it('an ingredient link is cleared and the line stays', async () => {
+      const { e, s } = await linked();
+      await purge('/api/correspondences', 'correspondence', e.id);
+      const now = await get(s.id);
+      const res = await patch(s.id, { title: 'Changed', ingredients: [{ name: 'Rosemary', amount: '1', correspondence_id: e.id }], version: now.version });
+      expect(res.status).toBe(200);
+      expect(res.body.title).toBe('Changed');
+      expect(res.body.ingredients).toEqual([{ name: 'Rosemary', amount: '1', correspondence_id: null, link: null }]);
+    });
+
+    it('creating with a deleted-forever id drops it too', async () => {
+      const k = (await t.http().post('/api/spell-kinds').send({ name: 'Short lived' })).body;
+      await purge('/api/spell-kinds', 'kind', k.id);
+      const res = await post({ title: 'New', kind_id: k.id });
+      expect(res.status).toBe(201);
+      expect(res.body.kind_id).toBeNull();
+    });
+
+    it('an id that never existed is still not found', async () => {
+      const s = (await post({ title: 'S' })).body;
+      const res = await patch(s.id, { kind_id: 9999, traditions: [9999], version: s.version });
+      expect(res.status).toBe(400);
+      expect(res.body.detailCodes).toMatchObject({ kind_id: { code: 'not_found' }, traditions: { code: 'not_found' } });
+    });
+  });
+
   it('a spell in the Trash is not bumped', async () => {
     const { e, s } = await linked();
     await del(`/api/spells/${s.id}`);

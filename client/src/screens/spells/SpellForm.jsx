@@ -76,14 +76,15 @@ function SpellFormLoader({ id }) {
     <>
       <PageHeader title={id || created ? t('spells.edit') : t('spells.new')} />
       <LoadState loading={!ready} error={ready ? null : error} onRetry={retry}>
-        {ready && <SpellForm record={id ? spell.data : null} kinds={kinds.data} traditions={traditions.data} onCreated={setCreated} />}
+        {ready && <SpellForm record={id ? spell.data : null} kinds={kinds.data} traditions={traditions.data}
+          reloadLists={() => Promise.all([kinds.reload(), traditions.reload()])} onCreated={setCreated} />}
       </LoadState>
       {!ready && error && <p><Link to="/spells">{t('spells.back')}</Link></p>}
     </>
   );
 }
 
-function SpellForm({ record, kinds, traditions, onCreated }) {
+function SpellForm({ record, kinds, traditions, reloadLists, onCreated }) {
   const { t, tc } = useT();
   const navigate = useNavigate();
   const pick = useMemo(() => pickWith(tc), [tc]);
@@ -107,7 +108,8 @@ function SpellForm({ record, kinds, traditions, onCreated }) {
   const done = out => { if (out && !f.isDirtyNow()) navigate(`/spells/${out.id}`); };
   const save = async e => done(await f.onSubmit(e));
   const keep = async () => done(await f.keepMine());
-  const takeTheirs = () => { setTarget(s => ({ ...s, version: f.conflict.version })); f.takeTheirs(pick); };
+  // The latest spell may use a kind or tradition added in another window, so reload those lists too.
+  const takeTheirs = () => { setTarget(s => ({ ...s, version: f.conflict.version })); f.takeTheirs(pick); reloadLists(); };
   // The leave guard asks first if there are unsaved changes.
   const cancel = () => navigate(target ? `/spells/${target.id}` : '/spells');
   const canSave = Boolean(v.title.trim()) && (!record || f.dirty);

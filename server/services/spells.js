@@ -146,6 +146,25 @@ export function getSpell(db, id) {
 // Every tradition or feast joined to this spell, the ones in the Trash too.
 const joined = (db, table, col, id) => db.prepare(`SELECT ${col} AS id FROM ${table} WHERE spell_id = ?`).all(id).map(r => r.id);
 
+// Ids are never reused (AUTOINCREMENT), so an id with no row that is at or below the table's
+// high-water mark was deleted forever, perhaps in another window after this form opened.
+function deletedForever(db, table, id) {
+  if (!Number.isInteger(id) || id < 1 || db.prepare(`SELECT 1 FROM ${table} WHERE id = ?`).get(id)) return false;
+  const seq = db.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table)?.seq ?? 0;
+  return id <= seq;
+}
+
+// Drops the links to rows that were deleted forever, so a save never fails on them. An ingredient
+// line stays, with no link.
+function dropDeleted(db, data) {
+  if (data.kind_id != null && deletedForever(db, 'spell_kinds', data.kind_id)) data.kind_id = null;
+  if (data.traditions) data.traditions = data.traditions.filter(id => !deletedForever(db, 'traditions', id));
+  if (data.feasts) data.feasts = data.feasts.filter(id => !deletedForever(db, 'correspondences', id));
+  data.ingredients?.forEach(line => {
+    if (line.correspondence_id && deletedForever(db, 'correspondences', line.correspondence_id)) line.correspondence_id = null;
+  });
+}
+
 // Kind, traditions and feasts must be live; an ingredient may link to an entry in the Trash, but
 // the entry must exist. The one exception is what this spell already holds: a kind, tradition or
 // feast that went to the Trash after the form was opened (or a form that sends no kind while the
@@ -153,6 +172,7 @@ const joined = (db, table, col, id) => db.prepare(`SELECT ${col} AS id FROM ${ta
 // restore. Those are dropped from `data`, so the write keeps them as they are.
 function checkRefs(db, data, stored) {
   const c = collector();
+  dropDeleted(db, data);
   const live = (table, id) => db.prepare(`SELECT 1 FROM ${table} WHERE id = ? AND deleted_at IS NULL`).get(id);
   const hiddenKind = stored?.kind_id && !liveKind(db, stored.kind_id);
   if (hiddenKind && (data.kind_id === null || data.kind_id === stored.kind_id)) delete data.kind_id;
