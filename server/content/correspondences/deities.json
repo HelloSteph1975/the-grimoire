@@ -1,1 +1,148 @@
-[]
+[
+  {
+    "starter_key": "corr.deities.the-goddess",
+    "category": "category.deities",
+    "name": "The Goddess",
+    "summary": "In Wicca, the divine feminine: the Moon, the earth, and Maiden, Mother and Crone.",
+    "body": "In Wicca the Goddess is the divine feminine, honored alongside the God. She is linked with the Moon, the earth, the sea and the turning of life.\n\nMany practitioners see her in three faces that follow the Moon: the Maiden of the waxing moon, the Mother of the full moon and the Crone of the waning moon. Others honor her through named goddesses from many cultures.\n\nShe is often represented on the altar by a silver candle, a chalice, a moon image or a shell. Practitioners honor her at the full moon esbats and throughout the Wheel of the Year.",
+    "keywords": ["goddess", "moon", "maiden", "mother", "crone", "triple goddess"],
+    "traditions": ["tradition.wiccan", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.the-horned-god",
+    "category": "category.deities",
+    "name": "The Horned God",
+    "summary": "In Wicca, the divine masculine: the Sun, the wild, the hunt and the harvest.",
+    "body": "In Wicca the God is the divine masculine, partner of the Goddess. He is often pictured with horns or antlers, as lord of animals, forests and the wild.\n\nHis story follows the Sun through the year: born at Yule, growing through spring, united with the Goddess at Beltane, giving his life in the harvest, and passing into the dark at Samhain.\n\nHe is often represented on the altar by a gold candle, a wand or antlers. Practitioners honor him at the sabbats.",
+    "keywords": ["god", "sun", "horned", "wild", "harvest", "hunt"],
+    "traditions": ["tradition.wiccan", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.hecate",
+    "category": "category.deities",
+    "name": "Hecate",
+    "summary": "Greek goddess of crossroads, keys, torches, the night and witchcraft.",
+    "body": "Hecate is an ancient Greek goddess of crossroads, thresholds, the night, ghosts and magic. She carries torches and keys, and offerings were once left for her where three roads meet.\n\nMany modern witches honor her as a patron of witchcraft, a guide in dark times and a guardian of boundaries. She is linked with the dark moon.\n\nTraditional offerings include garlic, eggs, honey and bread left at a crossroads. Keys, dogs and torches are her symbols.",
+    "keywords": ["crossroads", "keys", "night", "witchcraft", "dark moon", "guide"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.brigid",
+    "category": "category.deities",
+    "name": "Brigid",
+    "summary": "Irish goddess and saint of the hearth, poetry, smithcraft and holy wells.",
+    "body": "Brigid is an Irish goddess of poetry, smithcraft and sacred fire, later honored as Saint Brigid of Kildare, where nuns kept a flame burning for her for centuries.\n\nShe is linked with the hearth, inspiration, craft, holy wells and the first stirrings of spring. Her festival is Imbolc, on February 1.\n\nTraditional ways to honor her include making a woven Brigid's cross from rushes, lighting a candle, and leaving a cloth outside on Imbolc eve for her blessing.",
+    "keywords": ["hearth", "poetry", "smithcraft", "fire", "wells", "imbolc"],
+    "feast_day": "02-01",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.isis",
+    "category": "category.deities",
+    "name": "Isis",
+    "summary": "Egyptian goddess of magic, motherhood, protection and devotion.",
+    "body": "Isis is one of the great goddesses of ancient Egypt. In myth she gathered the scattered pieces of her husband Osiris, restored him with her magic, and protected their son Horus.\n\nShe is honored as a mistress of magic, a devoted mother and wife, and a protector. Her worship spread across the Roman world.\n\nHer symbols include the throne headdress, wings and the tyet knot. Many modern practitioners call on her for magic, protection and the strength to rebuild after loss.",
+    "keywords": ["magic", "motherhood", "protection", "devotion", "wings", "egypt"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.freya",
+    "category": "category.deities",
+    "name": "Freya",
+    "summary": "Norse goddess of love, beauty, seiðr magic and the fallen in battle.",
+    "body": "Freya is a Norse goddess of love, beauty, gold and the magic called seiðr, a practice of trance and seeing. She drives a chariot pulled by cats and wears a famous necklace, Brísingamen.\n\nIn myth she receives half of those who fall in battle into her hall. She is also linked with the Old Norse name behind Friday in some accounts.\n\nModern practitioners honor her for love, self-worth, magic and courage.",
+    "keywords": ["love", "beauty", "seidr", "magic", "cats", "gold"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.diana",
+    "category": "category.deities",
+    "name": "Diana",
+    "summary": "Roman goddess of the Moon, the hunt, wild places and women.",
+    "body": "Diana is the Roman goddess of the Moon, the hunt, forests and wild animals, and a protector of women. She is linked with the Greek Artemis.\n\nShe has a special place in modern witchcraft. Some traditions honor her as Queen of the Witches, and her name is used for the Goddess in some Wiccan rites.\n\nHer festival, the Nemoralia, was held at her lake sanctuary near Rome in mid-August with torches and floating candles; many celebrate it on August 13.",
+    "keywords": ["moon", "hunt", "wild", "women", "independence", "nemoralia"],
+    "feast_day": "08-13",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.persephone",
+    "category": "category.deities",
+    "name": "Persephone",
+    "summary": "Greek queen of the underworld and maiden of spring: cycles, return and renewal.",
+    "body": "Persephone is the Greek daughter of Demeter, carried off to the underworld by Hades. Because she ate pomegranate seeds there, she spends part of each year below as its queen and returns each spring.\n\nHer story explains the seasons and holds both sides of life: the bright maiden of flowers and the dark queen of the dead.\n\nShe is honored at the equinoxes and in work on change, grief, returning home and finding power in hard places. The pomegranate is her symbol.",
+    "keywords": ["underworld", "spring", "cycles", "renewal", "pomegranate", "seasons"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.cernunnos",
+    "category": "category.deities",
+    "name": "Cernunnos",
+    "summary": "Celtic horned god of animals, forests, fertility and abundance.",
+    "body": "Cernunnos is a Celtic god known mainly from ancient images of an antlered figure seated among animals, wearing or holding a torc. His name survives on a single Roman-era stone found in Paris.\n\nLittle of his myth is known. Modern practitioners honor him as lord of wild animals, forests, fertility and the cycle of life and death, and he is often identified with the Wiccan Horned God.\n\nAntlers, stags, serpents and torcs are his symbols.",
+    "keywords": ["horned", "animals", "forest", "fertility", "abundance", "wild"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.aphrodite",
+    "category": "category.deities",
+    "name": "Aphrodite",
+    "summary": "Greek goddess of love, desire, beauty and the sea foam.",
+    "body": "Aphrodite is the Greek goddess of love, desire and beauty, said in one tale to have risen from the sea foam. The Romans knew her as Venus.\n\nShe governs attraction, pleasure, beauty and the bonds between lovers. Doves, roses, myrtle, apples and seashells are her symbols.\n\nModern practitioners call on her for love, self-love, confidence in the body and the pleasures of life.",
+    "keywords": ["love", "desire", "beauty", "pleasure", "sea", "roses"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.deities.tonantzin",
+    "category": "category.deities",
+    "name": "Tonantzin",
+    "summary": "Mexica \"our revered mother\": a title of mother goddesses honored at Tepeyac.",
+    "body": "Tonantzin means \"our revered mother\" in Nahuatl. In Mexica religion it was a title given to mother goddesses, and a shrine to a mother goddess stood on the hill of Tepeyac before the Spanish conquest.\n\nAfter 1531 the Virgin of Guadalupe was honored on the same hill. Historians still debate how closely the two are connected, but many people today, especially in Indigenous and Chicana communities, speak of Tonantzin and Guadalupe together.\n\nShe is honored as a mother of the earth and of the people, a source of nourishment, protection and belonging.",
+    "keywords": ["mother", "earth", "tepeyac", "nahuatl", "protection", "guadalupe"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.quetzalcoatl",
+    "category": "category.deities",
+    "name": "Quetzalcóatl",
+    "summary": "The Feathered Serpent: wind, learning, creation and the morning star.",
+    "body": "Quetzalcóatl, the Feathered Serpent, is one of the oldest and most important figures in Mesoamerican religion, honored long before the Mexica at places like Teotihuacan.\n\nAmong the Mexica he was a god of wind, learning, priesthood, the calendar and craft. In one creation story he travels to the land of the dead to bring back bones from which humans were made. He is linked with Venus as the morning star.\n\nModern practitioners honor him for wisdom, learning, creativity and new beginnings.",
+    "keywords": ["feathered serpent", "wind", "learning", "creation", "morning star", "wisdom"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.tlaloc",
+    "category": "category.deities",
+    "name": "Tláloc",
+    "summary": "Mexica god of rain, storms, lightning and the fertile earth.",
+    "body": "Tláloc is the Mexica god of rain, storms and lightning, on whom every harvest depended. He shared the top of the Templo Mayor in Tenochtitlan with Huitzilopochtli, showing how central water was.\n\nHe is shown with goggle-like rings around his eyes and fangs, and his paradise, Tlalocan, was a green land of plenty.\n\nHis rain could bring life or destroy it, so he was honored with respect. Modern practitioners call on him for rain, gardens, abundance and the power of storms.",
+    "keywords": ["rain", "storms", "lightning", "fertility", "water", "harvest"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.mictecacihuatl",
+    "category": "category.deities",
+    "name": "Mictecacíhuatl",
+    "summary": "Mexica Lady of the Dead, queen of Mictlán and guardian of bones.",
+    "body": "Mictecacíhuatl is the Mexica Lady of the Dead, who ruled Mictlán, the land of the dead, with Mictlantecuhtli. She was said to guard the bones of the dead.\n\nAncient festivals for the dead were held in her honor, and many people today connect her with the roots of Día de Muertos. Modern images of La Catrina are sometimes linked to her, though La Catrina herself began as a twentieth-century print.\n\nShe is honored in remembrance of the dead, ancestor work and acceptance of life's end.",
+    "keywords": ["the dead", "mictlan", "bones", "ancestors", "dia de muertos", "remembrance"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.chalchiuhtlicue",
+    "category": "category.deities",
+    "name": "Chalchiuhtlicue",
+    "summary": "Mexica \"she of the jade skirt\": rivers, lakes, springs and newborns.",
+    "body": "Chalchiuhtlicue, \"she of the jade skirt\", is the Mexica goddess of rivers, lakes, springs and fresh water, and the partner or sister of Tláloc.\n\nShe watched over water journeys and over newborns, who were washed in her name. She is shown wearing a green or jade skirt with water flowing from it.\n\nModern practitioners honor her for cleansing, fresh starts, flowing emotion and blessing of water.",
+    "keywords": ["water", "rivers", "jade", "cleansing", "newborns", "springs"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  },
+  {
+    "starter_key": "corr.deities.xochiquetzal",
+    "category": "category.deities",
+    "name": "Xochiquetzal",
+    "summary": "Mexica goddess of flowers, beauty, love, art and weaving.",
+    "body": "Xochiquetzal, \"precious flower\", is the Mexica goddess of flowers, beauty, love, pleasure and the arts, especially weaving and embroidery. Artisans honored her as their patron.\n\nShe is shown young and lovely, surrounded by flowers, butterflies and birds, especially the marigold.\n\nModern practitioners call on her for love, beauty, creativity, craftwork and the pleasures of life.",
+    "keywords": ["flowers", "beauty", "love", "art", "weaving", "butterflies"],
+    "traditions": ["tradition.mexican-folk", "tradition.eclectic"]
+  }
+]
