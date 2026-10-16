@@ -27,6 +27,8 @@ const pickWith = tc => r => ({
   summary: starterText(tc, r, 'summary', r?.summary ?? ''),
   body: starterText(tc, r, 'body', r?.body ?? ''),
   keywords: starterKeywords(tc, r),
+  // Keyword text typed but not confirmed yet; it counts as a change and turns into a chip on blur.
+  pending: '',
   month: r?.feast_day ? r.feast_day.slice(0, 2) : '',
   day: r?.feast_day ? r.feast_day.slice(3, 5) : '',
   traditions: r?.traditions ?? [],
@@ -140,7 +142,7 @@ function EntryForm({ record, presetCategory, categories, traditions, onCreated }
             <TextArea value={v.body} onChange={e => f.set('body', e.target.value)} rows={10} maxLength={4000} />
           </Field>
           <Field label={t('corr.keywords')} error={f.errors.keywords}>
-            <ChipsInput value={v.keywords} onChange={k => f.set('keywords', k)} label={t('corr.keywords')} />
+            <ChipsInput value={v.keywords} onChange={k => f.set('keywords', k)} pending={v.pending} onPendingChange={p => f.set('pending', p)} label={t('corr.keywords')} />
           </Field>
           <fieldset className="field field-group">
             <legend>{t('corr.feastDay')}</legend>

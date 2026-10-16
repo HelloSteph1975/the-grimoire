@@ -229,6 +229,24 @@ describe('Entry form', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Leave' }));
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/correspondences/11'));
   });
+  it('saves a keyword that was typed but not confirmed when Save is clicked', async () => {
+    stub(); mount('/correspondences/11/edit');
+    await vi.waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Monday'));
+    await userEvent.type(screen.getByLabelText('Keywords'), 'Silver');
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/correspondences/11'));
+    expect(sent('PATCH')[0].body.keywords).toEqual(['moon', 'silver']);
+  });
+  it('counts a typed keyword as a change: Save turns on and leaving asks first', async () => {
+    stub(); mount('/correspondences/11/edit');
+    await vi.waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Monday'));
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    await userEvent.type(screen.getByLabelText('Keywords'), 'Silver');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByText('Press Enter to add')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(await screen.findByText('Leave without saving?')).toBeInTheDocument();
+  });
   it('leaves at once when nothing changed', async () => {
     stub(); mount('/correspondences/11/edit');
     await vi.waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Monday'));

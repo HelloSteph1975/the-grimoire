@@ -64,6 +64,34 @@ describe('ChipsInput', () => {
   });
 });
 
+describe('ChipsInput pending text', () => {
+  it('adds typed text as a chip when the box loses focus', async () => {
+    const user = userEvent.setup();
+    render(<><Harness /><button type="button">Elsewhere</button></>);
+    await user.type(box(), 'Silver');
+    await user.click(screen.getByRole('button', { name: 'Elsewhere' }));
+    expect(screen.getByRole('button', { name: 'Remove silver' })).toBeInTheDocument();
+    expect(box()).toHaveValue('');
+  });
+  it('shows the Enter hint only while text is waiting', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    expect(screen.queryByText('Press Enter to add')).toBeNull();
+    await user.type(box(), 'si');
+    expect(screen.getByText('Press Enter to add')).toBeInTheDocument();
+    await user.clear(box());
+    expect(screen.queryByText('Press Enter to add')).toBeNull();
+  });
+  it('tells a parent about the waiting text when it controls it', async () => {
+    const user = userEvent.setup();
+    const seen = vi.fn();
+    render(<ChipsInput id="kw" label="Keywords" value={[]} pending="ab" onChange={() => {}} onPendingChange={seen} />);
+    expect(box()).toHaveValue('ab');
+    await user.type(box(), 'c');
+    expect(seen).toHaveBeenLastCalledWith('abc');
+  });
+});
+
 describe('ChipsInput focus', () => {
   it('returns focus to the input after removing a chip, and stays enabled at max', async () => {
     const user = userEvent.setup();

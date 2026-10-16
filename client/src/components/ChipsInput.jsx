@@ -2,9 +2,13 @@ import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { useT } from '../i18n/I18nProvider.jsx';
 
-export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30, label }) {
+export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30, label, pending, onPendingChange }) {
   const { t } = useT();
-  const [text, setText] = useState('');
+  // A parent that passes `pending` owns the unconfirmed text, so it can count it as a change.
+  const [own, setOwn] = useState('');
+  const controlled = pending !== undefined;
+  const text = controlled ? pending : own;
+  const setText = next => { setOwn(next); onPendingChange?.(next); };
   const inputRef = useRef(null);
   const full = value.length >= max;
 
@@ -38,7 +42,9 @@ export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30,
         ))}
       </ul>
       <input ref={inputRef} id={id} type="text" className="input" aria-label={label} value={text} maxLength={maxLength + 1}
-        onChange={e => setText(e.target.value.replace(/,/g, ''))} onKeyDown={onKeyDown} />
+        onChange={e => setText(e.target.value.replace(/,/g, ''))} onKeyDown={onKeyDown}
+        onBlur={() => { if (text && commit(text)) setText(''); }} />
+      {text.trim() && <small className="field-hint">{t('chips.hint')}</small>}
       <small className="field-hint">{t('chips.limit', { max })}</small>
     </div>
   );

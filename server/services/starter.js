@@ -78,12 +78,21 @@ function seedEntries(db, dir) {
 function seedLinks(db, dir, inserted) {
   const add = db.prepare('INSERT OR IGNORE INTO correspondence_links (a_id, b_id) VALUES (?, ?)');
   let added = 0;
+  const existing = new Set();
   for (const [ka, kb] of readJson(dir, 'links.json')) {
     if (!inserted.has(ka) && !inserted.has(kb)) continue;
     const a = idOf(db, 'correspondences', ka);
     const b = idOf(db, 'correspondences', kb);
     if (!a || !b || a === b) continue;
-    added += Number(add.run(Math.min(a, b), Math.max(a, b)).changes);
+    if (!Number(add.run(Math.min(a, b), Math.max(a, b)).changes)) continue;
+    added += 1;
+    // A link to an entry that was already here changes what that entry shows, so a form opened
+    // before this update must get a conflict instead of saving over the new link.
+    for (const key of [ka, kb]) if (!inserted.has(key)) existing.add(key);
+  }
+  if (existing.size) {
+    const bump = db.prepare(`UPDATE correspondences SET version = version + 1, updated_at = ${NOW} WHERE starter_key = ?`);
+    for (const key of existing) bump.run(key);
   }
   return added;
 }

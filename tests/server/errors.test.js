@@ -1,4 +1,6 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import { makeTestContext } from './helpers.js';
 
 let t;
@@ -41,5 +43,27 @@ describe('error codes', () => {
   it('sends bad_id for a bad id', async () => {
     t = makeTestContext();
     expect((await t.http().get('/api/traditions/abc')).body.code).toBe('bad_id');
+  });
+  it('keeps the explicit code and message of a 500 it raised on purpose', async () => {
+    t = makeTestContext();
+    const { body: b } = await t.http().post('/api/backups');
+    // Another program's log file appears once our connection closes.
+    const close = t.ctx.db.close.bind(t.ctx.db);
+    t.ctx.db.close = () => { close(); fs.writeFileSync(path.join(t.dataDir, 'grimoire.db-wal'), ''); };
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const res = await t.http().post('/api/backups/restore').send({ name: b.name });
+    logged.mockRestore();
+    expect(res.status).toBe(500);
+    expect(res.body.code).toBe('in_use');
+    expect(res.body.error).toMatch(/in use by another program/);
+  });
+  it('sends server_error and the generic message for an unexpected error', async () => {
+    t = makeTestContext();
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(t.ctx.db, 'prepare').mockImplementation(() => { throw new Error('secret detail'); });
+    const res = await t.http().get('/api/traditions');
+    logged.mockRestore();
+    expect(res.status).toBe(500);
+    expect(res.body).toMatchObject({ code: 'server_error', error: 'Something went wrong on our side.' });
   });
 });

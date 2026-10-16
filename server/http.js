@@ -68,9 +68,13 @@ export function errorHandler(err, req, res, next) {
   }
   const status = err.status || err.statusCode || 500;
   if (status >= 500) console.error(err);
+  // A 5xx raised on purpose (an HttpError with a code) keeps its own message and code; anything
+  // else is unexpected, so the details stay in the log.
+  const planned = err instanceof HttpError && err.code;
+  const hidden = status >= 500 && !planned;
   res.status(status).json({
-    error: status >= 500 ? 'Something went wrong on our side.' : err.message,
-    code: status >= 500 ? 'server_error' : (err.code ?? DEFAULT_CODES[status] ?? 'invalid'),
+    error: hidden ? 'Something went wrong on our side.' : err.message,
+    code: hidden ? 'server_error' : (err.code ?? DEFAULT_CODES[status] ?? 'invalid'),
     vars: err.vars,
     details: err.details,
     detailCodes: err.detailCodes,

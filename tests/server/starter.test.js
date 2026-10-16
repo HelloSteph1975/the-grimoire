@@ -5,6 +5,8 @@ import path from 'node:path';
 import { openDb } from '../../server/db/connection.js';
 import { seedStarter } from '../../server/services/starter.js';
 import { repos } from '../../server/db/repos.js';
+import { updateEntry } from '../../server/services/correspondences.js';
+import { VersionConflict } from '../../server/db/repo.js';
 import { deleteForever, emptyTrash, restoreFromTrash } from '../../server/services/trash.js';
 
 import { BASE_CONTENT } from './helpers.js';
@@ -150,5 +152,27 @@ describe('seedStarter', () => {
     seedStarter(db, { content: bumped });
     const id = db.prepare("SELECT id FROM correspondences WHERE starter_key='corr.days.monday'").get().id;
     expect(db.prepare('SELECT count(*) n FROM correspondence_traditions WHERE correspondence_id = ?').get(id).n).toBe(2);
+  });
+});
+
+describe('seedStarter links to existing entries', () => {
+  it('bumps the version of an existing entry that gets a new starter link, so a stale form gets a 409', () => {
+    seedStarter(db, { content: FIXTURE });
+    const get = key => db.prepare('SELECT id, version FROM correspondences WHERE starter_key = ?').get(key);
+    const moon = get('corr.planets.moon');
+    const before = moon.version;
+    const next = copyFixtureWith({
+      'correspondences/days.json': rows => [...rows, { ...rows[0], starter_key: 'corr.days.tuesday', name: 'Tuesday', keywords: [] }],
+      'links.json': links => [...links, ['corr.days.tuesday', 'corr.planets.moon']],
+    });
+    seedStarter(db, { content: next });
+    expect(get('corr.planets.moon').version).toBeGreaterThan(before);
+    const tuesday = get('corr.days.tuesday');
+    const linked = db.prepare('SELECT count(*) n FROM correspondence_links WHERE a_id = ? OR b_id = ?');
+    expect(linked.get(moon.id, moon.id).n).toBe(2);
+    // A form opened before the update still holds the old version and no link to Tuesday.
+    expect(() => updateEntry(db, moon.id, { links: [] }, before)).toThrow(VersionConflict);
+    expect(linked.get(moon.id, moon.id).n).toBe(2);
+    expect(tuesday.id).toBeGreaterThan(0);
   });
 });

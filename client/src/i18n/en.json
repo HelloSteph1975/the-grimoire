@@ -151,6 +151,7 @@
   "error.restore_failed": "Restore failed; your data was put back from the safety copy.",
   "chips.remove": "Remove {item}",
   "chips.limit": "Up to {max}",
+  "chips.hint": "Press Enter to add",
   "picker.search": "Find an entry to link",
   "picker.none": "No matches",
   "categories.title": "Categories",
