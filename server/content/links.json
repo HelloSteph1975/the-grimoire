@@ -230,5 +230,53 @@
   [
     "corr.moon-phases.new-moon",
     "corr.colors.black"
+  ],
+  [
+    "corr.sabbats-feasts.samhain",
+    "corr.colors.black"
+  ],
+  [
+    "corr.sabbats-feasts.samhain",
+    "corr.colors.orange"
+  ],
+  [
+    "corr.sabbats-feasts.yule",
+    "corr.planets.sun"
+  ],
+  [
+    "corr.sabbats-feasts.yule",
+    "corr.colors.gold"
+  ],
+  [
+    "corr.sabbats-feasts.imbolc",
+    "corr.colors.white"
+  ],
+  [
+    "corr.sabbats-feasts.imbolc",
+    "corr.elements.fire"
+  ],
+  [
+    "corr.sabbats-feasts.ostara",
+    "corr.colors.green"
+  ],
+  [
+    "corr.sabbats-feasts.beltane",
+    "corr.elements.fire"
+  ],
+  [
+    "corr.sabbats-feasts.beltane",
+    "corr.planets.venus"
+  ],
+  [
+    "corr.sabbats-feasts.litha",
+    "corr.planets.sun"
+  ],
+  [
+    "corr.sabbats-feasts.lughnasadh",
+    "corr.colors.gold"
+  ],
+  [
+    "corr.sabbats-feasts.mabon",
+    "corr.colors.brown"
   ]
 ]

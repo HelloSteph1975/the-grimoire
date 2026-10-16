@@ -1,1 +1,78 @@
-[]
+[
+  {
+    "starter_key": "corr.sabbats-feasts.samhain",
+    "category": "category.sabbats-feasts",
+    "name": "Samhain",
+    "summary": "The last harvest and the witches' new year: honoring the dead as the veil thins.",
+    "body": "Samhain (often said \"SOW-in\") falls on October 31 in the Northern Hemisphere and marks the end of the harvest and the start of the dark half of the year. Many witches treat it as their new year.\n\nIt takes its name from an old Gaelic festival. In modern practice it is a time to honor ancestors and the beloved dead, to set a place for them, to scry and divine, and to reflect on endings.\n\nCommon symbols are apples, pumpkins, candles in windows, black and orange, and photos of the dead. In Mexico it falls on the eve of Día de Muertos, and many practitioners there let the two meet on the same altar.",
+    "keywords": ["ancestors", "the dead", "new year", "harvest", "divination", "endings"],
+    "feast_day": "10-31",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.yule",
+    "category": "category.sabbats-feasts",
+    "name": "Yule",
+    "summary": "The winter solstice: the longest night and the return of the Sun.",
+    "body": "Yule is the winter solstice, around December 21 in the Northern Hemisphere, when the night is longest and the Sun begins its return.\n\nIt is a festival of light in darkness: candles, a log on the fire, evergreens, and staying up to greet the morning. In Wiccan story the God is reborn as the Sun child.\n\nGood work for Yule includes hope, renewal, generosity and rest. Many people use it to look back on the year and choose one small light to carry into the next.",
+    "keywords": ["solstice", "rebirth", "light", "hope", "evergreen", "renewal"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.imbolc",
+    "category": "category.sabbats-feasts",
+    "name": "Imbolc",
+    "summary": "The first stirrings of spring: hearth, cleansing and new beginnings.",
+    "body": "Imbolc falls on February 1 or 2 in the Northern Hemisphere, halfway between the winter solstice and the spring equinox. The ground is still cold, but the light is growing.\n\nIt is linked with the Irish goddess and saint Brigid, keeper of the hearth, poetry and smithcraft. It is a time for spring cleaning, blessing candles, lighting the hearth, and planting intentions.\n\nIt shares February 2 with Día de la Candelaria in Mexico, another festival of candles and blessings.",
+    "keywords": ["brigid", "hearth", "cleansing", "candles", "beginnings", "light"],
+    "feast_day": "02-01",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.ostara",
+    "category": "category.sabbats-feasts",
+    "name": "Ostara",
+    "summary": "The spring equinox: balance, fertility, seeds and fresh growth.",
+    "body": "Ostara is the spring equinox, around March 20 in the Northern Hemisphere, when day and night are equal and light begins to win.\n\nIt celebrates balance and new growth: seeds, eggs, flowers and the fertile earth. The name comes from a modern revival linked with a spring goddess.\n\nGood work for Ostara includes planting (seeds and plans), balance, fresh starts and fertility of every kind, from gardens to creative projects.",
+    "keywords": ["equinox", "balance", "fertility", "seeds", "eggs", "spring"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.beltane",
+    "category": "category.sabbats-feasts",
+    "name": "Beltane",
+    "summary": "May Day: passion, fertility, flowers, fire and the joy of life.",
+    "body": "Beltane falls on May 1 in the Northern Hemisphere, halfway between the spring equinox and the summer solstice. It celebrates summer's arrival and the life force at full bloom.\n\nTraditional symbols include bonfires, flower crowns, the maypole, and greenery brought into the house. In Wiccan story it is the union of the Goddess and the God.\n\nIt suits love and passion, creativity, fertility, abundance and plain joy. Jumping a small fire or leaving flowers at a doorway are classic Beltane acts.",
+    "keywords": ["passion", "fertility", "fire", "flowers", "love", "joy"],
+    "feast_day": "05-01",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.litha",
+    "category": "category.sabbats-feasts",
+    "name": "Litha",
+    "summary": "The summer solstice: the longest day, the Sun at full strength.",
+    "body": "Litha is the summer solstice, around June 21 in the Northern Hemisphere, the longest day of the year. From here the light begins to wane.\n\nIt celebrates the Sun at its height: abundance, success, vitality and the beauty of the green world. Gathering herbs, honoring the Sun and staying up for the short night are traditional.\n\nIt falls close to Día de San Juan on June 24, and the two share themes of water, fire and blessing.",
+    "keywords": ["solstice", "sun", "abundance", "success", "herbs", "midsummer"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.lughnasadh",
+    "category": "category.sabbats-feasts",
+    "name": "Lughnasadh",
+    "summary": "The first harvest: grain, bread, gratitude and the fruits of work.",
+    "body": "Lughnasadh (often said \"LOO-nuh-sah\"), also called Lammas, falls on August 1 in the Northern Hemisphere. It is the first of three harvest festivals.\n\nIts name honors the Irish god Lugh, master of many skills. It is a time to give thanks for what has grown, to bake bread, and to celebrate skill and hard work.\n\nGood work for Lughnasadh includes gratitude, prosperity, finishing projects and sharing your harvest, whatever form it takes.",
+    "keywords": ["harvest", "grain", "bread", "gratitude", "skill", "lammas"],
+    "feast_day": "08-01",
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.mabon",
+    "category": "category.sabbats-feasts",
+    "name": "Mabon",
+    "summary": "The autumn equinox: second harvest, balance, gratitude and rest.",
+    "body": "Mabon is the autumn equinox, around September 22 in the Northern Hemisphere, when day and night are equal again and darkness begins to win.\n\nIt is the second harvest: fruit, nuts, wine and the gathering-in before winter. Its name comes from a modern revival, after a figure in Welsh legend.\n\nGood work for Mabon includes gratitude, balance, letting go of what you will not carry into the dark months, and preparing the home for winter.",
+    "keywords": ["equinox", "harvest", "balance", "gratitude", "autumn", "rest"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]
