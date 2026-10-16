@@ -278,5 +278,41 @@
   [
     "corr.sabbats-feasts.mabon",
     "corr.colors.brown"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-la-candelaria",
+    "corr.sabbats-feasts.imbolc"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-la-candelaria",
+    "corr.colors.white"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-san-juan",
+    "corr.sabbats-feasts.litha"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-san-juan",
+    "corr.elements.water"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-los-angelitos",
+    "corr.sabbats-feasts.dia-de-muertos"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-muertos",
+    "corr.sabbats-feasts.samhain"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-muertos",
+    "corr.colors.orange"
+  ],
+  [
+    "corr.sabbats-feasts.dia-de-la-virgen-de-guadalupe",
+    "corr.colors.blue"
+  ],
+  [
+    "corr.sabbats-feasts.las-posadas",
+    "corr.elements.fire"
   ]
 ]

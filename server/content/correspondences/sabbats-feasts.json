@@ -5,9 +5,19 @@
     "name": "Samhain",
     "summary": "The last harvest and the witches' new year: honoring the dead as the veil thins.",
     "body": "Samhain (often said \"SOW-in\") falls on October 31 in the Northern Hemisphere and marks the end of the harvest and the start of the dark half of the year. Many witches treat it as their new year.\n\nIt takes its name from an old Gaelic festival. In modern practice it is a time to honor ancestors and the beloved dead, to set a place for them, to scry and divine, and to reflect on endings.\n\nCommon symbols are apples, pumpkins, candles in windows, black and orange, and photos of the dead. In Mexico it falls on the eve of Día de Muertos, and many practitioners there let the two meet on the same altar.",
-    "keywords": ["ancestors", "the dead", "new year", "harvest", "divination", "endings"],
+    "keywords": [
+      "ancestors",
+      "the dead",
+      "new year",
+      "harvest",
+      "divination",
+      "endings"
+    ],
     "feast_day": "10-31",
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.yule",
@@ -15,8 +25,18 @@
     "name": "Yule",
     "summary": "The winter solstice: the longest night and the return of the Sun.",
     "body": "Yule is the winter solstice, around December 21 in the Northern Hemisphere, when the night is longest and the Sun begins its return.\n\nIt is a festival of light in darkness: candles, a log on the fire, evergreens, and staying up to greet the morning. In Wiccan story the God is reborn as the Sun child.\n\nGood work for Yule includes hope, renewal, generosity and rest. Many people use it to look back on the year and choose one small light to carry into the next.",
-    "keywords": ["solstice", "rebirth", "light", "hope", "evergreen", "renewal"],
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "keywords": [
+      "solstice",
+      "rebirth",
+      "light",
+      "hope",
+      "evergreen",
+      "renewal"
+    ],
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.imbolc",
@@ -24,9 +44,19 @@
     "name": "Imbolc",
     "summary": "The first stirrings of spring: hearth, cleansing and new beginnings.",
     "body": "Imbolc falls on February 1 or 2 in the Northern Hemisphere, halfway between the winter solstice and the spring equinox. The ground is still cold, but the light is growing.\n\nIt is linked with the Irish goddess and saint Brigid, keeper of the hearth, poetry and smithcraft. It is a time for spring cleaning, blessing candles, lighting the hearth, and planting intentions.\n\nIt shares February 2 with Día de la Candelaria in Mexico, another festival of candles and blessings.",
-    "keywords": ["brigid", "hearth", "cleansing", "candles", "beginnings", "light"],
+    "keywords": [
+      "brigid",
+      "hearth",
+      "cleansing",
+      "candles",
+      "beginnings",
+      "light"
+    ],
     "feast_day": "02-01",
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.ostara",
@@ -34,8 +64,18 @@
     "name": "Ostara",
     "summary": "The spring equinox: balance, fertility, seeds and fresh growth.",
     "body": "Ostara is the spring equinox, around March 20 in the Northern Hemisphere, when day and night are equal and light begins to win.\n\nIt celebrates balance and new growth: seeds, eggs, flowers and the fertile earth. The name comes from a modern revival linked with a spring goddess.\n\nGood work for Ostara includes planting (seeds and plans), balance, fresh starts and fertility of every kind, from gardens to creative projects.",
-    "keywords": ["equinox", "balance", "fertility", "seeds", "eggs", "spring"],
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "keywords": [
+      "equinox",
+      "balance",
+      "fertility",
+      "seeds",
+      "eggs",
+      "spring"
+    ],
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.beltane",
@@ -43,9 +83,19 @@
     "name": "Beltane",
     "summary": "May Day: passion, fertility, flowers, fire and the joy of life.",
     "body": "Beltane falls on May 1 in the Northern Hemisphere, halfway between the spring equinox and the summer solstice. It celebrates summer's arrival and the life force at full bloom.\n\nTraditional symbols include bonfires, flower crowns, the maypole, and greenery brought into the house. In Wiccan story it is the union of the Goddess and the God.\n\nIt suits love and passion, creativity, fertility, abundance and plain joy. Jumping a small fire or leaving flowers at a doorway are classic Beltane acts.",
-    "keywords": ["passion", "fertility", "fire", "flowers", "love", "joy"],
+    "keywords": [
+      "passion",
+      "fertility",
+      "fire",
+      "flowers",
+      "love",
+      "joy"
+    ],
     "feast_day": "05-01",
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.litha",
@@ -53,8 +103,18 @@
     "name": "Litha",
     "summary": "The summer solstice: the longest day, the Sun at full strength.",
     "body": "Litha is the summer solstice, around June 21 in the Northern Hemisphere, the longest day of the year. From here the light begins to wane.\n\nIt celebrates the Sun at its height: abundance, success, vitality and the beauty of the green world. Gathering herbs, honoring the Sun and staying up for the short night are traditional.\n\nIt falls close to Día de San Juan on June 24, and the two share themes of water, fire and blessing.",
-    "keywords": ["solstice", "sun", "abundance", "success", "herbs", "midsummer"],
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "keywords": [
+      "solstice",
+      "sun",
+      "abundance",
+      "success",
+      "herbs",
+      "midsummer"
+    ],
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.lughnasadh",
@@ -62,9 +122,19 @@
     "name": "Lughnasadh",
     "summary": "The first harvest: grain, bread, gratitude and the fruits of work.",
     "body": "Lughnasadh (often said \"LOO-nuh-sah\"), also called Lammas, falls on August 1 in the Northern Hemisphere. It is the first of three harvest festivals.\n\nIts name honors the Irish god Lugh, master of many skills. It is a time to give thanks for what has grown, to bake bread, and to celebrate skill and hard work.\n\nGood work for Lughnasadh includes gratitude, prosperity, finishing projects and sharing your harvest, whatever form it takes.",
-    "keywords": ["harvest", "grain", "bread", "gratitude", "skill", "lammas"],
+    "keywords": [
+      "harvest",
+      "grain",
+      "bread",
+      "gratitude",
+      "skill",
+      "lammas"
+    ],
     "feast_day": "08-01",
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
   },
   {
     "starter_key": "corr.sabbats-feasts.mabon",
@@ -72,7 +142,169 @@
     "name": "Mabon",
     "summary": "The autumn equinox: second harvest, balance, gratitude and rest.",
     "body": "Mabon is the autumn equinox, around September 22 in the Northern Hemisphere, when day and night are equal again and darkness begins to win.\n\nIt is the second harvest: fruit, nuts, wine and the gathering-in before winter. Its name comes from a modern revival, after a figure in Welsh legend.\n\nGood work for Mabon includes gratitude, balance, letting go of what you will not carry into the dark months, and preparing the home for winter.",
-    "keywords": ["equinox", "harvest", "balance", "gratitude", "autumn", "rest"],
-    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+    "keywords": [
+      "equinox",
+      "harvest",
+      "balance",
+      "gratitude",
+      "autumn",
+      "rest"
+    ],
+    "traditions": [
+      "tradition.eclectic",
+      "tradition.wiccan"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-reyes",
+    "category": "category.sabbats-feasts",
+    "name": "Día de Reyes",
+    "summary": "Three Kings' Day: gifts, the rosca de reyes and shared good fortune.",
+    "body": "Día de Reyes, on January 6, marks the visit of the three wise men in the Christian story and closes the Christmas season in Mexico.\n\nFamilies share a rosca de reyes, a ring-shaped sweet bread with small figures of the Christ child baked inside. Whoever finds one hosts the tamales on Día de la Candelaria.\n\nIn practice it is a day for generosity, children, gift-giving and wishing luck on the year ahead.",
+    "keywords": [
+      "three kings",
+      "rosca",
+      "gifts",
+      "generosity",
+      "new year",
+      "luck"
+    ],
+    "feast_day": "01-06",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-la-candelaria",
+    "category": "category.sabbats-feasts",
+    "name": "Día de la Candelaria",
+    "summary": "Candlemas: blessing candles, dressing the Niño Dios and sharing tamales.",
+    "body": "Día de la Candelaria, on February 2, is the Catholic feast of the Presentation of Jesus at the temple, also called Candlemas.\n\nIn Mexico families dress their figure of the Niño Dios in new clothes and take it to church to be blessed, and many bring candles to be blessed for the year. Those who found a figure in the rosca on Día de Reyes host a meal of tamales and atole.\n\nIt falls beside Imbolc, and both celebrate light returning in winter.",
+    "keywords": [
+      "candlemas",
+      "candles",
+      "blessing",
+      "niño dios",
+      "tamales",
+      "light"
+    ],
+    "feast_day": "02-02",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-la-santa-cruz",
+    "category": "category.sabbats-feasts",
+    "name": "Día de la Santa Cruz",
+    "summary": "Holy Cross Day: crosses dressed in flowers, builders' blessings and the start of the rains.",
+    "body": "Día de la Santa Cruz, on May 3, honors the Holy Cross. In Mexico it is also the day of builders and masons, who place decorated crosses on unfinished buildings and celebrate with food and fireworks.\n\nIn many rural communities it is tied to petitions for good rain and a good planting season, and crosses are dressed with flowers and paper.\n\nIt suits blessings of a home or workplace, protection over construction, and prayers for the season's water.",
+    "keywords": [
+      "holy cross",
+      "builders",
+      "blessing",
+      "flowers",
+      "rain",
+      "home"
+    ],
+    "feast_day": "05-03",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-san-juan",
+    "category": "category.sabbats-feasts",
+    "name": "Día de San Juan",
+    "summary": "Saint John's Day: water, bathing, blessings and the midsummer turn.",
+    "body": "Día de San Juan, on June 24, honors Saint John the Baptist, and water is at its heart. In parts of Mexico people bathe in rivers or springs at dawn, splash one another, and bless animals and fields.\n\nFalling just after the summer solstice, it carries old midsummer themes: cleansing, renewal, luck and the turning of the year.\n\nIt suits a ritual bath, blessing water for the home, and cleansing work.",
+    "keywords": [
+      "water",
+      "bathing",
+      "cleansing",
+      "blessing",
+      "midsummer",
+      "renewal"
+    ],
+    "feast_day": "06-24",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-los-angelitos",
+    "category": "category.sabbats-feasts",
+    "name": "Día de los Angelitos",
+    "summary": "November 1: welcoming the spirits of children who have died.",
+    "body": "In Mexican tradition the souls of children who have died are said to return first, on November 1, which the Church keeps as All Saints' Day.\n\nTheir ofrendas are gentle and bright: white flowers, small candles, toys, sweets, milk and fruit. Families welcome the little ones before the adults arrive the next day.\n\nIt is a tender day of remembering, and a reminder that grief can be met with care and color.",
+    "keywords": [
+      "angelitos",
+      "children",
+      "ofrenda",
+      "remembrance",
+      "all saints",
+      "the dead"
+    ],
+    "feast_day": "11-01",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-muertos",
+    "category": "category.sabbats-feasts",
+    "name": "Día de Muertos",
+    "summary": "November 2: the Day of the Dead, when the dead come home to their ofrendas.",
+    "body": "Día de Muertos, on November 2, is the day the souls of adults are welcomed home. Its roots run through Indigenous traditions of honoring the dead and the Catholic feast of All Souls.\n\nFamilies build ofrendas with photos, candles, copal, cempasúchil (marigold) petals that mark the path, salt, water, pan de muerto and the favorite foods and drinks of the dead. Many visit and clean graves and keep vigil through the night.\n\nIt is not a sad holiday. It is a reunion: the dead are remembered, fed, spoken to and celebrated.",
+    "keywords": [
+      "the dead",
+      "ofrenda",
+      "ancestors",
+      "cempasúchil",
+      "remembrance",
+      "copal"
+    ],
+    "feast_day": "11-02",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.dia-de-la-virgen-de-guadalupe",
+    "category": "category.sabbats-feasts",
+    "name": "Día de la Virgen de Guadalupe",
+    "summary": "December 12: the feast of Mexico's patroness, with pilgrimages and mañanitas.",
+    "body": "December 12 honors the Virgin of Guadalupe, who in Catholic tradition appeared to Juan Diego on the hill of Tepeyac in 1531. She is the patroness of Mexico and one of the most beloved figures in the country.\n\nMillions make a pilgrimage to her basilica in Mexico City, and at midnight people sing her las mañanitas. Homes, shops and markets light candles and set out roses before her image.\n\nIt suits devotion, petitions for protection and comfort, and gratitude for prayers answered.",
+    "keywords": [
+      "guadalupe",
+      "devotion",
+      "pilgrimage",
+      "roses",
+      "protection",
+      "mañanitas"
+    ],
+    "feast_day": "12-12",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
+  },
+  {
+    "starter_key": "corr.sabbats-feasts.las-posadas",
+    "category": "category.sabbats-feasts",
+    "name": "Las Posadas",
+    "summary": "December 16 to 24: nine nights of seeking shelter, songs, candles and piñatas.",
+    "body": "Las Posadas are nine nights, from December 16 to 24, that recall Mary and Joseph's search for a place to stay in Bethlehem.\n\nEach night a group walks with candles to a house and sings to ask for shelter. Those inside sing back, and at last the door opens for food, ponche and a star-shaped piñata.\n\nIt suits hospitality, community, opening your home, and blessings for travelers and anyone looking for a place to belong.",
+    "keywords": [
+      "posadas",
+      "shelter",
+      "hospitality",
+      "candles",
+      "community",
+      "piñata"
+    ],
+    "feast_day": "12-16",
+    "traditions": [
+      "tradition.mexican-folk"
+    ]
   }
 ]
