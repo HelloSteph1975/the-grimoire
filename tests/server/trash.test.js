@@ -20,7 +20,7 @@ describe('/api/trash', () => {
   it('lists deleted records with type, title and date', async () => {
     const id = await addAndDelete('Old path');
     const res = await t.http().get('/api/trash');
-    expect(res.body).toEqual([{ type: 'tradition', id, title: 'Old path', deleted_at: expect.any(String) }]);
+    expect(res.body).toEqual([{ type: 'tradition', id, title: 'Old path', deleted_at: expect.any(String), starter_key: null }]);
   });
   it('restores from the Trash', async () => {
     const id = await addAndDelete('Back again');
@@ -72,6 +72,18 @@ describe('/api/trash', () => {
     expect(out.removed).toBe(1);
     expect(logged).toHaveBeenCalled();
     logged.mockRestore();
+  });
+  it('gives a trashed starter row its starter_key, and null once it was edited', async () => {
+    const { body: list } = await t.http().get('/api/traditions');
+    const w = list.find(r => r.starter_key === 'tradition.wiccan');
+    await t.http().delete(`/api/traditions/${w.id}`);
+    expect((await t.http().get('/api/trash')).body).toEqual([expect.objectContaining({ id: w.id, starter_key: 'tradition.wiccan' })]);
+    await t.http().post(`/api/trash/tradition/${w.id}/restore`);
+    const current = (await t.http().get('/api/traditions')).body.find(r => r.id === w.id);
+    const edited = await t.http().patch(`/api/traditions/${w.id}`).send({ version: current.version, name: 'My Wicca' });
+    expect(edited.status).toBe(200);
+    await t.http().delete(`/api/traditions/${w.id}`);
+    expect((await t.http().get('/api/trash')).body).toEqual([expect.objectContaining({ id: w.id, title: 'My Wicca', starter_key: null })]);
   });
   it('keeps a starter entry deleted forever from coming back', async () => {
     const { body: list } = await t.http().get('/api/traditions');

@@ -1,21 +1,14 @@
 import { Router } from 'express';
-import { HttpError, idParam, notFound } from '../http.js';
+import { idParam, notFound, queryId } from '../http.js';
 import { versionOf } from './crud.js';
-import { listEntries, getEntry, createEntry, updateEntry, deleteEntry, restoreEntry } from '../services/correspondences.js';
-
-// An optional id in the query string: absent or empty means no filter.
-function queryId(v) {
-  if (v === undefined || v === '') return undefined;
-  const n = Number(v);
-  if (typeof v !== 'string' || !Number.isInteger(n) || n < 1) throw new HttpError(400, 'Bad id', undefined, { code: 'bad_id' });
-  return n;
-}
+import { listEntries, getEntry, createEntry, updateEntry, deleteEntry, restoreEntry, usedInSpells } from '../services/correspondences.js';
 
 export function correspondencesRouter(ctx) {
   const r = Router();
   r.get('/', (req, res) => res.json(listEntries(ctx.db, ctx.config.dataDir, {
     category: queryId(req.query.category),
     tradition: queryId(req.query.tradition),
+    feasts: req.query.feasts === '1',
     q: typeof req.query.q === 'string' ? req.query.q : '',
   })));
   r.get('/:id', (req, res) => {
@@ -23,6 +16,7 @@ export function correspondencesRouter(ctx) {
     if (!entry) throw notFound();
     res.json(entry);
   });
+  r.get('/:id/spells', (req, res) => res.json(usedInSpells(ctx.db, idParam(req))));
   r.post('/', (req, res) => res.status(201).json(createEntry(ctx.db, req.body)));
   r.patch('/:id', (req, res) => {
     const id = idParam(req);

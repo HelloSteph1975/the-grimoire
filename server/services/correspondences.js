@@ -6,6 +6,8 @@ import { HttpError, notFound, notInTrash } from '../http.js';
 import { check } from '../validate.js';
 import { getSettings } from './settings.js';
 import { readPack } from './locales.js';
+import { bumpSpellsUsing } from './spellLinks.js';
+import { SABBAT_KEYS } from './timing.js';
 
 export const ENTRY_SCHEMA = {
   category_id: { type: 'int!', min: 1 },
@@ -145,6 +147,7 @@ export function deleteEntry(db, id) {
   transaction(db, () => {
     if (!R(db).remove(id)) throw notFound();
     bumpLinked(db, [id]);
+    bumpSpellsUsing(db, { entries: [id] });
   });
 }
 
@@ -158,16 +161,28 @@ export function restoreEntry(db, id) {
     }
     R(db).restore(id);
     bumpLinked(db, [id]);
+    bumpSpellsUsing(db, { entries: [id] });
     return getEntry(db, id);
   });
 }
 
 // Removes an entry for good: its links and tradition joins first, then the row.
 export function purgeEntry(db, row) {
+  // Spells keep their line (unlinked by the foreign key) and lose the feast; either way they change.
+  bumpSpellsUsing(db, { entries: [row.id] });
   if (row.starter_key) db.prepare('INSERT OR IGNORE INTO starter_removed (starter_key) VALUES (?)').run(row.starter_key);
   db.prepare('DELETE FROM correspondence_links WHERE a_id = ? OR b_id = ?').run(row.id, row.id);
   db.prepare('DELETE FROM correspondence_traditions WHERE correspondence_id = ?').run(row.id);
   db.prepare('DELETE FROM correspondences WHERE id = ?').run(row.id);
+}
+
+// Live spells that use a live entry as an ingredient or a feast, each once, by title.
+export function usedInSpells(db, id) {
+  if (!db.prepare('SELECT 1 FROM correspondences WHERE id = ? AND deleted_at IS NULL').get(id)) throw notFound();
+  return db.prepare(`SELECT s.id, s.title FROM spells s WHERE s.deleted_at IS NULL AND (
+      s.id IN (SELECT spell_id FROM spell_ingredients WHERE correspondence_id = ?)
+      OR s.id IN (SELECT spell_id FROM spell_feasts WHERE correspondence_id = ?))
+    ORDER BY s.title COLLATE NOCASE, s.id`).all(id, id);
 }
 
 export function traditionUsage(db, id) {
@@ -190,11 +205,12 @@ const packText = v => (typeof v === 'string' ? v : '');
 
 // Live entries, ordered by name. `q` matches name, summary, full text and keywords, ignoring
 // case and accents; in another language it also matches the translated text of rows that are still starters.
-export function listEntries(db, dataDir, { category, tradition, q } = {}) {
+export function listEntries(db, dataDir, { category, tradition, q, feasts } = {}) {
   const where = ['c.deleted_at IS NULL'];
   const args = [];
   if (category) { where.push('c.category_id = ?'); args.push(category); }
   if (tradition) { where.push('EXISTS (SELECT 1 FROM correspondence_traditions ct WHERE ct.correspondence_id = c.id AND ct.tradition_id = ?)'); args.push(tradition); }
+  if (feasts) { where.push(`(c.feast_day IS NOT NULL OR c.starter_key IN (${SABBAT_KEYS.map(() => '?').join(', ')}))`); args.push(...SABBAT_KEYS); }
   let rows = db.prepare(`SELECT c.id, c.category_id, c.name, c.summary, c.feast_day, c.is_starter, c.starter_key, c.version, c.body, c.keywords
     FROM correspondences c WHERE ${where.join(' AND ')} ORDER BY c.name COLLATE NOCASE, c.id`).all(...args);
   const needle = fold(q).trim();

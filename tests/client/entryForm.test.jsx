@@ -20,6 +20,7 @@ const traditions = [
 ];
 let rows;
 let override;
+let usedIn = {};
 let pack = null;
 function stub() {
   rows = {
@@ -30,6 +31,7 @@ function stub() {
     },
   };
   override = null;
+  usedIn = {};
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
     const body = opts.body ? JSON.parse(opts.body) : null;
@@ -47,6 +49,7 @@ function stub() {
       return json(r, 201);
     }
     const [, , , idText, action] = url.split('/');
+    if (action === 'spells') return json(usedIn[idText] ?? []);
     const r = rows[Number(idText)];
     if (action === 'restore' && m === 'POST') { r.deleted = false; return json(r); }
     if (!r || r.deleted) return json({ error: 'Not found', code: 'not_found' }, 404);
@@ -95,6 +98,44 @@ describe('Entry form', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await vi.waitFor(() => expect(sent('PATCH')).toHaveLength(1));
     expect(sent('PATCH')[0].body).toMatchObject({ name: 'Rojo', summary: 'Valor. Sí.', body: 'Texto.', keywords: ['fuego', 'valor'] });
+  });
+  it('lists the spells that use an entry, sorted, under Used in spells', async () => {
+    stub();
+    usedIn[11] = [{ id: 7, title: 'Zinc charm' }, { id: 6, title: 'Amber ward' }];
+    mount('/correspondences/11');
+    const heading = await screen.findByText('Used in spells');
+    const links = within(heading.closest('section')).getAllByRole('link');
+    expect(links.map(a => a.textContent)).toEqual(['Amber ward', 'Zinc charm']);
+    expect(links[0]).toHaveAttribute('href', '/spells/6');
+  });
+  it('shows nothing about spells when no spell uses the entry', async () => {
+    stub();
+    mount('/correspondences/11');
+    await screen.findByText('First paragraph.');
+    await vi.waitFor(() => expect(fetch.mock.calls.map(([u]) => u)).toContain('/api/correspondences/11/spells'));
+    expect(screen.queryByText('Used in spells')).not.toBeInTheDocument();
+  });
+  it('offers Try again on its own when the spell list fails to load', async () => {
+    stub();
+    let fail = true;
+    override = url => (url === '/api/correspondences/11/spells' && fail ? json({ error: 'Nope', code: 'server_error' }, 500) : null);
+    usedIn[11] = [{ id: 6, title: 'Amber ward' }];
+    mount('/correspondences/11');
+    expect(await screen.findByText('First paragraph.')).toBeInTheDocument();
+    fail = false;
+    await userEvent.click(await screen.findByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Amber ward')).toBeInTheDocument();
+  });
+  it('lists linked entries by the shown Spanish name', async () => {
+    stub();
+    rows[11].links = [
+      { id: 10, name: 'Red', category_id: 2, is_starter: 1, starter_key: 'corr.colors.red' },
+      { id: 12, name: 'White', category_id: 2, is_starter: 1, starter_key: 'corr.colors.white' },
+    ];
+    pack = { content: { 'corr.colors.red.name': 'Rojo', 'corr.colors.white.name': 'Blanco' } };
+    mount('/correspondences/11', { settings: true });
+    const links = await screen.findAllByRole('link', { name: /Rojo|Blanco/ });
+    expect(links.map(a => a.textContent)).toEqual(['Blanco', 'Rojo']);
   });
   it('keeps the stored keywords of a starter entry the pack has no keywords for', async () => {
     stub();

@@ -82,6 +82,11 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .list { list-style: none; padding: 0; margin: 0; }
 .list > li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--parchment-edge); }
 .list .grow { flex: 1; }
+@media (max-width: 560px) {
+  /* On a phone the name and description take the first line; the swatch and buttons sit below. */
+  .list > li { flex-wrap: wrap; }
+  .list .grow { flex-basis: 100%; }
+}
 .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--ink-soft); flex: none; }
 .tag { font-size: .8rem; border: 1px solid var(--accent-ink); color: var(--accent-ink); border-radius: 999px; padding: 0 8px; }
 section + section { margin-top: 36px; }
@@ -137,6 +142,12 @@ section + section { margin-top: 36px; }
 .entry-facts dt { font-family: var(--font-head); font-weight: 600; color: var(--oxblood); }
 .entry-facts dd { margin: 0; }
 .entry-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.spell-section { margin: 20px 0; }
+.spell-section h2 { font-size: 1.15rem; margin: 0 0 6px; color: var(--oxblood); }
+.spell-ingredients { margin: 0; padding-left: 1.25em; }
+.spell-steps { margin: 0; padding-left: 1.5em; }
+.spell-steps li { margin-bottom: 6px; }
+.spell-timing-row { display: contents; }
 .entry-form { max-width: 720px; }
 .entry-form > fieldset, .field-group { border: 0; margin: 0; padding: 0; min-width: 0; }
 .field-group legend { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; padding: 0; margin-bottom: 4px; }
@@ -162,3 +173,35 @@ section + section { margin-top: 36px; }
 .icon-choice span { display: inline-flex; padding: 8px; border: 1px solid var(--ink-soft); border-radius: 6px; }
 .icon-choice input:checked + span { border-width: 2px; padding: 7px; background: var(--ink-soft); color: var(--parchment); }
 .icon-choice input:focus-visible + span { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* Reorderable list rows and toggle buttons */
+.list-rows { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.list-row { display: flex; align-items: center; gap: 6px; padding: 6px; border: 1px solid var(--parchment-edge); border-radius: var(--radius); background: var(--parchment-deep); color: var(--ink); }
+.list-handle { display: inline-flex; flex: none; padding: 4px 2px; color: var(--ink-soft); cursor: grab; }
+.list-fields { display: flex; flex: 1; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.list-move { display: inline-flex; flex: none; }
+.toggle-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle-btn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border: 1px solid var(--parchment-edge); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.toggle-btn[aria-pressed='true'] { border: 2px solid var(--ink); padding: 3px 9px; background: var(--parchment-deep); font-weight: 600; }
+
+/* Spell form: each line holds Name, Amount and a link; each step a full-width text box. */
+.spell-form .list-row { align-items: flex-start; }
+.spell-form .list-fields .field { margin-bottom: 0; }
+.spell-form .list-fields > *, .spell-form .list-fields .entry-picker { min-width: 0; }
+.spell-form .list-fields .field { grid-template-columns: minmax(0, 1fr); }
+.spell-form .list-fields .input { min-width: 0; box-sizing: border-box; width: 100%; }
+.spell-line-name { flex: 2 1 180px; }
+.spell-line-amount { flex: 1 1 110px; }
+.spell-line-link { flex: 1 1 100%; }
+.spell-step { flex: 1 1 100%; }
+.spell-timing > .field { margin-bottom: 10px; }
+.spell-timing-label { font-family: var(--font-head); font-weight: 600; }
+.spell-timing .field-group legend.spell-timing-label { font-size: 1rem; }
+
+/* On a phone the move and remove buttons drop below the fields so the text boxes keep their width. */
+@media (max-width: 520px) {
+  .spell-form .list-row { flex-wrap: wrap; }
+  .spell-form .list-fields { flex: 1 1 220px; }
+  .spell-form .list-move { margin-left: auto; }
+}
+.spell-form fieldset.field-group { margin-bottom: 14px; }

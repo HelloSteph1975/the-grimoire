@@ -2,6 +2,7 @@ import { transaction } from '../db/connection.js';
 import { notFound, notInTrash } from '../http.js';
 import { NOW } from '../db/migrations.js';
 import { bumpLinked } from './correspondences.js';
+import { bumpSpellsUsing } from './spellLinks.js';
 
 const entryIds = (db, categoryId, stamp) => db.prepare(`SELECT id FROM correspondences WHERE category_id = ? AND deleted_at ${stamp === null ? 'IS NULL' : '= ?'}`)
   .all(...(stamp === null ? [categoryId] : [categoryId, stamp])).map(r => r.id);
@@ -20,6 +21,7 @@ export function deleteCategory(db, id, stamp = new Date().toISOString()) {
     db.prepare('UPDATE correspondences SET deleted_at = ?, version = version + 1 WHERE category_id = ? AND deleted_at IS NULL').run(stamp, id);
     db.prepare('UPDATE categories SET deleted_at = ?, version = version + 1 WHERE id = ?').run(stamp, id);
     bumpLinked(db, ids);
+    bumpSpellsUsing(db, { entries: ids });
   });
 }
 
@@ -31,6 +33,7 @@ export function restoreCategory(db, id) {
     const ids = entryIds(db, id, cat.deleted_at);
     db.prepare(`UPDATE correspondences SET deleted_at = NULL, version = version + 1, updated_at = ${NOW} WHERE category_id = ? AND deleted_at = ?`).run(id, cat.deleted_at);
     bumpLinked(db, ids);
+    bumpSpellsUsing(db, { entries: ids });
     db.prepare(`UPDATE categories SET deleted_at = NULL, version = version + 1, updated_at = ${NOW} WHERE id = ?`).run(id);
     return db.prepare('SELECT * FROM categories WHERE id = ?').get(id);
   });

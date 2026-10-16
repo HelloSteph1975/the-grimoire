@@ -7,6 +7,7 @@ import { LoadState } from '../../components/LoadState.jsx';
 import { CategoryIcon } from '../../components/CategoryIcon.jsx';
 import { Select } from '../../components/Field.jsx';
 import { useResource } from '../../lib/useResource.js';
+import { sortByName } from '../../lib/collate.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 
 const FILTERS = ['category', 'tradition', 'q'];
@@ -23,7 +24,7 @@ export function starterKeywords(tc, row) {
 }
 
 export function Correspondences() {
-  const { t, tc } = useT();
+  const { t, tc, language } = useT();
   const [params, setParams] = useSearchParams();
   const category = params.get('category') ?? '';
   const tradition = params.get('tradition') ?? '';
@@ -63,7 +64,7 @@ export function Correspondences() {
   const filtering = Boolean(selected || tradition || q);
   const error = list.error ?? categories.error ?? traditions.error;
   const retry = () => { list.reload(); categories.reload(); traditions.reload(); };
-  const rows = list.data;
+  const rows = list.data && sortByName(list.data, r => starterText(tc, r, 'name', r.name), language);
 
   return (
     <>

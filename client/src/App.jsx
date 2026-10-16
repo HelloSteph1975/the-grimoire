@@ -11,6 +11,9 @@ import { Trash } from './screens/Trash.jsx';
 import { Correspondences } from './screens/correspondences/Correspondences.jsx';
 import { EntryPageRoute } from './screens/correspondences/EntryPage.jsx';
 import { EntryFormRoute } from './screens/correspondences/EntryForm.jsx';
+import { Spells } from './screens/spells/Spells.jsx';
+import { SpellPageRoute } from './screens/spells/SpellPage.jsx';
+import { SpellFormRoute } from './screens/spells/SpellForm.jsx';
 
 function Shell() {
   return (
@@ -31,7 +34,10 @@ export const routes = [
     element: <Shell />,
     children: [
       { path: '/', element: <Placeholder titleKey="nav.today" stage={4} /> },
-      { path: 'spells', element: <Placeholder titleKey="nav.spells" stage={3} /> },
+      { path: 'spells', element: <Spells /> },
+      { path: 'spells/new', element: <SpellFormRoute /> },
+      { path: 'spells/:id', element: <SpellPageRoute /> },
+      { path: 'spells/:id/edit', element: <SpellFormRoute /> },
       { path: 'correspondences', element: <Correspondences /> },
       { path: 'correspondences/new', element: <EntryFormRoute /> },
       { path: 'correspondences/:id', element: <EntryPageRoute /> },

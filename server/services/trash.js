@@ -4,6 +4,7 @@ import { HttpError, notInTrash } from '../http.js';
 import { backupNow, rotateQuietly } from './backup.js';
 import { restoreCategory } from './categories.js';
 import { restoreTradition } from './traditions.js';
+import { restoreKind, purgeKind } from './spellKinds.js';
 import { restoreEntry, purgeEntry } from './correspondences.js';
 
 function recordRemoved(db, row) {
@@ -26,11 +27,14 @@ function purgeCategory(db, row) {
 }
 
 // Every kind of record that can be in the Trash. Later stages add theirs here.
-// Emptying the Trash goes in this order, so entries are purged before their categories.
+// Emptying the Trash goes in this order, so spells go before the kinds and entries they use, and
+// entries before their categories. A spell's lines, steps, timing and joins go with it (foreign keys).
 export const TRASH_TYPES = {
+  spell: { repo: db => repos(db).spells, title: row => row.title },
   tradition: { repo: db => repos(db).traditions, title: row => row.name, restore: restoreTradition },
   correspondence: { repo: db => repos(db).correspondences, title: row => row.name, restore: restoreEntry, purge: purgeEntry },
   category: { repo: db => repos(db).categories, title: row => row.name, restore: restoreCategory, purge: purgeCategory },
+  kind: { repo: db => repos(db).spellKinds, title: row => row.name, restore: restoreKind, purge: purgeKind },
 };
 
 function typeOf(type) {
@@ -49,7 +53,7 @@ export function listTrash(db) {
   const earlier = new Map();
   const add = (map, id) => map.set(id, (map.get(id) ?? 0) + 1);
   for (const { type, t, row } of rows) {
-    const item = { type, id: row.id, title: t.title(row), deleted_at: row.deleted_at };
+    const item = { type, id: row.id, title: t.title(row), deleted_at: row.deleted_at, starter_key: row.is_starter ? row.starter_key ?? null : null };
     if (type === 'correspondence' && categoryStamp.has(row.category_id)) {
       if (categoryStamp.get(row.category_id) === row.deleted_at) { add(extra, row.category_id); continue; }
       add(earlier, row.category_id);

@@ -48,6 +48,19 @@ const listCalls = () => fetch.mock.calls.map(([u]) => u).filter(u => u.startsWit
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('Correspondences list', () => {
+  it('orders rows by the shown Spanish name, not the English one', async () => {
+    const pack = { content: { 'corr.colors.white.name': 'Blanco', 'corr.colors.red.name': 'Rojo' } };
+    stub({
+      language: 'es', pack,
+      list: () => [
+        { id: 10, category_id: 2, name: 'Red', summary: null, is_starter: 1, starter_key: 'corr.colors.red', version: 1 },
+        { id: 12, category_id: 2, name: 'White', summary: null, is_starter: 1, starter_key: 'corr.colors.white', version: 1 },
+      ],
+    });
+    mount();
+    await screen.findByText('Blanco');
+    expect(screen.getAllByRole('listitem').map(li => li.textContent).filter(x => /Blanco|Rojo/.test(x)).map(x => (x.includes('Blanco') ? 'Blanco' : 'Rojo'))).toEqual(['Blanco', 'Rojo']);
+  });
   it('shows the category buttons in order with All first', async () => {
     stub(); mount();
     const group = await screen.findByRole('group', { name: 'Category' });

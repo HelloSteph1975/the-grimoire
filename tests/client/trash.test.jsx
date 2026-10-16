@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { ToastProvider } from '../../client/src/components/ToastProvider.jsx';
 import { ConfirmProvider } from '../../client/src/components/ConfirmProvider.jsx';
+import { SettingsProvider } from '../../client/src/components/SettingsProvider.jsx';
 import { Trash } from '../../client/src/screens/Trash.jsx';
 
 let items;
@@ -15,6 +16,8 @@ function stub() {
     { type: 'category', id: 6, title: 'Runes', deleted_at: '2026-10-12T10:00:00.000Z', extra: 3, earlier: 1 },
     { type: 'correspondence', id: 7, title: 'Thurisaz', deleted_at: '2026-10-11T10:00:00.000Z', categoryInTrash: true },
     { type: 'category', id: 8, title: 'Empty one', deleted_at: '2026-10-10T10:00:00.000Z', extra: 0, earlier: 0 },
+    { type: 'kind', id: 9, title: 'Ritual', deleted_at: '2026-10-09T10:00:00.000Z' },
+    { type: 'spell', id: 10, title: 'Moon bath', deleted_at: '2026-10-08T10:00:00.000Z' },
   ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
@@ -33,6 +36,11 @@ describe('Trash', () => {
     stub(); mount();
     const row = (await screen.findByText('Old path')).closest('li');
     expect(within(row).getByText('Tradition')).toBeInTheDocument();
+  });
+  it('labels spells and spell kinds', async () => {
+    stub(); mount();
+    expect(within((await screen.findByText('Ritual')).closest('li')).getByText('Spell kind')).toBeInTheDocument();
+    expect(within(screen.getByText('Moon bath').closest('li')).getByText('Spell')).toBeInTheDocument();
   });
   it('says how many entries went with a category', async () => {
     stub(); mount();
@@ -81,6 +89,25 @@ describe('Trash', () => {
     await userEvent.click(within(row).getByText('Restore'));
     expect(await screen.findByText('Restored Old path.')).toBeInTheDocument();
     expect(screen.queryByText('Old path', { selector: 'strong' })).not.toBeInTheDocument();
+  });
+  it('shows a starter row under its translated name, in the row, the confirmation and the toast', async () => {
+    stub();
+    items.unshift({ type: 'tradition', id: 1, title: 'Wiccan', starter_key: 'tradition.wiccan', deleted_at: '2026-10-15T10:00:00.000Z' });
+    const plain = globalThis.fetch;
+    vi.stubGlobal('fetch', vi.fn(async (url, opts) => {
+      if (url === '/api/settings') return json({ language: 'es', theme: 'old-book' });
+      if (url === '/api/locales/es/ui') return json({});
+      if (url === '/api/locales/es/content') return json({ 'tradition.wiccan.name': 'Wicca' });
+      return plain(url, opts);
+    }));
+    render(<RouterProvider router={createMemoryRouter([{ path: '/', element: <SettingsProvider><ToastProvider><ConfirmProvider><Trash /></ConfirmProvider></ToastProvider></SettingsProvider> }])} />);
+    const row = (await screen.findByText('Wicca')).closest('li');
+    expect(screen.queryByText('Wiccan')).not.toBeInTheDocument();
+    await userEvent.click(within(row).getByText('Delete forever'));
+    expect(await screen.findByText('Delete Wicca forever?')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(within(row).getByText('Restore'));
+    expect(await screen.findByText('Restored Wicca.')).toBeInTheDocument();
   });
   it('asks before deleting forever', async () => {
     stub(); mount();

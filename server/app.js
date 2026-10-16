@@ -19,7 +19,7 @@ export function createApp(ctx, { onShutdown = () => {} } = {}) {
   const dist = process.env.GRIMOIRE_CLIENT_DIST ? path.resolve(process.env.GRIMOIRE_CLIENT_DIST) : path.join(ROOT, 'client', 'dist');
   if (fs.existsSync(dist)) {
     app.use(express.static(dist));
-    app.get(/^\/(?!api\/).*/, (req, res) => res.sendFile(path.join(dist, 'index.html')));
+    app.get(/^\/(?!api\/).*/, (req, res) => res.sendFile('index.html', { root: dist }));
   }
   app.use(errorHandler);
   return app;

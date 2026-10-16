@@ -31,6 +31,28 @@ export const migrations = [
   CREATE TABLE correspondence_links (a_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE,
     b_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE, PRIMARY KEY (a_id, b_id), CHECK (a_id < b_id));
   `,
+  // 4: the Book of Spells. Kinds, spells, and a spell's traditions, ingredients, steps, timing and feasts.
+  `
+  CREATE TABLE spell_kinds (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0,
+    starter_key TEXT UNIQUE, is_starter INTEGER NOT NULL DEFAULT 0, content_version INTEGER NOT NULL DEFAULT 1, ${TS});
+  CREATE TABLE spells (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, purpose TEXT,
+    kind_id INTEGER REFERENCES spell_kinds(id) ON DELETE SET NULL, notes TEXT, source TEXT, ${TS});
+  CREATE TABLE spell_traditions (spell_id INTEGER NOT NULL REFERENCES spells(id) ON DELETE CASCADE,
+    tradition_id INTEGER NOT NULL REFERENCES traditions(id) ON DELETE CASCADE, PRIMARY KEY (spell_id, tradition_id));
+  CREATE TABLE spell_ingredients (spell_id INTEGER NOT NULL REFERENCES spells(id) ON DELETE CASCADE, position INTEGER NOT NULL,
+    name TEXT NOT NULL, amount TEXT, correspondence_id INTEGER REFERENCES correspondences(id) ON DELETE SET NULL,
+    PRIMARY KEY (spell_id, position));
+  CREATE TABLE spell_steps (spell_id INTEGER NOT NULL REFERENCES spells(id) ON DELETE CASCADE, position INTEGER NOT NULL,
+    text TEXT NOT NULL, PRIMARY KEY (spell_id, position));
+  CREATE TABLE spell_timing (spell_id INTEGER NOT NULL REFERENCES spells(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL CHECK (kind IN ('moon', 'day', 'planet')), code TEXT NOT NULL, PRIMARY KEY (spell_id, kind, code));
+  CREATE TABLE spell_feasts (spell_id INTEGER NOT NULL REFERENCES spells(id) ON DELETE CASCADE,
+    correspondence_id INTEGER NOT NULL REFERENCES correspondences(id) ON DELETE CASCADE, PRIMARY KEY (spell_id, correspondence_id));
+  CREATE INDEX idx_spells_kind ON spells(kind_id);
+  CREATE INDEX idx_spell_ingredients_corr ON spell_ingredients(correspondence_id);
+  CREATE INDEX idx_spell_feasts_corr ON spell_feasts(correspondence_id);
+  CREATE INDEX idx_spell_traditions_tradition ON spell_traditions(tradition_id);
+  `,
 ];
 
 export function migrate(db) {
