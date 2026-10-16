@@ -8,6 +8,9 @@ import { Placeholder } from './screens/Placeholder.jsx';
 import { NotFound } from './screens/NotFound.jsx';
 import { Settings } from './screens/Settings.jsx';
 import { Trash } from './screens/Trash.jsx';
+import { Correspondences } from './screens/correspondences/Correspondences.jsx';
+import { EntryPageRoute } from './screens/correspondences/EntryPage.jsx';
+import { EntryFormRoute } from './screens/correspondences/EntryForm.jsx';
 
 function Shell() {
   return (
@@ -29,7 +32,10 @@ export const routes = [
     children: [
       { path: '/', element: <Placeholder titleKey="nav.today" stage={4} /> },
       { path: 'spells', element: <Placeholder titleKey="nav.spells" stage={3} /> },
-      { path: 'correspondences', element: <Placeholder titleKey="nav.correspondences" stage={2} /> },
+      { path: 'correspondences', element: <Correspondences /> },
+      { path: 'correspondences/new', element: <EntryFormRoute /> },
+      { path: 'correspondences/:id', element: <EntryPageRoute /> },
+      { path: 'correspondences/:id/edit', element: <EntryFormRoute /> },
       { path: 'calendar', element: <Placeholder titleKey="nav.calendar" stage={4} /> },
       { path: 'rituals', element: <Placeholder titleKey="nav.rituals" stage={5} /> },
       { path: 'journal', element: <Placeholder titleKey="nav.journal" stage={6} /> },

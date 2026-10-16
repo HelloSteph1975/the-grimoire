@@ -12,6 +12,9 @@ function stub() {
   items = [
     { type: 'tradition', id: 4, title: 'Old path', deleted_at: '2026-10-14T10:00:00.000Z' },
     { type: 'tradition', id: 5, title: 'Other', deleted_at: '2026-10-13T10:00:00.000Z' },
+    { type: 'category', id: 6, title: 'Runes', deleted_at: '2026-10-12T10:00:00.000Z', extra: 3, earlier: 1 },
+    { type: 'correspondence', id: 7, title: 'Thurisaz', deleted_at: '2026-10-11T10:00:00.000Z', categoryInTrash: true },
+    { type: 'category', id: 8, title: 'Empty one', deleted_at: '2026-10-10T10:00:00.000Z', extra: 0, earlier: 0 },
   ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
@@ -30,6 +33,47 @@ describe('Trash', () => {
     stub(); mount();
     const row = (await screen.findByText('Old path')).closest('li');
     expect(within(row).getByText('Tradition')).toBeInTheDocument();
+  });
+  it('says how many entries went with a category', async () => {
+    stub(); mount();
+    const row = (await screen.findByText('Runes')).closest('li');
+    expect(within(row).getByText('Category')).toBeInTheDocument();
+    expect(within(row).getByText('3 entries went with it')).toBeInTheDocument();
+    expect(within(row).getByText('1 entry was put in the Trash earlier')).toBeInTheDocument();
+    expect(within((await screen.findByText('Old path')).closest('li')).queryByText(/went with it/)).not.toBeInTheDocument();
+  });
+  it('shows only the counts a category has, in the singular for one', async () => {
+    stub();
+    Object.assign(items[2], { extra: 1, earlier: 0 });
+    Object.assign(items[4], { extra: 0, earlier: 2 });
+    mount();
+    const runes = (await screen.findByText('Runes')).closest('li');
+    expect(within(runes).getByText('1 entry went with it')).toBeInTheDocument();
+    expect(within(runes).queryByText(/earlier/)).not.toBeInTheDocument();
+    const other = screen.getByText('Empty one').closest('li');
+    expect(within(other).getByText('2 entries were put in the Trash earlier')).toBeInTheDocument();
+    expect(within(other).queryByText(/went with it/)).not.toBeInTheDocument();
+  });
+  it('notes an entry whose category is in the Trash', async () => {
+    stub(); mount();
+    const row = (await screen.findByText('Thurisaz')).closest('li');
+    expect(within(row).getByText('Entry')).toBeInTheDocument();
+    expect(within(row).getByText('Its category is in the Trash')).toBeInTheDocument();
+  });
+  it('says which entries a category takes with it before deleting it forever', async () => {
+    stub(); mount();
+    await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("The 3 entries that went to the Trash with it will also be deleted forever. One entry from this category that you put in the Trash earlier will also be deleted forever. This can't be undone.")).toBeInTheDocument();
+    await userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(within(screen.getByText('Empty one').closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("This can't be undone.")).toBeInTheDocument();
+  });
+  it('names only the entries a category has when deleting it forever', async () => {
+    stub();
+    Object.assign(items[2], { extra: 1, earlier: 0 });
+    mount();
+    await userEvent.click(within((await screen.findByText('Runes')).closest('li')).getByText('Delete forever'));
+    expect(await screen.findByText("The entry that went to the Trash with it will also be deleted forever. This can't be undone.")).toBeInTheDocument();
   });
   it('restores one', async () => {
     stub(); mount();

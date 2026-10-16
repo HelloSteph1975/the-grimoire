@@ -1,0 +1,110 @@
+[
+  {
+    "starter_key": "corr.colors.red",
+    "category": "category.colors",
+    "name": "Red",
+    "summary": "Passion, courage, strength, protection and life force.",
+    "body": "Red is the color of fire and blood, and in candle magic it is the go-to for anything that needs heat: passion, courage, vigor, and protection that pushes back.\n\nIt is linked with Mars and with Tuesday. A red candle can stand for desire in a love working, or for nerve before a hard conversation.\n\nIn Mexican folk practice red veladoras are often lit for love and for strength, and red thread or ribbon is a common charm against the evil eye.",
+    "keywords": ["passion", "courage", "strength", "protection", "love", "energy"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.orange",
+    "category": "category.colors",
+    "name": "Orange",
+    "summary": "Creativity, encouragement, opportunity, success and celebration.",
+    "body": "Orange sits between red's drive and yellow's clarity. It is used for creativity, enthusiasm, new opportunities and attracting good things toward you, especially in work and study.\n\nIt is often paired with Mercury and Wednesday, and sometimes with the Sun. It is also the color of the harvest and of the cempasúchil (marigold) flowers that light the path for the dead on Día de Muertos.\n\nAn orange candle is a good choice when you feel stuck and want momentum without the fierceness of red.",
+    "keywords": ["creativity", "opportunity", "success", "encouragement", "celebration"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.yellow",
+    "category": "category.colors",
+    "name": "Yellow",
+    "summary": "Clarity, intellect, communication, joy and the Sun's warmth.",
+    "body": "Yellow is the color of morning light. It is used for clear thinking, learning, good communication, cheerfulness and confidence.\n\nIt connects with the element of air, with Mercury, and with the Sun and Sunday. Many people burn a yellow candle while studying or before an exam, interview or important talk.\n\nIt is also a gentle color for lifting a heavy mood in the home.",
+    "keywords": ["clarity", "intellect", "communication", "joy", "confidence", "study"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.green",
+    "category": "category.colors",
+    "name": "Green",
+    "summary": "Growth, money, fertility of ideas, luck and the living earth.",
+    "body": "Green is the color of growing things. It is the classic money color, but it also covers luck, new beginnings, gardens, steady growth and a sense of renewal.\n\nIt is linked with Venus and Friday, and with the element of earth. Green candles, basil, mint and coins are common in prosperity work.\n\nIn Mexican folk practice green is often lit for luck in money and in business, and for help with legal matters.",
+    "keywords": ["growth", "money", "prosperity", "luck", "renewal", "earth"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.blue",
+    "category": "category.colors",
+    "name": "Blue",
+    "summary": "Peace, calm, truth, wisdom and protection over the home.",
+    "body": "Blue is calm and deep, like water and open sky. It is used for peace, patience, honest speech, wisdom, good sleep and a quiet household.\n\nLight blue leans toward peace and gentleness; dark or royal blue leans toward wisdom, authority and Jupiter's Thursday.\n\nBlue is also widely used for protection. The Virgin of Guadalupe's mantle is blue-green, and many households keep a blue candle burning for calm and safekeeping.",
+    "keywords": ["peace", "calm", "truth", "wisdom", "protection", "water"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.purple",
+    "category": "category.colors",
+    "name": "Purple",
+    "summary": "Spirit, intuition, psychic work, dignity and transformation.",
+    "body": "Purple has long been a color of rank and of the sacred. In magic it stands for spiritual work, intuition, divination, dreams and deep change.\n\nIt is associated with Jupiter and Thursday, and sometimes with Saturn when it is very dark. Amethyst, lavender and violet flowers share its energy.\n\nA purple candle is a good companion for meditation, tarot reading, or any work where you want to reach past the everyday.",
+    "keywords": ["spirit", "intuition", "divination", "wisdom", "transformation", "dreams"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.pink",
+    "category": "category.colors",
+    "name": "Pink",
+    "summary": "Tender love, friendship, self-love, kindness and making peace.",
+    "body": "Pink is red softened with white: love without the fire. It is used for affection, friendship, romance that is gentle rather than urgent, self-love, kindness and making peace after a quarrel.\n\nIt belongs to Venus and Friday. Rose petals, rose quartz and sugar are common pink-color ingredients.\n\nIt is a lovely color for any working that asks you to be easier on yourself.",
+    "keywords": ["love", "friendship", "self-love", "kindness", "reconciliation", "tenderness"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.white",
+    "category": "category.colors",
+    "name": "White",
+    "summary": "Purity, cleansing, peace, protection and an all-purpose candle.",
+    "body": "White holds every color of light, so it can stand in for any of them. When you lack a specific candle, a white one will do.\n\nOn its own it is used for cleansing, blessing, peace, truth and new beginnings. It is linked with the Moon and Monday.\n\nIn Mexican folk practice white veladoras are among the most common: lit for peace, for the dead on the ofrenda, and in limpias to clear heavy energy.",
+    "keywords": ["cleansing", "purity", "peace", "blessing", "protection", "all-purpose"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.black",
+    "category": "category.colors",
+    "name": "Black",
+    "summary": "Banishing, absorbing negativity, protection, endings and deep rest.",
+    "body": "Black absorbs light, and in magic it is used to absorb or remove: banishing, breaking bad influences, ending what needs to end, and strong protection.\n\nIt is linked with Saturn and Saturday, and with the dark or waning Moon. Black salt, obsidian and onyx carry the same energy.\n\nBlack is not an evil color. Many practitioners use it for grief, for rest, and for honoring the ancestors.",
+    "keywords": ["banishing", "protection", "endings", "absorbing", "grief", "ancestors"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.colors.brown",
+    "category": "category.colors",
+    "name": "Brown",
+    "summary": "Grounding, stability, home, animals and practical matters.",
+    "body": "Brown is the color of soil and wood. It is used for grounding, steadiness, the home, pets and other animals, and slow, practical goals like finding a place to live.\n\nIt belongs to the element of earth. A brown candle suits work for a household move, for a new home, or for keeping your feet on the ground when life feels unsteady.",
+    "keywords": ["grounding", "stability", "home", "animals", "earth", "practical"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.colors.silver",
+    "category": "category.colors",
+    "name": "Silver",
+    "summary": "The Moon, intuition, dreams, reflection and the Goddess.",
+    "body": "Silver shines like the Moon, and it carries the Moon's energy: intuition, dreams, reflection, cycles and quiet power.\n\nIt is linked with Monday and with water. In Wiccan practice a silver candle often stands for the Goddess, beside a gold one for the God.\n\nSilver jewelry and mirrors are common tools for Moon work and for seeing yourself clearly.",
+    "keywords": ["moon", "intuition", "dreams", "reflection", "goddess", "cycles"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.colors.gold",
+    "category": "category.colors",
+    "name": "Gold",
+    "summary": "The Sun, success, wealth, confidence and the God.",
+    "body": "Gold shines like the Sun and carries its energy: success, recognition, abundance, confidence and strong, warm vitality.\n\nIt is linked with Sunday and with fire. In Wiccan practice a gold candle often stands for the God, beside a silver one for the Goddess.\n\nGold is also a color of honor and celebration, fitting for thanks given after a wish has come true.",
+    "keywords": ["sun", "success", "wealth", "confidence", "god", "celebration"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  }
+]

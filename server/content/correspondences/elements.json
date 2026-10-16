@@ -1,0 +1,47 @@
+[
+  {
+    "starter_key": "corr.elements.earth",
+    "category": "category.elements",
+    "name": "Earth",
+    "summary": "Body, home, money, stability, growth and the physical world.",
+    "body": "Earth is the element of what you can touch: soil, stone, bread, money, your own body and the walls of your home. It is slow and steady, and it rewards patience.\n\nIn many traditions it belongs to the north, to winter and to night. Its colors are green, brown and black, and its tools are salt, stones, coins and the pentacle.\n\nWork with earth for grounding, security, prosperity, finding a home, and any goal that needs to be built step by step. Burying something, planting a seed or holding a stone are simple earth acts.",
+    "keywords": ["grounding", "stability", "home", "money", "body", "north"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.elements.air",
+    "category": "category.elements",
+    "name": "Air",
+    "summary": "Mind, breath, words, learning, beginnings and change.",
+    "body": "Air is the element of thought and breath. It carries words, songs, scents and news, and it moves quickly.\n\nIn many traditions it belongs to the east, to spring and to dawn. Its colors are yellow and pale blue, and its tools are incense, feathers, bells and, in some traditions, the wand or the athame.\n\nWork with air for study, clear thinking, honest speech, travel and fresh starts. Speaking an intention aloud, ringing a bell or letting smoke rise are simple air acts.",
+    "keywords": ["mind", "breath", "communication", "learning", "beginnings", "east"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.elements.fire",
+    "category": "category.elements",
+    "name": "Fire",
+    "summary": "Will, passion, courage, transformation and protection.",
+    "body": "Fire is the element of heat and light. It warms, it drives, and it changes whatever it touches, so it is also the element of transformation.\n\nIn many traditions it belongs to the south, to summer and to noon. Its colors are red, orange and gold, and its tools are candles, the hearth and, in some traditions, the athame or the wand.\n\nWork with fire for courage, passion, motivation, protection and burning away what you are done with. Lighting a candle with intention is the simplest fire act there is; always keep it safe and never leave it unattended.",
+    "keywords": ["will", "passion", "courage", "transformation", "protection", "south"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.elements.water",
+    "category": "category.elements",
+    "name": "Water",
+    "summary": "Feeling, intuition, love, dreams, cleansing and flow.",
+    "body": "Water is the element of feeling. It flows around obstacles, takes the shape of what holds it, and remembers the Moon's pull.\n\nIn many traditions it belongs to the west, to autumn and to dusk. Its colors are blue, silver and sea green, and its tools are the chalice, bowls, shells and mirrors.\n\nWork with water for love, emotional balance, intuition, dreams and cleansing. A ritual bath, a bowl of water left in moonlight, or a glass of water on the ofrenda are all water acts.",
+    "keywords": ["emotions", "intuition", "love", "dreams", "cleansing", "west"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.elements.spirit",
+    "category": "category.elements",
+    "name": "Spirit",
+    "summary": "The fifth element: the center, connection and the sacred.",
+    "body": "Spirit, sometimes called aether or akasha, is the fifth element that joins the other four. It is placed at the center of the circle and at the top point of the pentagram.\n\nIt has no single color, though white, violet and black are often used. Rather than a tool, it is the presence you bring to the work: your attention, your devotion, your sense of something larger.\n\nCall on spirit for blessing, meditation, connection with the divine or with the ancestors, and for remembering that the other elements live in you, too.",
+    "keywords": ["aether", "center", "sacred", "connection", "divine", "pentagram"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]

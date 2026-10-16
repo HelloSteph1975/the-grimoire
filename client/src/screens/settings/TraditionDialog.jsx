@@ -7,11 +7,16 @@ import { ConflictDialog } from '../../components/ConflictDialog.jsx';
 import { useRecordForm } from '../../lib/useRecordForm.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 
-const pick = r => ({ name: r?.name ?? '', description: r?.description ?? '', color: r?.color ?? '#5b4430' });
+// A starter row shows its text in the screen language, so saving writes that text (accepted trade-off).
+const pickWith = tc => r => {
+  const key = r?.is_starter ? r.starter_key : null;
+  return { name: tc(key, 'name', r?.name ?? ''), description: tc(key, 'description', r?.description ?? ''), color: r?.color ?? '#5b4430' };
+};
 
 // `record` is null for a new tradition. `onSave(values, version)` returns the saved row.
 export function TraditionDialog({ record, onSave, onClose }) {
-  const { t } = useT();
+  const { t, tc } = useT();
+  const [pick] = useState(() => pickWith(tc));
   const confirm = useConfirm();
   // The version we save against. Taking the latest copy adopts its version, so the next save is not stale.
   const [version, setVersion] = useState(record?.version);

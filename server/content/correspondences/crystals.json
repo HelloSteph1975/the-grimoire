@@ -1,0 +1,182 @@
+[
+  {
+    "starter_key": "corr.crystals.clear-quartz",
+    "category": "category.crystals",
+    "name": "Clear quartz",
+    "summary": "The all-purpose stone: amplifying, clarifying and holding intention.",
+    "body": "Clear quartz is the most common crystal in magical practice and the easiest to find. It is said to amplify whatever intention you give it, so it is often added to a working to strengthen it.\n\nIt can stand in for almost any other stone. It is linked with the Sun, with spirit and with clarity of mind.\n\nMany people cleanse it in moonlight or with smoke and then \"program\" it by holding it and stating a clear intention.",
+    "keywords": ["amplifying", "clarity", "intention", "all-purpose", "focus"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.amethyst",
+    "category": "category.crystals",
+    "name": "Amethyst",
+    "summary": "Calm, intuition, dreams, spiritual work and clear thinking.",
+    "body": "Amethyst is purple quartz. Its old Greek name meant \"not drunk\", from a belief that it kept the wearer clear-headed.\n\nIn practice it is used for calm, intuition, meditation, dreams and spiritual protection. Many keep a piece by the bed or on the altar during divination.\n\nIt is linked with Jupiter, with the color purple and with air or water. Long sun exposure can fade its color, so keep it out of strong light.",
+    "keywords": ["calm", "intuition", "dreams", "meditation", "spirit", "clarity"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.rose-quartz",
+    "category": "category.crystals",
+    "name": "Rose quartz",
+    "summary": "Love, self-love, friendship, comfort and gentleness.",
+    "body": "Rose quartz is soft pink quartz and the classic stone of love in every form: romantic, friendly, family and self-love.\n\nIt is used to invite affection, ease a hurt heart, make peace after an argument and bring gentleness into a home.\n\nIt belongs to Venus, to Friday and to the color pink. Like amethyst, it can fade in strong sunlight.",
+    "keywords": ["love", "self-love", "friendship", "comfort", "gentleness", "venus"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.citrine",
+    "category": "category.crystals",
+    "name": "Citrine",
+    "summary": "Prosperity, success, confidence, warmth and good cheer.",
+    "body": "Citrine is golden or honey-colored quartz, sometimes called the merchant's stone because it is kept in cash drawers for good business.\n\nIt is used for money, success, confidence, creativity and a sunny mood. It is linked with the Sun, with Sunday and with fire.\n\nMuch citrine for sale is heated amethyst. Both work for most practitioners; it is simply worth knowing what you are buying.",
+    "keywords": ["prosperity", "success", "confidence", "abundance", "sun", "business"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.black-tourmaline",
+    "category": "category.crystals",
+    "name": "Black tourmaline",
+    "summary": "Protection, grounding and turning away negativity.",
+    "body": "Black tourmaline is one of the most popular protection stones. It is used to ground, to shield, and to turn away hostile or heavy energy.\n\nMany people place it by the front door, at the corners of a room or near the bed. It is linked with Saturn, with earth and with the color black.\n\nIt pairs well with salt in protective workings.",
+    "keywords": ["protection", "grounding", "shielding", "banishing", "earth"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.obsidian",
+    "category": "category.crystals",
+    "name": "Obsidian",
+    "summary": "Volcanic glass: protection, truth, scrying and shadow work.",
+    "body": "Obsidian is natural volcanic glass, black and shining. In ancient Mexico it was worked into blades and mirrors, and black obsidian mirrors were used for seeing and divination.\n\nToday it is used for protection, cutting cords, facing hard truths and scrying. It is linked with Saturn, with fire and earth, and with the color black.\n\nIts edges can be sharp: handle raw pieces with care.",
+    "keywords": ["protection", "truth", "scrying", "shadow work", "mirror", "cord cutting"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.crystals.smoky-quartz",
+    "category": "category.crystals",
+    "name": "Smoky quartz",
+    "summary": "Grounding, releasing stress and steady protection.",
+    "body": "Smoky quartz is brown to gray quartz, darkened by natural radiation in the earth. It is a gentle grounding stone.\n\nIt is used to release worry, steady the mind, protect the home, and help turn plans into practical action. It is linked with Saturn, with earth and with brown and black.\n\nIt is a good companion for waning moon work.",
+    "keywords": ["grounding", "release", "protection", "stress", "earth"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.carnelian",
+    "category": "category.crystals",
+    "name": "Carnelian",
+    "summary": "Courage, motivation, creativity and vitality.",
+    "body": "Carnelian is an orange to red stone with a warm glow. It has been carved into seals and beads for thousands of years.\n\nIt is used for courage, motivation, creative energy, speaking up and finding the drive to begin. It is linked with Mars and the Sun, with fire and with orange and red.\n\nCarry it when you need nerve.",
+    "keywords": ["courage", "motivation", "creativity", "vitality", "fire"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.tigers-eye",
+    "category": "category.crystals",
+    "name": "Tiger's eye",
+    "summary": "Confidence, focus, good judgment, luck and protection.",
+    "body": "Tiger's eye is a golden-brown stone with a shifting band of light, like a cat's eye. It was once carried against the evil eye.\n\nIt is used for confidence, focus, clear judgment, luck in money and steady protection. It is linked with the Sun, with earth and fire, and with gold and brown.\n\nIt suits job interviews, negotiations and new ventures.",
+    "keywords": ["confidence", "focus", "judgment", "luck", "protection", "money"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.moonstone",
+    "category": "category.crystals",
+    "name": "Moonstone",
+    "summary": "The Moon, intuition, cycles, new beginnings and the Goddess.",
+    "body": "Moonstone is a pale feldspar with a soft blue or white shimmer that seems to move like moonlight.\n\nIt is used for intuition, dreams, emotional balance, new beginnings and honoring the Goddess. It is linked with the Moon, with Monday, with water and with silver.\n\nMany practitioners charge it under the full moon.",
+    "keywords": ["moon", "intuition", "cycles", "beginnings", "goddess", "dreams"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.labradorite",
+    "category": "category.crystals",
+    "name": "Labradorite",
+    "summary": "Magic, intuition, transformation and protection of the aura.",
+    "body": "Labradorite is a gray stone that flashes blue, green and gold when it catches the light. That flash is why many call it the stone of magic.\n\nIt is used for intuition, psychic work, transformation and shielding your energy. It is linked with the Moon and with water.\n\nIt is a favorite for the altar and for divination.",
+    "keywords": ["magic", "intuition", "transformation", "protection", "divination"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.selenite",
+    "category": "category.crystals",
+    "name": "Selenite",
+    "summary": "Cleansing, peace, clarity and charging other stones.",
+    "body": "Selenite is a soft, white form of gypsum with a silky shine. Its name comes from the Greek word for the Moon.\n\nIt is used for cleansing spaces and other crystals, calm, clarity and connecting with spirit. Many lay other stones on a selenite plate to clear and charge them.\n\nIt is soft and dissolves in water, so never wash it or leave it damp.",
+    "keywords": ["cleansing", "peace", "clarity", "charging", "moon", "spirit"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.jade",
+    "category": "category.crystals",
+    "name": "Jade",
+    "summary": "Prosperity, luck, harmony, long life and something precious.",
+    "body": "Jade covers two green stones, jadeite and nephrite. Across many cultures it has meant value, harmony and good fortune. In ancient Mesoamerica green jade was more precious than gold.\n\nIt is used for prosperity, luck, peace in the home and lasting friendship. It is linked with Venus, with earth and with green.\n\nMany imitations are sold as jade, so buy from a trusted seller.",
+    "keywords": ["prosperity", "luck", "harmony", "wealth", "friendship", "earth"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.crystals.malachite",
+    "category": "category.crystals",
+    "name": "Malachite",
+    "summary": "Transformation, protection, growth and breaking old patterns.",
+    "body": "Malachite is a bright green copper stone with dark bands and swirls.\n\nIt is used for transformation, protection, courage to change and breaking old patterns. It is linked with Venus and with earth.\n\nIts dust is toxic: never sand or cut it, never use it in water you will drink or bathe in, and wash your hands after handling raw pieces. Polished stones are safe to keep and carry.",
+    "keywords": ["transformation", "protection", "change", "growth", "venus"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.lapis-lazuli",
+    "category": "category.crystals",
+    "name": "Lapis lazuli",
+    "summary": "Wisdom, truth, honest speech and inner vision.",
+    "body": "Lapis lazuli is a deep blue stone flecked with gold pyrite. In the ancient world it was treasured by royalty and ground into the blue paint of sacred images.\n\nIt is used for wisdom, truthful speech, study, inner vision and dignity. It is linked with Jupiter, with Thursday and with deep blue.\n\nIt suits writing, teaching and any work that needs courage to speak.",
+    "keywords": ["wisdom", "truth", "speech", "vision", "study", "jupiter"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.turquoise",
+    "category": "category.crystals",
+    "name": "Turquoise",
+    "summary": "Protection, travel, friendship, good luck and the sky.",
+    "body": "Turquoise is a sky-blue to green stone prized across the Americas. In Mesoamerica it was used in mosaics and offerings, and it is still widely worn in Mexico and the American Southwest.\n\nIt is used for protection, especially on journeys, for friendship, luck and clear communication. It is linked with Venus and Jupiter and with air and water.\n\nIt is porous, so keep it away from oils, perfume and long soaks.",
+    "keywords": ["protection", "travel", "friendship", "luck", "communication", "sky"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan", "tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.crystals.pyrite",
+    "category": "category.crystals",
+    "name": "Pyrite",
+    "summary": "Fool's gold: money, confidence, protection and willpower.",
+    "body": "Pyrite is a brassy gold mineral, often found in perfect cubes. Its nickname, fool's gold, makes it a playful money stone.\n\nIt is used for prosperity, confidence, willpower and a shield against negativity. It is linked with Mars and the Sun and with fire and earth.\n\nKeep it dry, since damp makes it tarnish and crumble, and do not put it in drinking water.",
+    "keywords": ["money", "confidence", "willpower", "protection", "prosperity"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.hematite",
+    "category": "category.crystals",
+    "name": "Hematite",
+    "summary": "Grounding, focus, strength and returning negativity.",
+    "body": "Hematite is a heavy, metallic gray iron stone with a mirror shine.\n\nIt is used for grounding, focus, strength and protection; its mirror surface is said to send negativity back where it came from. It is linked with Mars and Saturn and with earth.\n\nIt is a good stone to hold when you feel scattered.",
+    "keywords": ["grounding", "focus", "strength", "protection", "iron", "mars"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.green-aventurine",
+    "category": "category.crystals",
+    "name": "Green aventurine",
+    "summary": "Luck, opportunity, prosperity and optimism.",
+    "body": "Green aventurine is a quartz with tiny flecks that sparkle in the light. It is often called the luckiest of stones.\n\nIt is used for good luck, new opportunities, money, games of chance and a hopeful outlook. It is linked with Venus and Jupiter and with green and earth.\n\nIt makes a good pocket stone for job hunting.",
+    "keywords": ["luck", "opportunity", "prosperity", "optimism", "money"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  },
+  {
+    "starter_key": "corr.crystals.fluorite",
+    "category": "category.crystals",
+    "name": "Fluorite",
+    "summary": "Focus, order, study and a clear mind.",
+    "body": "Fluorite forms in cubes and bands of purple, green and clear. It is sometimes called the student's stone.\n\nIt is used for focus, learning, organizing thoughts and making decisions. It is linked with Mercury and with air.\n\nIt is fairly soft and can chip, so store it apart from harder stones.",
+    "keywords": ["focus", "study", "order", "clarity", "decisions", "mercury"],
+    "traditions": ["tradition.eclectic", "tradition.wiccan"]
+  }
+]

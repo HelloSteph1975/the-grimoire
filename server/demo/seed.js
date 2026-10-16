@@ -7,7 +7,7 @@ export function seedDemo(ctx, { reset = false } = {}) {
   const db = ctx.db;
   transaction(db, () => {
     if (reset) {
-      db.exec('DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
+      db.exec('DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
     }
     const t = repos(db).traditions;
     const all = db.prepare('SELECT name FROM traditions').all().map(r => r.name);
@@ -17,5 +17,5 @@ export function seedDemo(ctx, { reset = false } = {}) {
       t.remove(h.id);
     }
   });
-  seedStarter(db);
+  seedStarter(db, ctx.config?.contentDir ? { content: ctx.config.contentDir } : undefined);
 }

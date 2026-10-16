@@ -1,0 +1,4 @@
+[
+  { "starter_key": "category.days", "name": "Days of the week", "icon": "calendar-days", "sort_order": 10 },
+  { "starter_key": "category.planets", "name": "Planets", "icon": "orbit", "sort_order": 40 }
+]

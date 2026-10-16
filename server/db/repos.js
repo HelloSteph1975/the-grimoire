@@ -7,8 +7,13 @@ export function repos(db) {
   let r = cache.get(db);
   if (!r) {
     r = {
-      traditions: createRepo(db, 'traditions', ['name', 'description', 'color', 'sort_order', 'starter_key', 'is_starter'],
+      traditions: createRepo(db, 'traditions', ['name', 'description', 'color', 'sort_order', 'starter_key', 'is_starter', 'content_version'],
         { orderBy: 'sort_order, name COLLATE NOCASE, id' }),
+      categories: createRepo(db, 'categories', ['name', 'icon', 'sort_order', 'starter_key', 'is_starter', 'content_version'],
+        { orderBy: 'sort_order, name COLLATE NOCASE, id' }),
+      correspondences: createRepo(db, 'correspondences',
+        ['category_id', 'name', 'summary', 'body', 'keywords', 'feast_day', 'starter_key', 'is_starter', 'content_version'],
+        { orderBy: 'name COLLATE NOCASE, id' }),
     };
     cache.set(db, r);
   }

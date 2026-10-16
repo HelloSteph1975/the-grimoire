@@ -28,6 +28,7 @@ test('a new tradition and an edit survive a restart', async ({ page }) => {
 test('delete, restore from the Trash, and it is still there after a restart', async ({ page }) => {
   await page.goto('/settings');
   await page.locator('li', { hasText: 'Wiccan' }).getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Moved Wiccan to the Trash.')).toBeVisible();
   await expect(page.locator('li', { hasText: 'Wiccan' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Trash' }).click();
@@ -41,6 +42,7 @@ test('delete, restore from the Trash, and it is still there after a restart', as
 test('a starter tradition deleted forever stays gone after a restart', async ({ page }) => {
   await page.goto('/settings');
   await page.locator('li', { hasText: 'Wiccan' }).getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await page.getByRole('link', { name: 'Trash' }).click();
   await page.locator('li', { hasText: 'Wiccan' }).getByRole('button', { name: 'Delete forever' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Delete forever' }).click();

@@ -59,6 +59,20 @@ describe('backups', () => {
     expect(safety.prepare("SELECT count(*) AS n FROM traditions WHERE name = 'Added after backup'").get().n).toBe(1);
     safety.close();
   });
+  it('restores a Stage 1 backup (version 2) into the newer app, which migrates and seeds on reopen', () => {
+    t = makeTestContext();
+    const file = path.join(t.dataDir, 'backups', 'grimoire-2026-10-14-0900.db');
+    const old = new DatabaseSync(file);
+    old.exec(migrations[0]);
+    old.exec(migrations[1]);
+    old.exec('PRAGMA user_version = 2');
+    old.prepare("INSERT INTO traditions (name) VALUES ('From Stage 1')").run();
+    old.close();
+    restoreBackup(t.ctx, 'grimoire-2026-10-14-0900.db');
+    expect(t.ctx.db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
+    expect(repos(t.ctx.db).traditions.list().map(r => r.name)).toContain('From Stage 1');
+    expect(repos(t.ctx.db).categories.list()).toHaveLength(9);
+  });
   it('refuses names that are not backups', () => {
     t = makeTestContext();
     expect(() => restoreBackup(t.ctx, '../grimoire.db')).toThrow(/not a Grimoire backup/);

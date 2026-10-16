@@ -4,7 +4,13 @@ A personal Book of Shadows that runs on your own computer. It will hold your spe
 
 Everything is kept in one file on your computer. There are no accounts, and nothing is sent over the internet.
 
-> Stage 1 of 6 is done: saving, backups, the Trash, settings, traditions, and both looks. The other sections arrive in later stages.
+> Stages 1 and 2 of 6 are done: saving, backups, the Trash, settings, traditions, both looks, and the Correspondences library. The other sections arrive in later stages.
+
+## Correspondences
+
+A library of about 100 starter entries, all written for this app: days of the week, colors, elements, the seven classical planets, moon phases, the sabbats, Mexican feast days, crystals, saints, and deities and spirits. Entries link to each other, so Monday leads to the Moon and the Moon to silver. You can browse by category, filter by tradition, or search a word like "protection" across everything.
+
+You can edit or delete any entry, add your own, and make new categories for herbs, tarot cards, runes or whatever you keep. Starter entries carry a small "Starter" tag until you change them.
 
 ## Install
 
@@ -19,7 +25,7 @@ The easiest way is to open this folder in Claude Code or Codex and say "install 
 
 ## Your data
 
-Everything lives in `Documents\The Grimoire Data`. The app makes a backup once a day when it starts, whenever it is stopped normally (the 9 PM task, `npm run stop`, or the Stop script), and before it restores a backup or empties the Trash. It keeps the newest 30. You restore from Settings.
+Everything lives in `Documents\The Grimoire Data`. The app makes a backup once a day when it starts, whenever it is stopped normally (the 9 PM task, `npm run stop`, or the Stop script), before it restores a backup or empties the Trash, and before an update changes the database. It keeps the newest 30. You restore from Settings.
 
 ## More languages
 

@@ -4,6 +4,7 @@ import { useConfirm } from '../../components/ConfirmProvider.jsx';
 import { useToast } from '../../components/ToastProvider.jsx';
 import { useResource } from '../../lib/useResource.js';
 import { api } from '../../lib/api.js';
+import { errorText } from '../../lib/errors.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 
 export function Backups() {
@@ -17,17 +18,17 @@ export function Backups() {
     try {
       const b = await list.act(() => api.post('/api/backups'));
       toast.show({ message: t('backups.made', { name: b.name }) });
-    } catch (err) { toast.show({ message: err.message }); }
+    } catch (err) { toast.show({ message: errorText(err, t) }); }
   };
   const openFolder = async () => {
-    try { await api.post('/api/data-folder/open'); } catch (err) { toast.show({ message: err.message }); }
+    try { await api.post('/api/data-folder/open'); } catch (err) { toast.show({ message: errorText(err, t) }); }
   };
   const restore = async name => {
     if (!await confirm({ title: t('backups.restoreTitle'), body: t('backups.restoreBody', { name }), confirmLabel: t('backups.restore'), danger: true })) return;
     try {
       await api.post('/api/backups/restore', { name });
       window.location.reload(); // every screen reloads from the restored data
-    } catch (err) { toast.show({ message: err.message, duration: 10000 }); }
+    } catch (err) { toast.show({ message: errorText(err, t), duration: 10000 }); }
   };
 
   return (

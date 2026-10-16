@@ -52,7 +52,7 @@ describe('data epoch', () => {
     const { body: row } = await t.http().post('/api/traditions').send({ name: 'Before' });
     const res = await t.http().patch(`/api/traditions/${row.id}`).set('X-Grimoire-Epoch', 'stale').send({ name: 'After', version: row.version });
     expect(res.status).toBe(409);
-    expect(res.body).toEqual({ error: RESTORED, restored: true });
+    expect(res.body).toEqual({ error: RESTORED, code: 'restored', restored: true });
     expect((await t.http().get(`/api/traditions/${row.id}`)).body).toMatchObject({ name: 'Before', version: row.version });
   });
 

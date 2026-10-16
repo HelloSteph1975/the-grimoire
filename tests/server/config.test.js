@@ -22,6 +22,15 @@ describe('loadConfig', () => {
     const c = loadConfig({ env: { GRIMOIRE_PORT: '4300', GRIMOIRE_DATA_DIR: 'E:\\X' }, root: tmp() });
     expect(c).toMatchObject({ port: 4300, dataDir: 'E:\\X' });
   });
+  it('reads GRIMOIRE_CONTENT_DIR and checks the folder', () => {
+    const dir = tmp();
+    expect(() => loadConfig({ env: { GRIMOIRE_CONTENT_DIR: dir }, root: tmp() })).toThrow(/GRIMOIRE_CONTENT_DIR/);
+    expect(() => loadConfig({ env: { GRIMOIRE_CONTENT_DIR: path.join(dir, 'nope') }, root: tmp() })).toThrow(/GRIMOIRE_CONTENT_DIR/);
+    fs.writeFileSync(path.join(dir, 'traditions.json'), '[]');
+    fs.writeFileSync(path.join(dir, 'categories.json'), '[]');
+    expect(loadConfig({ env: { GRIMOIRE_CONTENT_DIR: dir }, root: tmp() }).contentDir).toBe(path.resolve(dir));
+    expect(loadConfig({ env: {}, root: tmp() }).contentDir).toBeUndefined();
+  });
   it('rejects a bad port with a plain message', () => {
     expect(() => loadConfig({ env: { GRIMOIRE_PORT: 'abc' }, root: tmp() })).toThrow(/whole number/);
   });

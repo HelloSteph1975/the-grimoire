@@ -15,5 +15,9 @@ describe('demo seed', () => {
     expect((await t.http().get('/api/trash')).body.map(r => r.title)).toContain('Hedge witchery');
     seedDemo(t.ctx, { reset: true });
     expect((await t.http().get('/api/traditions')).body.filter(r => r.name === 'Kitchen witchery')).toHaveLength(1);
+    const n = table => t.ctx.db.prepare(`SELECT count(*) n FROM ${table}`).get().n;
+    expect(n('categories')).toBe(9);
+    expect(n('correspondences')).toBe(0);
+    expect(n('correspondence_links')).toBe(0);
   });
 });

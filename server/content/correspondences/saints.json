@@ -1,0 +1,122 @@
+[
+  {
+    "starter_key": "corr.saints.virgen-de-guadalupe",
+    "category": "category.saints",
+    "name": "Virgen de Guadalupe",
+    "summary": "Our Lady of Guadalupe: patroness of Mexico, mother, protector and comfort.",
+    "body": "In Catholic tradition the Virgin Mary appeared to Juan Diego, an Indigenous man, on the hill of Tepeyac in 1531, and left her image on his cloak. That image, kept in her basilica in Mexico City, is the most visited Marian shrine in the world.\n\nShe is the patroness of Mexico and of the Americas. Devotees turn to her for protection, motherly comfort, and help for family and homeland. Her image appears on altars, in homes, in markets, on taxis and on skin.\n\nRoses, candles, the colors of her blue-green mantle and the mañanitas sung at midnight are part of her devotion. Her feast is December 12.",
+    "keywords": ["guadalupe", "mother", "protection", "comfort", "patroness", "roses"],
+    "feast_day": "12-12",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-judas-tadeo",
+    "category": "category.saints",
+    "name": "San Judas Tadeo",
+    "summary": "Saint Jude Thaddeus: patron of difficult and desperate causes.",
+    "body": "Saint Jude Thaddeus was one of the twelve apostles. In Catholic devotion he is the patron of difficult and desperate causes, the one to ask when nothing else has worked.\n\nIn Mexico his devotion is huge. On the 28th of each month, and above all on October 28, crowds visit the church of San Hipólito in Mexico City with statues of the saint dressed in green and white.\n\nHe is shown with a medallion of Christ's face on his chest and a flame above his head. Devotees petition him for work, health of family members, money troubles and other hard situations, and give thanks when help comes.",
+    "keywords": ["difficult causes", "hope", "petitions", "work", "gratitude", "apostle"],
+    "feast_day": "10-28",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-martin-caballero",
+    "category": "category.saints",
+    "name": "San Martín Caballero",
+    "summary": "Saint Martin of Tours on horseback: patron of business, generosity and good luck.",
+    "body": "Saint Martin of Tours was a Roman soldier who, the story goes, cut his cloak in half to share it with a freezing beggar. In Mexico he is known as San Martín Caballero and shown on a white horse sharing his cape.\n\nShopkeepers and market sellers keep his image by the register, often with a horseshoe, a bundle of hay or a glass of water for his horse, to draw customers and good luck.\n\nHe is turned to for business, prosperity and charity. His feast is November 11.",
+    "keywords": ["business", "prosperity", "luck", "generosity", "charity", "horseshoe"],
+    "feast_day": "11-11",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-antonio-de-padua",
+    "category": "category.saints",
+    "name": "San Antonio de Padua",
+    "summary": "Saint Anthony of Padua: lost things, love and finding a partner.",
+    "body": "Saint Anthony of Padua was a Franciscan friar and preacher of the 1200s. In Catholic devotion he helps find lost things, and in Mexico he is also the saint of single women hoping for a partner.\n\nA well-known folk custom is to turn his statue upside down until he answers the petition, then set him upright with thanks. Thirteen coins or thirteen small petitions are also traditional.\n\nHe is shown with the Christ child and lilies. His feast is June 13.",
+    "keywords": ["lost things", "love", "partner", "marriage", "petitions", "finding"],
+    "feast_day": "06-13",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-miguel-arcangel",
+    "category": "category.saints",
+    "name": "San Miguel Arcángel",
+    "summary": "Saint Michael the Archangel: protection, courage and victory over evil.",
+    "body": "Saint Michael is the archangel who, in the Bible, leads heaven's army against the dragon. He is shown in armor with a sword and scales, standing over the defeated serpent.\n\nDevotees call on him for protection of the home and family, courage, and strength against evil and danger. His image is often placed near the front door.\n\nHis feast, shared with the archangels Gabriel and Raphael, is September 29.",
+    "keywords": ["protection", "courage", "archangel", "justice", "strength", "home"],
+    "feast_day": "09-29",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.santa-barbara",
+    "category": "category.saints",
+    "name": "Santa Bárbara",
+    "summary": "Saint Barbara: protection from storms, lightning, fire and sudden danger.",
+    "body": "Saint Barbara was an early Christian martyr whose story tells of a tower and a father struck down by lightning. In Catholic devotion she protects against storms, lightning, fire and sudden death.\n\nShe is the patron of miners, firefighters and artillery. In homes her image or prayer is used during thunderstorms.\n\nShe is shown with a tower, a palm and a chalice, often in red. Her feast is December 4.",
+    "keywords": ["storms", "lightning", "protection", "fire", "martyr", "tower"],
+    "feast_day": "12-04",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-juan-bautista",
+    "category": "category.saints",
+    "name": "San Juan Bautista",
+    "summary": "Saint John the Baptist: water, cleansing, blessing and new beginnings.",
+    "body": "Saint John the Baptist baptized Jesus in the river Jordan, so his devotion is full of water. His feast on June 24, Día de San Juan, brings river baths, splashing, and blessings of animals and fields in many parts of Mexico.\n\nHe is turned to for cleansing, renewal, and blessing of water and of new beginnings.\n\nHe is shown with a lamb, a reed cross and a camel-hair garment.",
+    "keywords": ["water", "cleansing", "baptism", "blessing", "renewal", "midsummer"],
+    "feast_day": "06-24",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-benito",
+    "category": "category.saints",
+    "name": "San Benito",
+    "summary": "Saint Benedict: protection from evil, and the Saint Benedict medal.",
+    "body": "Saint Benedict of Nursia founded the Benedictine order in the 500s. In popular devotion he is a powerful protector against evil, envy and harm.\n\nHis medal, with a cross and a set of Latin initials for a prayer against evil, is one of the most worn protective medals in Mexico. People hang it over doors, in cars and around the neck.\n\nHis feast is July 11.",
+    "keywords": ["protection", "medal", "evil", "envy", "home", "blessing"],
+    "feast_day": "07-11",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-pascual-bailon",
+    "category": "category.saints",
+    "name": "San Pascual Bailón",
+    "summary": "Saint Paschal Baylon: patron of cooks, kitchens and good food.",
+    "body": "Saint Paschal Baylon was a Spanish Franciscan lay brother of the 1500s, devoted to the Eucharist. In Mexico and other Latin American countries he became the patron saint of cooks and kitchens.\n\nCooks ask his help when a dish is at risk, often with a little rhyme asking him to watch the pot. His image hangs in many home and restaurant kitchens.\n\nHe is turned to for good meals, hospitality and a blessed kitchen. His feast is May 17.",
+    "keywords": ["kitchen", "cooking", "food", "hospitality", "home", "blessing"],
+    "feast_day": "05-17",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.santa-rita-de-casia",
+    "category": "category.saints",
+    "name": "Santa Rita de Casia",
+    "summary": "Saint Rita of Cascia: impossible causes, troubled marriages and patience.",
+    "body": "Saint Rita of Cascia was an Italian wife, mother and later nun of the 1300s and 1400s. Her story includes a hard marriage, great loss and lasting patience.\n\nIn Catholic devotion she is the patron of impossible causes, and many turn to her for troubled marriages, family conflict and grief.\n\nShe is shown with a wound on her forehead and roses. Her feast is May 22.",
+    "keywords": ["impossible causes", "marriage", "patience", "family", "roses", "hope"],
+    "feast_day": "05-22",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-expedito",
+    "category": "category.saints",
+    "name": "San Expedito",
+    "summary": "Saint Expedite: urgent causes and things that must happen quickly.",
+    "body": "Saint Expedite is honored as a Roman soldier and martyr. His popular image shows him stepping on a crow that cries \"tomorrow\" while he holds a cross reading \"today\", a refusal to put things off.\n\nDevotees petition him for urgent matters: paperwork, money due, legal deadlines, and any help needed now. A common custom is to promise him an offering, such as a public thank-you or flowers, once the petition is granted.\n\nHis feast is April 19.",
+    "keywords": ["urgent", "speed", "deadlines", "petitions", "today", "gratitude"],
+    "feast_day": "04-19",
+    "traditions": ["tradition.mexican-folk"]
+  },
+  {
+    "starter_key": "corr.saints.san-isidro-labrador",
+    "category": "category.saints",
+    "name": "San Isidro Labrador",
+    "summary": "Saint Isidore the Farmer: rain, crops, the land and honest work.",
+    "body": "Saint Isidore the Farmer was a farm worker near Madrid in the 1100s, remembered for his devotion and kindness. He is the patron of farmers and of the rural world.\n\nOn his feast, May 15, many Mexican towns bless seeds, tools and oxen and carry his image through the fields to ask for rain and a good harvest.\n\nHe is turned to for the garden, the land, good weather and honest labor.",
+    "keywords": ["farming", "rain", "harvest", "land", "work", "seeds"],
+    "feast_day": "05-15",
+    "traditions": ["tradition.mexican-folk"]
+  }
+]

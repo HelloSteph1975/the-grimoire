@@ -3,14 +3,15 @@ import { check } from '../validate.js';
 import { HttpError, idParam, notFound } from '../http.js';
 import { transaction } from '../db/connection.js';
 
-function versionOf(body) {
+export function versionOf(body) {
   const v = body?.version;
-  if (!Number.isInteger(v) || v < 1) throw new HttpError(400, 'Please reload and try again.', { version: 'Missing version' });
+  if (!Number.isInteger(v) || v < 1) throw new HttpError(400, 'Please reload and try again.', { version: 'Missing version' }, { code: 'missing_version' });
   return v;
 }
 
 // Shared routes for one kind of record. `starter: true` drops the Starter tag on edit.
-export function crudRouter(ctx, { repo, schema, starter = false, beforeDelete }) {
+// `remove(ctx, id)` and `restore(ctx, id)` replace the plain soft delete and restore; each runs its own transaction.
+export function crudRouter(ctx, { repo, schema, starter = false, beforeDelete, remove, restore }) {
   const r = Router();
   const R = () => repo(ctx.db);
 
@@ -45,6 +46,7 @@ export function crudRouter(ctx, { repo, schema, starter = false, beforeDelete })
 
   r.delete('/:id', (req, res) => {
     const id = idParam(req);
+    if (remove) { remove(ctx, id); return res.json({ ok: true }); }
     transaction(ctx.db, () => {
       const row = R().get(id);
       if (!row) throw notFound();
@@ -56,6 +58,7 @@ export function crudRouter(ctx, { repo, schema, starter = false, beforeDelete })
 
   r.post('/:id/restore', (req, res) => {
     const id = idParam(req);
+    if (restore) return res.json(restore(ctx, id));
     const ok = transaction(ctx.db, () => R().restore(id));
     if (!ok) throw notFound('Nothing to restore');
     res.json(R().get(id));

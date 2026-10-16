@@ -15,7 +15,8 @@ export function createApp(ctx, { onShutdown = () => {} } = {}) {
   app.use('/api', epochGuard(ctx));
   app.use(express.json({ limit: '1mb' }));
   app.use('/api', apiRouter(ctx, { onShutdown }));
-  const dist = path.join(ROOT, 'client', 'dist');
+  // Browser tests build into another folder and point here, so they never touch the real build.
+  const dist = process.env.GRIMOIRE_CLIENT_DIST ? path.resolve(process.env.GRIMOIRE_CLIENT_DIST) : path.join(ROOT, 'client', 'dist');
   if (fs.existsSync(dist)) {
     app.use(express.static(dist));
     app.get(/^\/(?!api\/).*/, (req, res) => res.sendFile(path.join(dist, 'index.html')));

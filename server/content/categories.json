@@ -1,0 +1,11 @@
+[
+  { "starter_key": "category.days", "name": "Days of the week", "icon": "calendar-days", "sort_order": 10 },
+  { "starter_key": "category.colors", "name": "Colors", "icon": "palette", "sort_order": 20 },
+  { "starter_key": "category.elements", "name": "Elements", "icon": "flame", "sort_order": 30 },
+  { "starter_key": "category.planets", "name": "Planets", "icon": "orbit", "sort_order": 40 },
+  { "starter_key": "category.moon-phases", "name": "Moon phases", "icon": "moon", "sort_order": 50 },
+  { "starter_key": "category.sabbats-feasts", "name": "Sabbats and feasts", "icon": "sun", "sort_order": 60 },
+  { "starter_key": "category.crystals", "name": "Crystals", "icon": "gem", "sort_order": 70 },
+  { "starter_key": "category.saints", "name": "Saints", "icon": "cross", "sort_order": 80 },
+  { "starter_key": "category.deities", "name": "Deities and spirits", "icon": "sparkles", "sort_order": 90 }
+]

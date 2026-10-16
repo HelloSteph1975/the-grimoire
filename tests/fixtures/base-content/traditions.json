@@ -1,0 +1,23 @@
+[
+  {
+    "starter_key": "tradition.eclectic",
+    "name": "Eclectic",
+    "description": "Practice gathered from many sources and shaped by your own experience, keeping what works for you.",
+    "color": "#5b4430",
+    "sort_order": 1
+  },
+  {
+    "starter_key": "tradition.wiccan",
+    "name": "Wiccan",
+    "description": "A modern witchcraft religion that honors the God and the Goddess and keeps the eight sabbats of the Wheel of the Year.",
+    "color": "#2f4a3a",
+    "sort_order": 2
+  },
+  {
+    "starter_key": "tradition.mexican-folk",
+    "name": "Mexican folk",
+    "description": "Folk practice from Mexico, including curanderismo, ofrendas for the dead, and devotion to the saints and the Virgin of Guadalupe.",
+    "color": "#9a3b07",
+    "sort_order": 3
+  }
+]

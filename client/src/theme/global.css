@@ -1,5 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
+/* Behind the fixed body gradient, so a tall page never shows a white strip past it. */
+html { background: var(--leather-900); }
 body {
   font-family: var(--font-body); font-size: 18px; line-height: 1.55; color: var(--ink);
   background: radial-gradient(ellipse at center, var(--leather-700), var(--leather-900) 75%) fixed;
@@ -9,6 +11,8 @@ h1 { font-size: 2.2rem; letter-spacing: .02em; }
 h2 { font-size: 1.5rem; }
 a { color: var(--oxblood); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+/* Long paths (the data folder) wrap instead of pushing the page wider. */
+code { overflow-wrap: anywhere; }
 .muted { color: var(--ink-soft); font-style: italic; }
 /* Forms wrap their fields in a fieldset only to lock them while saving; it adds no box. */
 fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
@@ -92,7 +96,10 @@ section + section { margin-top: 36px; }
 .toast-action { background: none; border: 1px solid var(--gold); color: var(--text-on-leather); border-radius: var(--radius); cursor: pointer; }
 
 @media (max-width: 860px) {
-  .app-shell { grid-template-columns: 1fr; }
+  /* minmax(0, 1fr) and min-width: 0 let the page shrink to the screen instead of growing to fit
+     its widest child (the category tabs), so only the tabs scroll sideways. */
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  .main { min-width: 0; }
   .topbar { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: var(--leather-900); color: var(--text-on-leather); }
   .sidebar { position: fixed; inset: 0 auto 0 0; width: var(--sidebar-w); transform: translateX(-100%); visibility: hidden; transition: transform .2s, visibility 0s .2s; z-index: 40; }
   .sidebar.is-open { transform: none; visibility: visible; transition: transform .2s, visibility 0s 0s; }
@@ -101,3 +108,57 @@ section + section { margin-top: 36px; }
   .page { padding: 48px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Keyword chips and the entry picker */
+.chips { list-style: none; margin: 0 0 6px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px 2px 10px; border: 1px solid var(--parchment-edge); border-radius: 999px; background: var(--parchment-deep); color: var(--ink); }
+.chip-remove { display: inline-flex; align-items: center; padding: 2px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); cursor: pointer; }
+.chip-remove:hover { color: var(--oxblood); }
+.picker-results { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--parchment-edge); border-radius: var(--radius); background: #fbf6ea; }
+.picker-results button { display: block; width: 100%; text-align: left; padding: 6px 10px; border: 0; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.picker-results button:hover { background: var(--parchment-deep); }
+.picker-none { color: var(--ink-soft); min-height: 1em; }
+
+/* Correspondences: tabs, filters, list rows, entry page and form */
+.corr-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.corr-tab { display: inline-flex; align-items: center; gap: 6px; font: inherit; padding: 4px 12px; cursor: pointer;
+  border: 1px solid var(--parchment-edge); border-radius: 999px; background: transparent; color: var(--ink); }
+.corr-tab:hover { background: var(--parchment-deep); }
+.corr-tab[aria-pressed='true'] { background: var(--oxblood); border-color: var(--oxblood); color: var(--parchment); }
+.corr-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.corr-filters input[type='search'] { flex: 1; min-width: 12em; }
+.corr-row { flex: 1; display: grid; grid-template-columns: minmax(8em, 12em) 1fr; column-gap: 16px; text-decoration: none; color: var(--ink); }
+.corr-row:hover .corr-name strong { color: var(--oxblood); text-decoration: underline; }
+.corr-cat { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-soft); }
+.corr-summary { grid-column: 2; }
+.entry-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.entry-summary { font-size: 1.15rem; font-style: italic; }
+.entry-facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 20px; margin: 20px 0; }
+.entry-facts dt { font-family: var(--font-head); font-weight: 600; color: var(--oxblood); }
+.entry-facts dd { margin: 0; }
+.entry-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.entry-form { max-width: 720px; }
+.entry-form > fieldset, .field-group { border: 0; margin: 0; padding: 0; min-width: 0; }
+.field-group legend { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; padding: 0; margin-bottom: 4px; }
+.feast-day { display: flex; flex-wrap: wrap; gap: 12px; }
+.feast-day .field { margin-bottom: 0; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+@media (max-width: 860px) {
+  .corr-tabs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .corr-tab { flex: none; }
+  .corr-row { grid-template-columns: 1fr; }
+  .corr-summary { grid-column: 1; }
+  .entry-facts { grid-template-columns: 1fr; gap: 2px; }
+  .entry-facts dd { margin-bottom: 10px; }
+}
+
+.icon-picker { border: 0; padding: 0; margin: 0 0 var(--space-3, 12px); min-width: 0; }
+.icon-picker legend { padding: 0; margin-bottom: 6px; }
+.icon-picker .icons { display: flex; flex-wrap: wrap; gap: 6px; }
+.icon-choice { position: relative; display: inline-flex; }
+.icon-choice input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.icon-choice span { display: inline-flex; padding: 8px; border: 1px solid var(--ink-soft); border-radius: 6px; }
+.icon-choice input:checked + span { border-width: 2px; padding: 7px; background: var(--ink-soft); color: var(--parchment); }
+.icon-choice input:focus-visible + span { outline: 2px solid currentColor; outline-offset: 2px; }
