@@ -9,7 +9,8 @@ import { errorText } from '../lib/errors.js';
 import { useT } from '../i18n/I18nProvider.jsx';
 
 export function Trash() {
-  const { t, language } = useT();
+  const { t, tc, language } = useT();
+  const title = item => tc(item.starter_key, 'name', item.title);
   const confirm = useConfirm();
   const toast = useToast();
   const list = useResource('/api/trash');
@@ -18,7 +19,7 @@ export function Trash() {
     try { await list.act(fn); if (message) toast.show({ message }); } catch (err) { toast.show({ message: errorText(err, t) }); }
   };
 
-  const restore = item => run(() => api.post(`/api/trash/${item.type}/${item.id}/restore`), t('trash.restored', { title: item.title }));
+  const restore = item => run(() => api.post(`/api/trash/${item.type}/${item.id}/restore`), t('trash.restored', { title: title(item) }));
   const forever = async item => {
     // A category takes its entries with it, so say how many, one sentence per kind.
     const body = [
@@ -26,7 +27,7 @@ export function Trash() {
       item.earlier > 0 && t('trash.deleteCategoryForeverEarlier', { n: item.earlier }),
       t('trash.deleteForeverBody'),
     ].filter(Boolean).join(' ');
-    if (!await confirm({ title: t('trash.deleteForeverTitle', { title: item.title }), body, confirmLabel: t('trash.deleteForever'), danger: true })) return;
+    if (!await confirm({ title: t('trash.deleteForeverTitle', { title: title(item) }), body, confirmLabel: t('trash.deleteForever'), danger: true })) return;
     run(() => api.del(`/api/trash/${item.type}/${item.id}`));
   };
   const emptyAll = async () => {
@@ -45,7 +46,7 @@ export function Trash() {
           {list.data?.map(item => (
             <li key={`${item.type}-${item.id}`}>
               <span className="tag">{t(`trash.type.${item.type}`)}</span>
-              <span className="grow"><strong>{item.title}</strong> <span className="muted">{fmt(item.deleted_at)}</span>
+              <span className="grow"><strong>{title(item)}</strong> <span className="muted">{fmt(item.deleted_at)}</span>
                 {item.extra > 0 && <> <span className="muted">{t('trash.withEntries', { n: item.extra })}</span></>}
                 {item.earlier > 0 && <> <span className="muted">{t('trash.earlierEntries', { n: item.earlier })}</span></>}
                 {item.categoryInTrash && <> <span className="muted">{t('trash.categoryInTrash')}</span></>}</span>

@@ -23,6 +23,7 @@ function expectedContentKeys(root) {
   };
   add(readJson(path.join(dir, 'traditions.json'), []), ['name', 'description']);
   add(readJson(path.join(dir, 'categories.json'), []), ['name']);
+  add(readJson(path.join(dir, 'spell-kinds.json'), []), ['name']);
   const folder = path.join(dir, 'correspondences');
   const files = fs.existsSync(folder) ? fs.readdirSync(folder).filter(f => f.endsWith('.json')).sort() : [];
   for (const f of files) add(readJson(path.join(folder, f), []), ['name', 'summary', 'body', 'keywords']);

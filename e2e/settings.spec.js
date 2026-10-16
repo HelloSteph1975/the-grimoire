@@ -32,6 +32,28 @@ test('switching to Book & Folk and Spanish sticks after a restart', async ({ pag
   await page.screenshot({ path: 'test-results/book-folk-es.png', fullPage: true });
 });
 
+test('Settings rows wrap on a phone: nothing sticks out or overlaps', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/settings');
+  await expect(page.getByRole('heading', { name: 'Traditions' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Categories' })).toBeVisible();
+  const widths = await page.evaluate(() => ({ page: document.documentElement.scrollWidth, screen: window.innerWidth }));
+  expect(widths.page).toBeLessThanOrEqual(widths.screen);
+  // Evidence for the PR: docs/evidence/stage-3/settings-rows-phone-<before|after>.png.
+  // Only Traditions through Spell kinds: Backups shows the data folder path, which can hold a user name.
+  const out = process.env.EVIDENCE_SHOT;
+  if (out) {
+    await expect(page.getByRole('heading', { name: 'Spell kinds' })).toBeVisible();
+    const clip = await page.evaluate(() => {
+      const section = name => [...document.querySelectorAll('section')].find(s => s.querySelector('h2')?.textContent === name).getBoundingClientRect();
+      const top = section('Traditions').top + window.scrollY - 8;
+      const bottom = section('Spell kinds').bottom + window.scrollY + 8;
+      return { x: 0, y: top, width: window.innerWidth, height: bottom - top };
+    });
+    await page.screenshot({ path: out, fullPage: true, clip });
+  }
+});
+
 test('Old Book is the default look', async ({ page }) => {
   await page.goto('/settings');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'old-book');

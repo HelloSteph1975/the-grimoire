@@ -21,6 +21,14 @@ export function idParam(req, name = 'id') {
   return id;
 }
 
+// An optional id in the query string: absent or empty means no filter.
+export function queryId(v) {
+  if (v === undefined || v === '') return undefined;
+  const n = Number(v);
+  if (typeof v !== 'string' || !Number.isInteger(n) || n < 1) throw new HttpError(400, 'Bad id', undefined, { code: 'bad_id' });
+  return n;
+}
+
 const LOCAL = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1']);
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 const hostnameOf = url => {

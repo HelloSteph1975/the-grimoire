@@ -9,6 +9,7 @@ import { useToast } from '../../components/ToastProvider.jsx';
 import { useResource } from '../../lib/useResource.js';
 import { api } from '../../lib/api.js';
 import { errorText } from '../../lib/errors.js';
+import { sortByName } from '../../lib/collate.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 import { starterText, starterKeywords } from './Correspondences.jsx';
 
@@ -31,6 +32,7 @@ export function EntryPage({ id }) {
   const entry = useResource(`/api/correspondences/${id}`);
   const categories = useResource('/api/categories');
   const traditions = useResource('/api/traditions');
+  const usedIn = useResource(`/api/correspondences/${id}/spells`);
   const e = entry.data;
   const name = e ? starterText(tc, e, 'name', e.name) : '';
   const category = e && categories.data?.find(c => c.id === e.category_id);
@@ -83,13 +85,26 @@ export function EntryPage({ id }) {
               )}
               {e.links.length > 0 && (
                 <><dt>{t('corr.links')}</dt><dd><ul className="entry-links">
-                  {e.links.map(l => <li key={l.id}><Link to={`/correspondences/${l.id}`}>{starterText(tc, l, 'name', l.name)}</Link></li>)}
+                  {sortByName(e.links, l => starterText(tc, l, 'name', l.name), language).map(l => <li key={l.id}><Link to={`/correspondences/${l.id}`}>{starterText(tc, l, 'name', l.name)}</Link></li>)}
                 </ul></dd></>
               )}
             </dl>
           </>
         )}
       </LoadState>
+      {/* Its own load: a failure here never hides the entry. */}
+      {e && (
+        <LoadState error={usedIn.error} keepChildren onRetry={usedIn.reload}>
+          {usedIn.data?.length > 0 && (
+            <section className="spell-section">
+              <h2>{t('corr.usedIn')}</h2>
+              <ul className="entry-links">
+                {sortByName(usedIn.data, s => s.title, language).map(s => <li key={s.id}><Link to={`/spells/${s.id}`}>{s.title}</Link></li>)}
+              </ul>
+            </section>
+          )}
+        </LoadState>
+      )}
       <p><Link to="/correspondences">{t('corr.back')}</Link></p>
     </article>
   );

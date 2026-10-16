@@ -1,0 +1,7 @@
+[
+  { "starter_key": "spell-kind.spell", "name": "Spell", "sort_order": 1 },
+  { "starter_key": "spell-kind.ritual", "name": "Ritual", "sort_order": 2 },
+  { "starter_key": "spell-kind.blessing", "name": "Blessing", "sort_order": 3 },
+  { "starter_key": "spell-kind.cleansing", "name": "Cleansing", "sort_order": 4 },
+  { "starter_key": "spell-kind.other", "name": "Other", "sort_order": 5 }
+]

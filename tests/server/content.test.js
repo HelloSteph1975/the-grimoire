@@ -77,3 +77,20 @@ describe('starter content files', () => {
     }
   });
 });
+
+describe('spell kinds', () => {
+  const FIXTURE_DIR = path.join(import.meta.dirname, '..', 'fixtures', 'base-content');
+  const kinds = readJson('spell-kinds.json');
+  it('have unique spell-kind keys and a name each', () => {
+    const keys = kinds.map(k => k.starter_key);
+    expect(new Set(keys).size).toBe(keys.length);
+    for (const k of kinds) {
+      expect(k.starter_key).toMatch(/^spell-kind.[a-z0-9-]+$/);
+      expect(String(k.name ?? '').trim(), k.starter_key).not.toBe('');
+      expect(k.name.length).toBeLessThanOrEqual(60);
+    }
+  });
+  it('match the test fixture file', () => {
+    expect(JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'spell-kinds.json'), 'utf8'))).toEqual(kinds);
+  });
+});

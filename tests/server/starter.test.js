@@ -29,7 +29,7 @@ function copyFixtureWith(changes) {
 
 describe('seedStarter', () => {
   it('adds the starter traditions and categories once', () => {
-    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(3 + 9);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(3 + 9 + 5);
     expect(seedStarter(db, { content: BASE_CONTENT })).toBe(0);
     expect(repos(db).traditions.list()).toHaveLength(3);
     expect(repos(db).categories.list()).toHaveLength(9);
@@ -116,6 +116,17 @@ describe('seedStarter', () => {
     const monday = db.prepare("SELECT * FROM correspondences WHERE starter_key='corr.days.monday'").get();
     expect(monday).toMatchObject({ summary: 'New text', content_version: 2, version: 2 });
     expect(db.prepare('SELECT summary FROM correspondences WHERE id = ?').get(moon.id).summary).toBe('Mine');
+  });
+  it('updates the name of an untouched starter spell kind when content_version goes up, and leaves an edited one alone', () => {
+    const kinds = JSON.parse(fs.readFileSync(path.join(BASE_CONTENT, 'spell-kinds.json'), 'utf8'));
+    const bumped = copyFixtureWith({});
+    fs.writeFileSync(path.join(bumped, 'spell-kinds.json'), JSON.stringify(kinds));
+    seedStarter(db, { content: bumped });
+    db.exec("UPDATE spell_kinds SET is_starter = 0, name = 'Mine' WHERE starter_key = 'spell-kind.ritual'");
+    fs.writeFileSync(path.join(bumped, 'spell-kinds.json'), JSON.stringify(kinds.map(k => ({ ...k, name: k.name + ' 2', content_version: 2 }))));
+    seedStarter(db, { content: bumped });
+    expect(db.prepare("SELECT name, version FROM spell_kinds WHERE starter_key = 'spell-kind.spell'").get()).toEqual({ name: 'Spell 2', version: 2 });
+    expect(db.prepare("SELECT name FROM spell_kinds WHERE starter_key = 'spell-kind.ritual'").get().name).toBe('Mine');
   });
   it('does not update a starter row that is in the Trash', () => {
     seedStarter(db, { content: FIXTURE });

@@ -20,4 +20,29 @@ describe('demo seed', () => {
     expect(n('correspondences')).toBe(0);
     expect(n('correspondence_links')).toBe(0);
   });
+
+  it('adds the two sample spells once and clears the spell tables on reset', async () => {
+    t = makeTestContext();
+    seedDemo(t.ctx);
+    seedDemo(t.ctx);
+    const list = async () => (await t.http().get('/api/spells')).body;
+    expect((await list()).map(s => s.title)).toEqual(['A candle for a calm home', 'Doorway sweep']);
+    const candle = (await t.http().get(`/api/spells/${(await list())[0].id}`)).body;
+    expect(candle.ingredients).toHaveLength(3);
+    expect(candle.steps).toHaveLength(3);
+    expect(candle.timing).toMatchObject({ day: ['mon'], moon: ['full'] });
+    const kinds = (await t.http().get('/api/spell-kinds')).body;
+    expect(candle.kind_id).toBe(kinds.find(k => k.starter_key === 'spell-kind.blessing').id);
+    expect(candle.source).toBeNull();
+
+    // A spell of the owner's own goes with a reset; the samples are put back once.
+    await t.http().post('/api/spells').send({ title: 'Mine', steps: ['One'] });
+    expect(await list()).toHaveLength(3);
+    seedDemo(t.ctx, { reset: true });
+    expect((await list()).map(s => s.title)).toEqual(['A candle for a calm home', 'Doorway sweep']);
+    const n = table => t.ctx.db.prepare(`SELECT count(*) n FROM ${table}`).get().n;
+    expect(n('spells')).toBe(2);
+    expect(n('spell_steps')).toBe(5);
+    expect(n('spell_ingredients')).toBe(5);
+  });
 });

@@ -3,6 +3,8 @@ import { HttpError } from '../http.js';
 import { traditionsRouter } from './traditions.js';
 import { categoriesRouter } from './categories.js';
 import { correspondencesRouter } from './correspondences.js';
+import { spellKindsRouter } from './spellKinds.js';
+import { spellsRouter } from './spells.js';
 import { trashRouter } from './trash.js';
 import { systemRouter } from './system.js';
 import { settingsRouter } from './settings.js';
@@ -14,6 +16,8 @@ export function apiRouter(ctx, { onShutdown }) {
   r.use('/traditions', traditionsRouter(ctx));
   r.use('/categories', categoriesRouter(ctx));
   r.use('/correspondences', correspondencesRouter(ctx));
+  r.use('/spell-kinds', spellKindsRouter(ctx));
+  r.use('/spells', spellsRouter(ctx));
   r.use('/trash', trashRouter(ctx));
   r.use('/settings', settingsRouter(ctx));
   r.use('/locales', localesRouter(ctx));
