@@ -10,6 +10,8 @@ h1, h2, h3 { font-family: var(--font-head); font-weight: 600; color: var(--oxblo
 h1 { font-size: 2.2rem; letter-spacing: .02em; }
 h2 { font-size: 1.5rem; }
 a { color: var(--oxblood); }
+/* Native ticks and radios take the theme's ink instead of the browser's blue. */
+input[type='checkbox'], input[type='radio'] { accent-color: var(--accent-ink); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 /* Long paths (the data folder) wrap instead of pushing the page wider. */
 code { overflow-wrap: anywhere; }
@@ -62,7 +64,7 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .page { padding-bottom: 84px; }
 .page-header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap;
   border-bottom: 3px double var(--parchment-edge); margin-bottom: 24px; }
-.page-actions { display: flex; gap: 8px; }
+.page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .btn { display: inline-flex; align-items: center; gap: 6px; font: inherit; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer; padding: 6px 14px; }
 .btn-sm { padding: 3px 10px; font-size: .9rem; }
@@ -210,6 +212,40 @@ section + section { margin-top: 36px; }
 }
 .spell-form fieldset.field-group { margin-bottom: 14px; }
 
+/* Rituals list: the day and time on the left, then the title and spell; stars for a rating. */
+.ritual-when { display: inline-flex; flex-wrap: wrap; gap: 0 8px; color: var(--ink-soft); }
+.ritual-stars { display: inline-flex; gap: 2px; color: var(--gold); flex: none; }
+.ritual-range { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Plan form: date and time side by side, suggestions as a wrap of buttons, Ready by each supply. */
+.ritual-when-fields { display: flex; flex-wrap: wrap; gap: 0 16px; }
+.ritual-when-fields > .field { flex: 1 1 12em; }
+.suggestion-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggestion { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 12px; text-align: left;
+  border: 1px solid var(--parchment-edge); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; cursor: pointer; }
+.suggestion:hover { background: var(--parchment-deep); }
+.suggestion small { color: var(--ink-soft); }
+.suggestion[aria-pressed='true'] { border: 2px solid var(--ink); padding: 5px 11px; background: var(--parchment-deep); font-weight: 600; }
+/* Ritual page: the sky beside its moon, tickable supplies, the log and follow-ups. */
+.ritual-sky-body { display: flex; align-items: center; gap: 12px; }
+.ritual-sky-body p { margin: 0; }
+.ritual-supplies { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.ritual-supply-amount { color: var(--ink-soft); }
+.ritual h3 { font-size: 1rem; margin: 12px 0 4px; }
+.followup-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 10px; }
+.followup { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--parchment-edge); }
+.followup-body { flex: 1 1 16em; min-width: 0; }
+.followup-body time { color: var(--ink-soft); font-size: .9rem; }
+.followup-body p { margin: 2px 0 0; white-space: pre-line; }
+.followup-actions { display: inline-flex; gap: 4px; flex: none; }
+.followup-form { flex: 1 1 100%; max-width: 720px; }
+.followup-form > fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.rating-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.rating-star { display: inline-flex; padding: 6px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--gold); cursor: pointer; }
+.rating-star[aria-pressed='true'] { border: 2px solid var(--ink); padding: 5px; background: var(--parchment-deep); }
+.log-form .checks .checkbox { display: inline-flex; align-items: center; gap: 4px; }
+.supply-ready { display: flex; flex-direction: column; justify-content: center; align-self: center; flex: none; }
+
 /* Today: a book page with a double gold rule under the heading. */
 .today .page-header { border-bottom: 3px double var(--gold); }
 .today h2 { font-size: 1.35rem; margin-top: 1.2em; }
@@ -226,6 +262,10 @@ section + section { margin-top: 36px; }
 .today-coming li:last-child { border-bottom: 0; }
 .today-coming-when { color: var(--ink-soft); white-space: nowrap; }
 .today-later { margin-top: 2em; }
+.today-rituals { list-style: none; margin: 0; padding: 0; }
+.today-rituals li { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 6px 0; border-bottom: 1px dotted var(--parchment-edge); }
+.today-rituals li:last-child { border-bottom: 0; }
+.today-ritual-when { color: var(--ink-soft); }
 
 /* Calendar: the same book page as Today. Marks are ink colors: oxblood for saints and deities,
    accent ink for sabbats and feasts, leaf for her own dates. */
@@ -257,6 +297,10 @@ section + section { margin-top: 36px; }
 .cal-kind-saint .cal-dot { background: var(--oxblood); }
 .cal-kind-sabbat .cal-dot, .cal-kind-feast .cal-dot { background: var(--accent-ink); }
 .cal-kind-own .cal-dot { background: var(--leaf); }
+.spell-rituals li { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.cal-flame { flex: none; }
+.cal-ritual-planned .cal-flame { color: var(--leaf); }
+.cal-ritual-past .cal-flame { color: var(--oxblood); }
 .cal-panel { margin-top: 20px; padding-top: 8px; border-top: 3px double var(--gold); }
 .cal-panel h2, .cal-list h3 { font-size: 1.25rem; margin: 0 0 6px; }
 .cal-items { list-style: none; margin: 0; padding: 0; }

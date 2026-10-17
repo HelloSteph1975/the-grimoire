@@ -4,7 +4,7 @@ import { SABBAT_KEYS } from './timing.js';
 
 export const MAX_RANGE_DAYS = 62;
 const DAY_MS = 86400000;
-const KIND_ORDER = { moon: 0, sabbat: 1, feast: 2, saint: 3, own: 4 };
+const KIND_ORDER = { moon: 0, sabbat: 1, feast: 2, saint: 3, ritual: 4, own: 5 };
 const SAINT_CATEGORIES = ['category.saints', 'category.deities'];
 const sabbatKey = name => `corr.sabbats-feasts.${name}`;
 
@@ -38,22 +38,53 @@ export function sabbatDays(db, year, { time_zone, hemisphere }) {
 
 const entryOf = r => ({ id: r.id, name: r.name, starter_key: r.starter_key, is_starter: r.is_starter, category_id: r.category_id });
 
-function entryItems(db, from, to, years, settings) {
+const yearsOf = (from, to) => {
+  const years = [];
+  for (let y = Number(from.slice(0, 4)); y <= Number(to.slice(0, 4)); y++) years.push(y);
+  return years;
+};
+
+const SABBAT_LIST = SABBAT_KEYS.map(() => '?').join(', ');
+
+// Every day from `from` to `to` that a live entry matching `where` falls on: its feast day, or for
+// one of the eight sabbats the day sabbatDays gives it. Returns [{ day, row }].
+function entryDays(db, where, params, { from, to }, settings) {
   const rows = db.prepare(`SELECT c.id, c.name, c.starter_key, c.is_starter, c.category_id, c.feast_day, cat.starter_key AS category_key
     FROM correspondences c JOIN categories cat ON cat.id = c.category_id
-    WHERE c.deleted_at IS NULL AND c.show_on_calendar = 1
-      AND (c.feast_day IS NOT NULL OR c.starter_key IN (${SABBAT_KEYS.map(() => '?').join(', ')}))`).all(...SABBAT_KEYS);
+    WHERE c.deleted_at IS NULL AND (c.feast_day IS NOT NULL OR c.starter_key IN (${SABBAT_LIST})) AND ${where}`)
+    .all(...SABBAT_KEYS, ...params);
+  const years = yearsOf(from, to);
   const sabbats = new Map(years.map(y => [y, sabbatDays(db, y, settings)]));
   const out = [];
-  for (const r of rows) {
-    const isSabbat = SABBAT_KEYS.includes(r.starter_key);
-    const kind = isSabbat ? 'sabbat' : SAINT_CATEGORIES.includes(r.category_key) ? 'saint' : 'feast';
+  for (const row of rows) {
+    const isSabbat = SABBAT_KEYS.includes(row.starter_key);
     for (const y of years) {
-      const day = isSabbat ? sabbats.get(y)[r.starter_key] : dayInYear(y, r.feast_day);
-      if (day >= from && day <= to) out.push({ day, kind, entry: entryOf(r) });
+      const day = isSabbat ? sabbats.get(y)[row.starter_key] : dayInYear(y, row.feast_day);
+      if (day >= from && day <= to) out.push({ day, row });
     }
   }
   return out;
+}
+
+// The days in the range that these entries fall on, by the calendar's rules: [{ day, id }].
+// Entries hidden from the calendar count here; ones in the Trash don't.
+export function feastDaysFor(db, entryIds, range, settings) {
+  if (!entryIds.length) return [];
+  return entryDays(db, `c.id IN (${entryIds.map(() => '?').join(', ')})`, entryIds, range, settings)
+    .map(({ day, row }) => ({ day, id: row.id }));
+}
+
+function entryItems(db, range, settings) {
+  return entryDays(db, 'c.show_on_calendar = 1', [], range, settings).map(({ day, row }) => {
+    const kind = SABBAT_KEYS.includes(row.starter_key) ? 'sabbat' : SAINT_CATEGORIES.includes(row.category_key) ? 'saint' : 'feast';
+    return { day, kind, entry: entryOf(row) };
+  });
+}
+
+// Live rituals of any status in the range.
+function ritualItems(db, from, to) {
+  return db.prepare(`SELECT id, title, status, time, date FROM rituals WHERE deleted_at IS NULL AND date >= ? AND date <= ?`)
+    .all(from, to).map(r => ({ day: r.date, kind: 'ritual', ritual: { id: r.id, title: r.title, status: r.status, time: r.time } }));
 }
 
 function ownItems(db, from, to, years) {
@@ -70,25 +101,26 @@ function ownItems(db, from, to, years) {
   return out;
 }
 
-const idOf = item => item.entry?.id ?? item.date?.id ?? 0;
+const idOf = item => item.entry?.id ?? item.date?.id ?? item.ritual?.id ?? 0;
 function compare(a, b) {
   if (a.day !== b.day) return a.day < b.day ? -1 : 1;
   if (a.kind !== b.kind) return KIND_ORDER[a.kind] - KIND_ORDER[b.kind];
   if (a.kind === 'moon') return a.at < b.at ? -1 : a.at > b.at ? 1 : 0;
+  // Rituals with no time come first, then by time.
+  if (a.kind === 'ritual' && a.ritual.time !== b.ritual.time) return (a.ritual.time ?? '') < (b.ritual.time ?? '') ? -1 : 1;
   return idOf(a) - idOf(b);
 }
 
-// Every dated item from `from` to `to` ('YYYY-MM-DD', inclusive), sorted by day, kind, then id.
-// `moon: false` leaves out the moon quarters.
-export function calendarItems(db, { from, to }, settings, { moon: withMoon = true } = {}) {
-  const years = [];
-  for (let y = Number(from.slice(0, 4)); y <= Number(to.slice(0, 4)); y++) years.push(y);
+// Every dated item from `from` to `to` ('YYYY-MM-DD', inclusive), sorted by day, kind, then id
+// (rituals by time, then id). `moon: false` leaves out the moon quarters, `rituals: false` the rituals.
+export function calendarItems(db, { from, to }, settings, { moon: withMoon = true, rituals: withRituals = true } = {}) {
   const moon = !withMoon ? [] : moonQuarters(from, to, settings.time_zone).map(q => ({ day: q.day, kind: 'moon', quarter: q.quarter, at: q.at }));
-  return [...moon, ...entryItems(db, from, to, years, settings), ...ownItems(db, from, to, years)].sort(compare);
+  const rituals = withRituals ? ritualItems(db, from, to) : [];
+  return [...moon, ...entryItems(db, { from, to }, settings), ...rituals, ...ownItems(db, from, to, yearsOf(from, to))].sort(compare);
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-function goodDay(v) {
+export function goodDay(v) {
   if (typeof v !== 'string' || !DATE.test(v) || v < '1900-01-01' || v > '2100-12-31') return false;
   const d = new Date(`${v}T00:00:00Z`);
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;

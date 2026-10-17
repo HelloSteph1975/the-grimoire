@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { idParam, notFound, queryId } from '../http.js';
 import { versionOf } from './crud.js';
-import { listSpells, getSpell, createSpell, updateSpell, deleteSpell, restoreSpell } from '../services/spells.js';
+import { listSpells, getSpell, createSpell, updateSpell, deleteSpell, restoreSpell, spellUsage } from '../services/spells.js';
+import { spellRituals } from '../services/rituals.js';
+import { spellSuggestions } from '../services/suggestions.js';
+import { getSettings } from '../services/settings.js';
 
 export function spellsRouter(ctx) {
   const r = Router();
@@ -10,6 +13,11 @@ export function spellsRouter(ctx) {
     tradition: queryId(req.query.tradition),
     q: typeof req.query.q === 'string' ? req.query.q : '',
   })));
+  r.get('/:id/usage', (req, res) => res.json(spellUsage(ctx.db, idParam(req))));
+  r.get('/:id/suggestions', (req, res) => res.json({
+    suggestions: spellSuggestions(ctx.db, idParam(req), req.query.from, ctx.now(), getSettings(ctx.db)),
+  }));
+  r.get('/:id/rituals', (req, res) => res.json(spellRituals(ctx.db, idParam(req), ctx.now())));
   r.get('/:id', (req, res) => {
     const spell = getSpell(ctx.db, idParam(req));
     if (!spell) throw notFound();

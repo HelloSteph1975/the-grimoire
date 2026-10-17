@@ -18,6 +18,10 @@ import { EntryFormRoute } from './screens/correspondences/EntryForm.jsx';
 import { Spells } from './screens/spells/Spells.jsx';
 import { SpellPageRoute } from './screens/spells/SpellPage.jsx';
 import { SpellFormRoute } from './screens/spells/SpellForm.jsx';
+import { Rituals } from './screens/rituals/Rituals.jsx';
+import { RitualFormRoute } from './screens/rituals/RitualForm.jsx';
+import { RitualPageRoute } from './screens/rituals/RitualPage.jsx';
+import { LogFormRoute } from './screens/rituals/LogForm.jsx';
 
 function Shell() {
   return (
@@ -50,7 +54,11 @@ export const routes = [
       { path: 'calendar/dates/new', element: <OwnDateFormRoute /> },
       { path: 'calendar/dates/:id', element: <OwnDatePageRoute /> },
       { path: 'calendar/dates/:id/edit', element: <OwnDateFormRoute /> },
-      { path: 'rituals', element: <Placeholder titleKey="nav.rituals" stage={5} /> },
+      { path: 'rituals', element: <Rituals /> },
+      { path: 'rituals/new', element: <RitualFormRoute /> },
+      { path: 'rituals/:id', element: <RitualPageRoute /> },
+      { path: 'rituals/:id/edit', element: <RitualFormRoute /> },
+      { path: 'rituals/:id/log', element: <LogFormRoute /> },
       { path: 'journal', element: <Placeholder titleKey="nav.journal" stage={6} /> },
       { path: 'trash', element: <Trash /> },
       { path: 'settings', element: <Settings /> },

@@ -59,3 +59,7 @@ export function gridRange(month) {
 // Formats a day (or the 1st of a month) in the screen language, at noon UTC.
 export const formatDay = (day, language, options) => new Intl.DateTimeFormat(language, { ...options, timeZone: 'UTC' })
   .format(new Date(`${day.length === 7 ? `${day}-01` : day}T12:00:00Z`));
+
+// Formats a 'HH:MM' clock time in the screen language, with no time zone shift.
+export const formatTime = (time, language) => new Intl.DateTimeFormat(language, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
+  .format(new Date(`1970-01-01T${time}:00Z`));

@@ -125,6 +125,26 @@ describe('calendarItems', () => {
     expect(notMoon(items('2026-11-01', '2026-11-02')).map(i => [i.day, i.kind, i.entry?.id ?? i.date.id]))
       .toEqual([['2026-11-01', 'feast', first.id], ['2026-11-02', 'feast', b.id], ['2026-11-02', 'feast', a.id], ['2026-11-02', 'saint', saint.id], ['2026-11-02', 'own', own.id]]);
   });
+
+  it('shows live rituals of every status on their day, after saints and before own dates', async () => {
+    const ritual = async body => (await t.http().post('/api/rituals').send({ title: 'Ritual', date: '2026-11-02', ...body })).body;
+    const own = (await t.http().post('/api/own-dates').send({ title: 'Mine', date: '2026-11-02' })).body;
+    const saint = await makeEntry(t, cat('category.saints'), 'A saint', { feast_day: '11-02' });
+    const evening = await ritual({ title: 'Evening', time: '20:00' });
+    const morning = await ritual({ title: 'Morning', time: '07:30' });
+    const done = await ritual({ title: 'Done', date: '2026-11-01' });
+    expect((await t.http().patch(`/api/rituals/${done.id}`).send({ status: 'done', version: done.version })).status).toBe(200);
+    const gone = await ritual({ title: 'Gone' });
+    await t.http().delete(`/api/rituals/${gone.id}`);
+    await ritual({ title: 'Outside', date: '2026-11-03' });
+    expect(notMoon(items('2026-11-01', '2026-11-02'))).toEqual([
+      { day: '2026-11-01', kind: 'ritual', ritual: { id: done.id, title: 'Done', status: 'done', time: null } },
+      { day: '2026-11-02', kind: 'saint', entry: expect.objectContaining({ id: saint.id }) },
+      { day: '2026-11-02', kind: 'ritual', ritual: { id: morning.id, title: 'Morning', status: 'planned', time: '07:30' } },
+      { day: '2026-11-02', kind: 'ritual', ritual: { id: evening.id, title: 'Evening', status: 'planned', time: '20:00' } },
+      { day: '2026-11-02', kind: 'own', date: expect.objectContaining({ id: own.id }) },
+    ]);
+  });
 });
 
 describe('GET /api/calendar', () => {

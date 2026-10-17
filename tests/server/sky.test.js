@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dayInZone, moonPhaseOnDay, moonNow, moonQuarters, seasonDays } from '../../server/services/sky.js';
+import { dayInZone, moonPhaseOnDay, moonPhasesOnDays, moonNow, moonQuarters, seasonDays, skyAt, WEEKDAY_PLANET } from '../../server/services/sky.js';
 
 describe('dayInZone', () => {
   it('uses the zone day', () => {
@@ -67,5 +67,46 @@ describe('moonNow', () => {
     expect(moonNow(new Date('2024-06-21T12:00:00Z'), 'UTC').code).toBe('waxing-gibbous');
     // The same instant is the full moon's day in Chicago.
     expect(moonNow(new Date('2024-06-21T12:00:00Z'), 'America/Chicago').code).toBe('full');
+  });
+});
+
+describe('skyAt', () => {
+  it('has the fixed weekday planets', () => {
+    expect(WEEKDAY_PLANET).toEqual({ sun: 'sun', mon: 'moon', tue: 'mars', wed: 'mercury', thu: 'jupiter', fri: 'venus', sat: 'saturn' });
+  });
+
+  it('gives the full moon on 2024-06-21 in Chicago, a Friday of Venus', () => {
+    const sky = skyAt('2024-06-21', null, 'America/Chicago');
+    expect(sky).toMatchObject({ moon: 'full', weekday: 'fri', planet: 'venus' });
+    expect(sky.lit).toBeGreaterThan(0.98);
+    expect(sky.lit).toBeLessThanOrEqual(1);
+    expect(Object.keys(sky).sort()).toEqual(['lit', 'moon', 'planet', 'weekday']);
+  });
+
+  it('measures the lit fraction at the time given, in the zone', () => {
+    // Near first quarter the lit part grows about 1 percent every 2 hours.
+    const morning = skyAt('2026-10-18', '00:30', 'America/Chicago');
+    const night = skyAt('2026-10-18', '23:30', 'America/Chicago');
+    expect(morning.moon).toBe('first-quarter');
+    expect(night.moon).toBe('first-quarter');
+    expect(night.lit).toBeGreaterThan(morning.lit + 0.05);
+    expect(skyAt('2026-10-18', '12:00', 'America/Chicago')).toEqual(skyAt('2026-10-18', null, 'America/Chicago'));
+  });
+
+  it('names every weekday', () => {
+    const days = ['2026-10-18', '2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24'];
+    expect(days.map(d => skyAt(d, null, 'UTC').weekday)).toEqual(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']);
+    expect(skyAt('2026-10-20', null, 'UTC').planet).toBe('mars');
+  });
+});
+
+describe('moonPhasesOnDays', () => {
+  it('names each day the same as moonPhaseOnDay', () => {
+    const days = Array.from({ length: 90 }, (_, i) => new Date(Date.parse('2026-10-17T00:00:00Z') + i * 86400000).toISOString().slice(0, 10));
+    for (const zone of ['America/Chicago', 'Pacific/Kiritimati', 'Pacific/Pago_Pago']) {
+      const phases = moonPhasesOnDays(days, zone);
+      expect(days.map(d => phases[d])).toEqual(days.map(d => moonPhaseOnDay(d, zone)));
+    }
+    expect(moonPhasesOnDays([], 'UTC')).toEqual({});
   });
 });

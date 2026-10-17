@@ -35,13 +35,17 @@ function zoneOffset(ms, zone) {
   return wall - Math.floor(ms / 1000) * 1000;
 }
 
-// The instant of 12:00 on this day in the zone. Noon is never skipped by a clock change.
-function noonInZone(day, zone) {
-  const wallNoon = Date.parse(`${day}T12:00:00Z`);
-  let ms = wallNoon - zoneOffset(wallNoon, zone);
-  ms = wallNoon - zoneOffset(ms, zone);
+// The instant the zone's wall clock shows this day and time ('HH:MM'). In the hour a clock change
+// skips, it lands an hour off, which is close enough for the sky.
+function wallInZone(day, time, zone) {
+  const wall = Date.parse(`${day}T${time}:00Z`);
+  let ms = wall - zoneOffset(wall, zone);
+  ms = wall - zoneOffset(ms, zone);
   return new Date(ms);
 }
+
+// The instant of 12:00 on this day in the zone. Noon is never skipped by a clock change.
+const noonInZone = (day, zone) => wallInZone(day, '12:00', zone);
 
 // The phase for a whole day in the zone. A main phase (new, first quarter, full, last quarter)
 // names only the day it falls on. Any other day is named by the side of the cycle the moon is
@@ -49,12 +53,23 @@ function noonInZone(day, zone) {
 // waning gibbous, then waning crescent.
 export function moonPhaseOnDay(day, zone) {
   const quarter = moonQuarters(day, day, zone)[0];
-  if (quarter) return quarter.quarter;
+  return quarter ? quarter.quarter : sideAtNoon(day, zone);
+}
+
+function sideAtNoon(day, zone) {
   const angle = MoonPhase(noonInZone(day, zone));
   if (angle < 90) return 'waxing-crescent';
   if (angle < 180) return 'waxing-gibbous';
   if (angle < 270) return 'waning-gibbous';
   return 'waning-crescent';
+}
+
+// moonPhaseOnDay for each of these days ({ day: code }), searching the quarters only once.
+export function moonPhasesOnDays(days, zone) {
+  if (!days.length) return {};
+  const sorted = [...days].sort();
+  const quarters = new Map(moonQuarters(sorted[0], sorted[sorted.length - 1], zone).map(q => [q.day, q.quarter]));
+  return Object.fromEntries(days.map(day => [day, quarters.get(day) ?? sideAtNoon(day, zone)]));
 }
 
 function quarterEntry(mq, zone) {
@@ -98,4 +113,20 @@ export function seasonDays(year, zone) {
     'september-equinox': dayInZone(s.sep_equinox.date, zone),
     'december-solstice': dayInZone(s.dec_solstice.date, zone),
   };
+}
+
+// The planet that rules each weekday. Suggestions and the ritual sky snapshot both use it.
+export const WEEKDAY_PLANET = { sun: 'sun', mon: 'moon', tue: 'mars', wed: 'mercury', thu: 'jupiter', fri: 'venus', sat: 'saturn' };
+const WEEKDAYS = Object.keys(WEEKDAY_PLANET);
+
+// The weekday code of a calendar day ('YYYY-MM-DD').
+export const weekdayOf = day => WEEKDAYS[new Date(`${day}T00:00:00Z`).getUTCDay()];
+
+// The sky for a ritual: the day's phase code, the fraction lit at the time (or noon) in the zone,
+// the weekday and its planet.
+export function skyAt(day, time, zone) {
+  const at = wallInZone(day, time || '12:00', zone);
+  const lit = Math.round(Illumination(Body.Moon, at).phase_fraction * 100) / 100;
+  const weekday = weekdayOf(day);
+  return { moon: moonPhaseOnDay(day, zone), lit, weekday, planet: WEEKDAY_PLANET[weekday] };
 }

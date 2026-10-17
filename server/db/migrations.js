@@ -63,6 +63,23 @@ export const migrations = [
   CREATE INDEX idx_own_date_traditions_tradition ON own_date_traditions(tradition_id);
   ALTER TABLE correspondences ADD COLUMN show_on_calendar INTEGER NOT NULL DEFAULT 1;
   `,
+  // 6: rituals, with their traditions, supplies and follow-ups. `sky` is a saved JSON snapshot.
+  `
+  CREATE TABLE rituals (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,
+    spell_id INTEGER REFERENCES spells(id) ON DELETE SET NULL, date TEXT NOT NULL, time TEXT, reminder_days INTEGER,
+    plan_notes TEXT, status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'done', 'skipped')),
+    changes TEXT, outcome TEXT, rating INTEGER, sky TEXT, ${TS});
+  CREATE TABLE ritual_traditions (ritual_id INTEGER NOT NULL REFERENCES rituals(id) ON DELETE CASCADE,
+    tradition_id INTEGER NOT NULL REFERENCES traditions(id) ON DELETE CASCADE, PRIMARY KEY (ritual_id, tradition_id));
+  CREATE TABLE ritual_supplies (ritual_id INTEGER NOT NULL REFERENCES rituals(id) ON DELETE CASCADE, position INTEGER NOT NULL,
+    name TEXT NOT NULL, amount TEXT, checked INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (ritual_id, position));
+  CREATE TABLE ritual_followups (id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ritual_id INTEGER NOT NULL REFERENCES rituals(id) ON DELETE CASCADE, date TEXT NOT NULL, text TEXT NOT NULL, ${TS});
+  CREATE INDEX idx_rituals_date ON rituals(date);
+  CREATE INDEX idx_rituals_spell ON rituals(spell_id);
+  CREATE INDEX idx_ritual_traditions_tradition ON ritual_traditions(tradition_id);
+  CREATE INDEX idx_ritual_followups_ritual ON ritual_followups(ritual_id);
+  `,
 ];
 
 export function migrate(db) {

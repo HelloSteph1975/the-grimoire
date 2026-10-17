@@ -100,6 +100,59 @@ describe('todayPage', () => {
   });
 });
 
+describe('rituals on Today', () => {
+  // Noon in Chicago on that day.
+  const noon = day => new Date(`${day}T17:00:00Z`);
+  const ritual = async body => {
+    const res = await t.http().post('/api/rituals').send({ title: 'Ritual', ...body });
+    if (res.status !== 201) throw new Error(`ritual failed: ${res.status} ${JSON.stringify(res.body)}`);
+    return res.body;
+  };
+  const page = day => todayPage(t.ctx.db, noon(day), CHICAGO);
+
+  it('lists planned rituals from today to six days on, by date and time, and keeps them out of coming', async () => {
+    t = makeTestContext({ now: () => noon('2026-10-14') });
+    const late = await ritual({ title: 'Late', date: '2026-10-20', time: '21:00', reminder_days: 3 });
+    const early = await ritual({ title: 'Early', date: '2026-10-20', time: '06:00' });
+    const today = await ritual({ title: 'Today', date: '2026-10-14' });
+    await ritual({ title: 'Too far', date: '2026-10-21' });
+    await ritual({ title: 'Yesterday', date: '2026-10-13' });
+    const done = await ritual({ title: 'Done', date: '2026-10-15' });
+    await t.http().patch(`/api/rituals/${done.id}`).send({ status: 'done', version: done.version });
+    const gone = await ritual({ title: 'Gone', date: '2026-10-15' });
+    await t.http().delete(`/api/rituals/${gone.id}`);
+    const s = (await t.http().post('/api/spells').send({ title: 'Spell' })).body;
+    const linked = await ritual({ title: 'Linked', date: '2026-10-16', spell_id: s.id });
+
+    const p = page('2026-10-14');
+    expect(p.week).toEqual([
+      { id: today.id, title: 'Today', date: '2026-10-14', time: null, spell_id: null },
+      { id: linked.id, title: 'Linked', date: '2026-10-16', time: null, spell_id: s.id },
+      { id: early.id, title: 'Early', date: '2026-10-20', time: '06:00', spell_id: null },
+      { id: late.id, title: 'Late', date: '2026-10-20', time: '21:00', spell_id: null },
+    ]);
+    expect(p.coming.filter(i => i.kind === 'ritual')).toEqual([]);
+    expect(page('2026-10-13').week.map(r => r.title)).toEqual(['Yesterday', 'Today', 'Linked']);
+  });
+
+  it('shows a reminder from its first day through the ritual day, then not', async () => {
+    t = makeTestContext({ now: () => noon('2026-10-14') });
+    const r = await ritual({ title: 'Moon water', date: '2026-10-20', reminder_days: 2 });
+    const same = await ritual({ title: 'Same day', date: '2026-10-20', reminder_days: 0 });
+    await ritual({ title: 'No reminder', date: '2026-10-20' });
+    const skipped = await ritual({ title: 'Skipped', date: '2026-10-20', reminder_days: 5 });
+    await t.http().patch(`/api/rituals/${skipped.id}`).send({ status: 'skipped', version: skipped.version });
+    expect(page('2026-10-17').reminders).toEqual([]);
+    expect(page('2026-10-18').reminders).toEqual([{ id: r.id, title: 'Moon water', date: '2026-10-20', days_away: 2 }]);
+    expect(page('2026-10-20').reminders).toEqual([
+      { id: r.id, title: 'Moon water', date: '2026-10-20', days_away: 0 },
+      { id: same.id, title: 'Same day', date: '2026-10-20', days_away: 0 },
+    ]);
+    expect(page('2026-10-21').reminders).toEqual([]);
+    expect(page('2026-10-21').week).toEqual([]);
+  });
+});
+
 describe('GET /api/today', () => {
   it('uses the clock and the Settings zone', async () => {
     const now = new Date('2026-10-17T03:00:00Z');
