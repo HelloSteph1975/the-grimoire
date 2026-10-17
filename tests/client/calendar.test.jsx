@@ -18,14 +18,19 @@ const OCTOBER = [
   { day: '2026-10-31', kind: 'sabbat', entry: entry(9, 'Samhain', 'corr.sabbats-feasts.samhain') },
 ];
 const calls = [];
-function stub({ items = OCTOBER, pack = {}, language = 'en', fail = false, todayFails = false } = {}) {
+function stub({ items = OCTOBER, pack = {}, language = 'en', fail = false, todayFails = false, laterToday = null } = {}) {
   let failed = fail;
+  let todayCalls = 0;
   calls.length = 0;
   vi.stubGlobal('fetch', vi.fn(async url => {
     calls.push(url);
     if (url === '/api/settings') return json({ language, theme: 'old-book', time_zone: 'America/Chicago', hemisphere: 'north' });
     if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? (pack.ui ?? {}) : (pack.content ?? {}));
-    if (url === '/api/today') return todayFails ? json({ error: 'Nope', code: 'server_error' }, 500) : json({ day: '2026-10-16' });
+    if (url === '/api/today') {
+      todayCalls += 1;
+      if (todayFails) return json({ error: 'Nope', code: 'server_error' }, 500);
+      return json({ day: todayCalls > 1 && laterToday ? laterToday : '2026-10-16' });
+    }
     if (url.startsWith('/api/calendar?')) {
       if (failed) { failed = false; return json({ error: 'Nope', code: 'server_error' }, 500); }
       return json({ items });
@@ -138,6 +143,16 @@ describe('Calendar', () => {
     expect(calls).toContain('/api/calendar?from=2026-10-26&to=2026-12-06');
     await userEvent.click(screen.getByRole('button', { name: 'Today' }));
     expect(await screen.findByRole('heading', { level: 2, name: 'October 2026' })).toBeInTheDocument();
+  });
+  it('Today asks the server for the day again, so it follows midnight', async () => {
+    stub({ laterToday: '2026-11-01' }); mount('/calendar');
+    await grid();
+    expect(cell(/October 16/)).toHaveAttribute('aria-current', 'date');
+    await userEvent.click(screen.getByRole('button', { name: 'Today' }));
+    expect(await screen.findByRole('heading', { level: 2, name: 'November 2026' })).toBeInTheDocument();
+    expect(calls.filter(u => u === '/api/today')).toHaveLength(2);
+    expect(await screen.findByRole('button', { name: /November 1, 2026/ })).toHaveAttribute('aria-current', 'date');
+    expect(document.querySelectorAll('[aria-current="date"]')).toHaveLength(1);
   });
   it('disables the previous arrow at January 1900', async () => {
     stub({ items: [] }); mount('/calendar?month=1900-01');

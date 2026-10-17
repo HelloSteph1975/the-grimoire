@@ -37,7 +37,8 @@ export function Calendar() {
   const openDay = params.get('day');
   const day = dayInRange(openDay) && month && gridDays(month).includes(openDay) ? openDay : null;
   const goMonth = m => change(p => { p.set('month', m); p.delete('day'); });
-  const goToday = () => change(p => { p.delete('month'); p.delete('day'); });
+  // Ask the server for the day again: the page may have stayed open past midnight.
+  const goToday = () => { today.reload(); change(p => { p.delete('month'); p.delete('day'); }); };
   const setView = v => change(p => { if (v === 'list') p.set('view', 'list'); else p.delete('view'); });
   const days = calendar.data && byDay(calendar.data.items, t, tc, language);
   const retry = () => { today.reload(); calendar.reload(); };

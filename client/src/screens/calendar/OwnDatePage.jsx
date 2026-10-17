@@ -13,8 +13,9 @@ import { useT } from '../../i18n/I18nProvider.jsx';
 import { starterText } from '../correspondences/Correspondences.jsx';
 
 // A yearly date comes back every year, so the way back opens this year's month (the browser's
-// year, which only differs from the server's around midnight on New Year's Eve).
-const calendarOf = d => `/calendar?month=${d.yearly === 1 ? `${new Date().getFullYear()}${d.date.slice(4, 7)}` : monthOf(d.date)}`;
+// year, which only differs from the server's around midnight on New Year's Eve). A date that
+// starts in a later year can't appear before then, so that year wins.
+const calendarOf = d => `/calendar?month=${d.yearly === 1 ? `${Math.max(new Date().getFullYear(), Number(d.date.slice(0, 4)))}${d.date.slice(4, 7)}` : monthOf(d.date)}`;
 
 export function OwnDatePageRoute() {
   const { id } = useParams();

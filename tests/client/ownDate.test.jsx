@@ -181,6 +181,13 @@ describe('Own date page', () => {
     await screen.findByText('March 14, 1950');
     expect(screen.getByRole('link', { name: 'Back to the calendar' })).toHaveAttribute('href', '/calendar?month=1950-03');
   });
+  it('links a yearly date that starts in a future year to its own first year', async () => {
+    stub();
+    rows[5].date = `${THIS_YEAR + 4}-05-02`;
+    mount('/calendar/dates/5');
+    await screen.findByRole('heading', { name: 'Grandmother' });
+    expect(screen.getByRole('link', { name: 'Back to the calendar' })).toHaveAttribute('href', `/calendar?month=${THIS_YEAR + 4}-05`);
+  });
   it('says nothing about every year for a one-time date', async () => {
     stub();
     Object.assign(rows[5], { yearly: 0, traditions: [], notes: null });
