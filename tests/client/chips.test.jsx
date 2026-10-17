@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { ChipsInput } from '../../client/src/components/ChipsInput.jsx';
 import { CategoryIcon, ICONS } from '../../client/src/components/CategoryIcon.jsx';
 
-function Harness({ start = [], max, onChange }) {
+function Harness({ start = [], max, onChange, keepCase }) {
   const [v, setV] = useState(start);
-  return <ChipsInput id="kw" label="Keywords" value={v} max={max} onChange={n => { setV(n); onChange?.(n); }} />;
+  return <ChipsInput id="kw" label="Keywords" value={v} max={max} keepCase={keepCase} onChange={n => { setV(n); onChange?.(n); }} />;
 }
 const box = () => screen.getByLabelText('Keywords');
 
@@ -29,6 +29,19 @@ describe('ChipsInput', () => {
     await user.type(box(), 'MOON{Enter}');
     await user.type(box(), '   {Enter}');
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('treats accents and case as the same chip when keeping case', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<Harness keepCase onChange={onChange} />);
+    await user.type(box(), 'Luna{Enter}');
+    await user.type(box(), 'Lúna{Enter}');
+    await user.clear(box());
+    await user.type(box(), 'luna{Enter}');
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByRole('button', { name: /^Remove / })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Remove Luna' })).toBeInTheDocument();
   });
 
   it('removes a chip with its x button', async () => {

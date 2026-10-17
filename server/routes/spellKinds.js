@@ -3,12 +3,10 @@ import { crudRouter } from './crud.js';
 import { repos } from '../db/repos.js';
 import { idParam } from '../http.js';
 import { reorder, reorderItems } from '../services/reorder.js';
+import { KIND_SCHEMA } from '../services/kinds.js';
 import { kindUsage, deleteKind, restoreKind } from '../services/spellKinds.js';
 
-export const SPELL_KIND_SCHEMA = {
-  name: { type: 'string!', maxLength: 60 },
-  sort_order: { type: 'int', min: 0, max: 10000 },
-};
+export const SPELL_KIND_SCHEMA = KIND_SCHEMA;
 
 export function spellKindsRouter(ctx) {
   const r = Router();

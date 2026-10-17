@@ -29,7 +29,7 @@ function copyFixtureWith(changes) {
 
 describe('seedStarter', () => {
   it('adds the starter traditions and categories once', () => {
-    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(3 + 9 + 5);
+    expect(seedStarter(db, { content: BASE_CONTENT })).toBe(3 + 9 + 5 + 4);
     expect(seedStarter(db, { content: BASE_CONTENT })).toBe(0);
     expect(repos(db).traditions.list()).toHaveLength(3);
     expect(repos(db).categories.list()).toHaveLength(9);

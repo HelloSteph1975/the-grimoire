@@ -200,7 +200,7 @@ describe('Ritual page', () => {
     const gate = gateFirstPatch();
     await userEvent.click(screen.getByRole('checkbox', { name: /Jar/ }));
     await userEvent.click(screen.getByRole('checkbox', { name: /Candle/ }));
-    await router.navigate('/rituals');
+    await act(async () => { await router.navigate('/rituals'); });
     expect(await screen.findByText('The list')).toBeInTheDocument();
     // Someone else saved meanwhile, so the first tick loses with a 409 and overwrites nothing.
     ritual = { ...ritual, version: 9 };

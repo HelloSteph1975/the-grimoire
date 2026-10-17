@@ -7,12 +7,15 @@ import { spellKindsRouter } from './spellKinds.js';
 import { spellsRouter } from './spells.js';
 import { ownDatesRouter } from './ownDates.js';
 import { ritualsRouter } from './rituals.js';
+import { journalRouter } from './journal.js';
+import { journalKindsRouter } from './journalKinds.js';
 import { followupsRouter } from './followups.js';
 import { calendarRouter } from './calendar.js';
 import { trashRouter } from './trash.js';
 import { systemRouter } from './system.js';
 import { settingsRouter } from './settings.js';
 import { localesRouter } from './locales.js';
+import { searchRouter } from './search.js';
 
 export function apiRouter(ctx, { onShutdown }) {
   const r = Router();
@@ -25,10 +28,13 @@ export function apiRouter(ctx, { onShutdown }) {
   r.use('/own-dates', ownDatesRouter(ctx));
   r.use('/rituals', ritualsRouter(ctx));
   r.use('/followups', followupsRouter(ctx));
+  r.use('/journal-kinds', journalKindsRouter(ctx));
+  r.use('/journal', journalRouter(ctx));
   r.use(calendarRouter(ctx));
   r.use('/trash', trashRouter(ctx));
   r.use('/settings', settingsRouter(ctx));
   r.use('/locales', localesRouter(ctx));
+  r.use('/search', searchRouter(ctx));
   r.use(systemRouter(ctx, { onShutdown }));
   r.use((req, res, next) => next(new HttpError(404, 'No such API route', undefined, { code: 'not_found' })));
   return r;

@@ -4,6 +4,7 @@ import { VersionConflict } from '../db/repo.js';
 import { HttpError, notFound } from '../http.js';
 import { validate } from '../validate.js';
 import { setLiveJoins } from './joins.js';
+import { fold } from './correspondences.js';
 
 export const OWN_DATE_SCHEMA = {
   title: { type: 'string!', maxLength: 120 },
@@ -100,4 +101,11 @@ export function deleteOwnDate(db, id) {
 export function restoreOwnDate(db, id) {
   if (!transaction(db, () => R(db).restore(id))) throw notFound('Nothing to restore');
   return getOwnDate(db, id);
+}
+
+// Live own dates whose title or notes contain the folded needle, by date.
+export function searchOwnDates(db, needle) {
+  return db.prepare('SELECT id, title, date, yearly, notes FROM own_dates WHERE deleted_at IS NULL ORDER BY date, title COLLATE NOCASE, id').all()
+    .filter(r => [r.title, r.notes].some(x => fold(x).includes(needle)))
+    .map(({ id, title, date, yearly }) => ({ id, title, date, yearly }));
 }

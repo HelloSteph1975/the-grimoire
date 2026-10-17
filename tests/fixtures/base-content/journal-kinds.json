@@ -1,0 +1,6 @@
+[
+  { "starter_key": "journal-kind.dream", "name": "Dream", "sort_order": 1 },
+  { "starter_key": "journal-kind.tarot", "name": "Tarot", "sort_order": 2 },
+  { "starter_key": "journal-kind.sign", "name": "Sign", "sort_order": 3 },
+  { "starter_key": "journal-kind.other", "name": "Other", "sort_order": 4 }
+]

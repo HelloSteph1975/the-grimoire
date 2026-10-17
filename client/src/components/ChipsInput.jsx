@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { X } from 'lucide-react';
+import { fold } from '../lib/fold.js';
 import { useT } from '../i18n/I18nProvider.jsx';
 
-export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30, label, pending, onPendingChange }) {
+export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30, label, pending, onPendingChange, keepCase = false }) {
   const { t } = useT();
   // A parent that passes `pending` owns the unconfirmed text, so it can count it as a change.
   const [own, setOwn] = useState('');
@@ -13,8 +14,8 @@ export function ChipsInput({ id, value = [], onChange, max = 20, maxLength = 30,
   const full = value.length >= max;
 
   function commit(raw) {
-    const word = raw.trim().toLowerCase();
-    if (!word || word.length > maxLength || full || value.includes(word)) return false;
+    const word = keepCase ? raw.trim() : raw.trim().toLowerCase();
+    if (!word || word.length > maxLength || full || value.some(v => fold(v) === fold(word))) return false;
     onChange([...value, word]);
     return true;
   }

@@ -23,11 +23,12 @@ const base = {
     { day: '2026-10-28', kind: 'feast', entry: { id: 9, name: 'Samhain', starter_key: null, is_starter: 0, category_id: 4 }, days_away: 12 },
   ],
 };
-function stub(today = base, { pack = {}, language = 'en', fail = false } = {}) {
+function stub(today = base, { pack = {}, language = 'en', fail = false, kinds = [] } = {}) {
   let failed = fail;
   vi.stubGlobal('fetch', vi.fn(async url => {
     if (url === '/api/settings') return json({ language, theme: 'old-book' });
     if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? (pack.ui ?? {}) : (pack.content ?? {}));
+    if (url === '/api/journal-kinds') return json(kinds);
     if (url === '/api/today') {
       if (failed) { failed = false; return json({ error: 'Nope', code: 'server_error' }, 500); }
       return json(today);
@@ -160,11 +161,47 @@ describe('Today rituals', () => {
     expect(within(section).getByRole('link', { name: 'Hearth blessing, in 3 days' }).closest('li')).toHaveTextContent('Hearth blessing, in 3 days');
     expect(within(section).getByRole('link', { name: 'Hearth blessing, in 3 days' })).toHaveAttribute('href', '/rituals/25');
   });
-  it('leaves out both lists when empty and shows the journal note', async () => {
+  it('shows the journal link always, and no list when there are no entries', async () => {
+    stub({ ...base, journal: [] }); mount();
+    const section = (await screen.findByRole('heading', { name: 'Journal' })).closest('section');
+    expect(within(section).getByRole('link', { name: 'Write in the journal' })).toHaveAttribute('href', '/journal/new');
+    expect(within(section).queryByRole('list')).toBeNull();
+  });
+  it("lists today's entries with the time, linking to each", async () => {
+    stub({ ...base, journal: [
+      { id: 3, time: '07:30', title: 'A dream', excerpt: 'x', kind_id: 1 },
+      { id: 4, time: '', title: '', excerpt: 'Walked by the river', kind_id: null },
+      { id: 5, time: '', title: '', excerpt: '', kind_id: null },
+    ] }); mount();
+    const section = (await screen.findByRole('heading', { name: 'Journal' })).closest('section');
+    expect(within(section).getByRole('link', { name: 'A dream' }).closest('li')).toHaveTextContent('7:30');
+    expect(within(section).getByRole('link', { name: 'A dream' })).toHaveAttribute('href', '/journal/3');
+    expect(within(section).getByRole('link', { name: 'Walked by the river' })).toHaveAttribute('href', '/journal/4');
+    expect(await within(section).findByRole('link', { name: 'An entry with cards' })).toHaveAttribute('href', '/journal/5');
+  });
+  it('names a cards-only entry by its kind', async () => {
+    stub({ ...base, journal: [{ id: 5, time: '', title: '', excerpt: '', kind_id: 2 }] }, { kinds: [{ id: 2, name: 'Tarot', is_starter: 0, starter_key: null }] });
+    mount();
+    expect(await screen.findByRole('link', { name: 'Tarot' })).toHaveAttribute('href', '/journal/5');
+  });
+  it('fetches the kinds once for two cards-only entries, and not at all when none needs them', async () => {
+    stub({ ...base, journal: [
+      { id: 5, time: '', title: '', excerpt: '', kind_id: 2 },
+      { id: 6, time: '', title: '', excerpt: '', kind_id: 2 },
+    ] }, { kinds: [{ id: 2, name: 'Tarot', is_starter: 0, starter_key: null }] });
+    mount();
+    expect(await screen.findAllByRole('link', { name: 'Tarot' })).toHaveLength(2);
+    expect(fetch.mock.calls.filter(([u]) => u === '/api/journal-kinds')).toHaveLength(1);
+  });
+  it('does not fetch the kinds when every entry has a title or excerpt', async () => {
+    stub({ ...base, journal: [{ id: 3, time: '', title: 'A dream', excerpt: '', kind_id: 1 }] }); mount();
+    await screen.findByRole('link', { name: 'A dream' });
+    expect(fetch.mock.calls.filter(([u]) => u === '/api/journal-kinds')).toHaveLength(0);
+  });
+  it('leaves out both lists when empty', async () => {
     stub({ ...base, week: [], reminders: [] }); mount();
     await screen.findByText('Coming up');
     expect(screen.queryByRole('heading', { name: 'Rituals this week' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Reminders' })).toBeNull();
-    expect(screen.getByText("Today's journal page joins this page in a later stage.")).toBeInTheDocument();
   });
 });

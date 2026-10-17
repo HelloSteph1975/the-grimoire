@@ -145,7 +145,8 @@ test('add, rename, reorder and delete a spell kind, and the order holds after a 
   await page.goto('/settings');
   await expect.poll(order).toEqual(['Spell', 'Ritual', 'Blessing', 'Cleansing', 'Other']);
 
-  await page.getByRole('button', { name: 'Add a kind' }).click();
+  const spellKinds = page.locator('section', { has: page.getByRole('heading', { name: 'Spell kinds' }) }).last();
+  await spellKinds.getByRole('button', { name: 'Add a kind' }).click();
   await page.getByLabel('Name').fill('Charm');
   await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
   // A new kind starts at the top, like a new tradition or category.

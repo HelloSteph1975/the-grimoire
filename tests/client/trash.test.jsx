@@ -18,6 +18,8 @@ function stub() {
     { type: 'category', id: 8, title: 'Empty one', deleted_at: '2026-10-10T10:00:00.000Z', extra: 0, earlier: 0 },
     { type: 'kind', id: 9, title: 'Ritual', deleted_at: '2026-10-09T10:00:00.000Z' },
     { type: 'spell', id: 10, title: 'Moon bath', deleted_at: '2026-10-08T10:00:00.000Z' },
+    { type: 'journal', id: 11, title: 'River walk', deleted_at: '2026-10-07T10:00:00.000Z' },
+    { type: 'journalKind', id: 12, title: 'Omens', deleted_at: '2026-10-06T10:00:00.000Z' },
   ];
   vi.stubGlobal('fetch', vi.fn(async (url, opts = {}) => {
     const m = opts.method ?? 'GET';
@@ -36,6 +38,11 @@ describe('Trash', () => {
     stub(); mount();
     const row = (await screen.findByText('Old path')).closest('li');
     expect(within(row).getByText('Tradition')).toBeInTheDocument();
+  });
+  it('labels journal entries and journal kinds', async () => {
+    stub(); mount();
+    expect(within((await screen.findByText('River walk')).closest('li')).getByText('Journal entry')).toBeInTheDocument();
+    expect(within(screen.getByText('Omens').closest('li')).getByText('Journal kind')).toBeInTheDocument();
   });
   it('labels spells and spell kinds', async () => {
     stub(); mount();

@@ -8,7 +8,7 @@ import { useT } from '../i18n/I18nProvider.jsx';
 
 export function Layout() {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, key } = useLocation();
   const { settings } = useSettings();
   const { t } = useT();
   const mainRef = useRef(null);
@@ -16,12 +16,16 @@ export function Layout() {
   const lastPath = useRef(pathname);
   const folk = settings?.theme === 'book-folk';
 
+  // Any navigation closes the menu (a repeat search keeps the path but changes the key).
+  // Focus moves to the page when the path changed, or when the menu was open and is now hidden.
+  const openNow = useRef(open);
+  openNow.current = open;
   useEffect(() => {
     setOpen(false);
-    if (lastPath.current === pathname) return;
+    if (lastPath.current === pathname && !openNow.current) return;
     lastPath.current = pathname;
     mainRef.current?.focus({ preventScroll: true });
-  }, [pathname]);
+  }, [pathname, key]);
   const closeMenu = () => { setOpen(false); menuRef.current?.focus(); };
   useEffect(() => {
     if (open) document.getElementById('sidebar')?.querySelector('a.nav-link')?.focus();

@@ -93,4 +93,39 @@ describe('demo seed', () => {
     expect(n('ritual_followups')).toBe(1);
     expect(n('ritual_supplies')).toBe(6);
   });
+
+  it('adds the three sample journal entries once and puts them back after a reset', async () => {
+    t = makeTestContext();
+    seedDemo(t.ctx);
+    seedDemo(t.ctx);
+    const list = async () => (await t.http().get('/api/journal')).body;
+    const titles = async () => (await list()).map(r => r.title).sort();
+    const want = ['A heron on the garden wall', 'The house with the open windows', 'Three cards for the week'];
+    expect(await titles()).toEqual(want);
+    const today = (await t.http().get('/api/today')).body.day;
+    const day = n => new Date(Date.parse(`${today}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
+    const rows = await list();
+    const byTitle = title => rows.find(r => r.title === title);
+    expect(byTitle('The house with the open windows').date).toBe(day(-2));
+    expect(byTitle('Three cards for the week').date).toBe(day(-1));
+    expect(byTitle('A heron on the garden wall').date).toBe(today);
+
+    const dream = (await t.http().get(`/api/journal/${byTitle('The house with the open windows').id}`)).body;
+    expect(dream.tags).toEqual(['water', 'house']);
+    const tarot = (await t.http().get(`/api/journal/${byTitle('Three cards for the week').id}`)).body;
+    expect(tarot.cards).toHaveLength(3);
+    expect(tarot.cards.filter(c => c.reversed)).toHaveLength(1);
+    expect(tarot.cards.every(c => c.position)).toBe(true);
+    const kinds = (await t.http().get('/api/journal-kinds')).body;
+    expect(tarot.kind_id).toBe(kinds.find(k => k.starter_key === 'journal-kind.tarot').id);
+
+    await t.http().post('/api/journal').send({ date: today, title: 'Mine' });
+    expect(await list()).toHaveLength(4);
+    seedDemo(t.ctx, { reset: true });
+    expect(await titles()).toEqual(want);
+    const n = table => t.ctx.db.prepare(`SELECT count(*) n FROM ${table}`).get().n;
+    expect(n('journal_entries')).toBe(3);
+    expect(n('journal_cards')).toBe(3);
+    expect(n('journal_entry_tags')).toBe(4);
+  });
 });
