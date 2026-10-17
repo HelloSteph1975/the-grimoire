@@ -20,6 +20,7 @@ beforeEach(() => {
   write(path.join(root, 'server/content/correspondences/days.json'), [{ starter_key: 'corr.days.monday', name: 'Monday', summary: 's', body: 'b', keywords: ['moon'] }]);
   write(path.join(root, 'server/content/links.json'), []);
   write(path.join(root, 'server/content/spell-kinds.json'), [{ starter_key: 'spell-kind.spell', name: 'Spell' }]);
+  write(path.join(root, 'server/content/journal-kinds.json'), [{ starter_key: 'journal-kind.dream', name: 'Dream' }]);
 });
 afterEach(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
@@ -35,7 +36,7 @@ describe('checkPack', () => {
     });
     expect(checkPack({ dataDir, code: 'es', root })).toEqual({
       missingUi: ['nav.settings', 'nav.books'],
-      missingContent: ['tradition.wiccan.description', 'spell-kind.spell.name', 'corr.days.monday.summary', 'corr.days.monday.body'],
+      missingContent: ['tradition.wiccan.description', 'spell-kind.spell.name', 'journal-kind.dream.name', 'corr.days.monday.summary', 'corr.days.monday.body'],
       extra: ['nav.gone', 'corr.days.tuesday.name'],
       bad: [],
     });
@@ -59,7 +60,7 @@ describe('checkPack', () => {
   it('reports everything missing when the pack has no files', () => {
     const r = checkPack({ dataDir, code: 'fr', root });
     expect(r.missingUi).toEqual(['nav.today', 'nav.settings', 'nav.books']);
-    expect(r.missingContent).toHaveLength(8);
+    expect(r.missingContent).toHaveLength(9);
     expect(r.extra).toEqual([]);
   });
 });

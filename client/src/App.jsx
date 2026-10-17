@@ -4,7 +4,6 @@ import { ConfirmProvider } from './components/ConfirmProvider.jsx';
 import { SettingsProvider } from './components/SettingsProvider.jsx';
 import { LeaveGuardProvider } from './components/LeaveGuardProvider.jsx';
 import { Layout } from './components/Layout.jsx';
-import { Placeholder } from './screens/Placeholder.jsx';
 import { NotFound } from './screens/NotFound.jsx';
 import { Settings } from './screens/Settings.jsx';
 import { Trash } from './screens/Trash.jsx';
@@ -22,6 +21,10 @@ import { Rituals } from './screens/rituals/Rituals.jsx';
 import { RitualFormRoute } from './screens/rituals/RitualForm.jsx';
 import { RitualPageRoute } from './screens/rituals/RitualPage.jsx';
 import { LogFormRoute } from './screens/rituals/LogForm.jsx';
+import { Journal } from './screens/journal/Journal.jsx';
+import { EntryFormRoute as JournalFormRoute } from './screens/journal/EntryForm.jsx';
+import { EntryPageRoute as JournalPageRoute } from './screens/journal/EntryPage.jsx';
+import { Search } from './screens/search/Search.jsx';
 
 function Shell() {
   return (
@@ -59,7 +62,11 @@ export const routes = [
       { path: 'rituals/:id', element: <RitualPageRoute /> },
       { path: 'rituals/:id/edit', element: <RitualFormRoute /> },
       { path: 'rituals/:id/log', element: <LogFormRoute /> },
-      { path: 'journal', element: <Placeholder titleKey="nav.journal" stage={6} /> },
+      { path: 'journal', element: <Journal /> },
+      { path: 'journal/new', element: <JournalFormRoute /> },
+      { path: 'journal/:id', element: <JournalPageRoute /> },
+      { path: 'journal/:id/edit', element: <JournalFormRoute /> },
+      { path: 'search', element: <Search /> },
       { path: 'trash', element: <Trash /> },
       { path: 'settings', element: <Settings /> },
       { path: '*', element: <NotFound /> },

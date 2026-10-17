@@ -80,6 +80,21 @@ export const migrations = [
   CREATE INDEX idx_ritual_traditions_tradition ON ritual_traditions(tradition_id);
   CREATE INDEX idx_ritual_followups_ritual ON ritual_followups(ritual_id);
   `,
+  // 7: journal kinds and journal entries, with their tags and tarot cards. `sky` is a saved JSON snapshot.
+  `
+  CREATE TABLE journal_kinds (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, sort_order INTEGER NOT NULL DEFAULT 0,
+    starter_key TEXT UNIQUE, is_starter INTEGER NOT NULL DEFAULT 0, content_version INTEGER NOT NULL DEFAULT 1, ${TS});
+  CREATE TABLE journal_entries (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, time TEXT,
+    kind_id INTEGER REFERENCES journal_kinds(id) ON DELETE SET NULL, title TEXT, text TEXT, sky TEXT, ${TS});
+  CREATE TABLE journal_entry_tags (entry_id INTEGER NOT NULL REFERENCES journal_entries(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL, tag TEXT NOT NULL, PRIMARY KEY (entry_id, position));
+  CREATE TABLE journal_cards (entry_id INTEGER NOT NULL REFERENCES journal_entries(id) ON DELETE CASCADE,
+    position INTEGER NOT NULL, name TEXT NOT NULL, position_label TEXT, reversed INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (entry_id, position));
+  CREATE INDEX idx_journal_entries_date ON journal_entries(date);
+  CREATE INDEX idx_journal_entries_kind ON journal_entries(kind_id);
+  CREATE INDEX idx_journal_entry_tags_tag ON journal_entry_tags(tag);
+  `,
 ];
 
 export function migrate(db) {

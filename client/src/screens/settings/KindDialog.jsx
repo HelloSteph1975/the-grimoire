@@ -11,7 +11,7 @@ import { useT } from '../../i18n/I18nProvider.jsx';
 const pickWith = tc => r => ({ name: tc(r?.is_starter ? r.starter_key : null, 'name', r?.name ?? '') });
 
 // `record` is null for a new kind. `onSave(values, version)` returns the saved row.
-export function SpellKindDialog({ record, onSave, onClose }) {
+export function KindDialog({ keys, record, onSave, onClose }) {
   const { t, tc } = useT();
   const [pick] = useState(() => pickWith(tc));
   const confirm = useConfirm();
@@ -31,16 +31,16 @@ export function SpellKindDialog({ record, onSave, onClose }) {
   };
   return (
     <>
-      <Dialog open onClose={close} title={record ? t('kinds.edit') : t('kinds.new')}
+      <Dialog open onClose={close} title={record ? t(`${keys}.edit`) : t(`${keys}.new`)}
         footer={(
           <>
             <Button variant="ghost" onClick={close}>{t('common.cancel')}</Button>
-            <Button type="submit" form="spell-kind-form" disabled={f.saving || !canSave}>{f.saving ? t('common.saving') : t('common.save')}</Button>
+            <Button type="submit" form="kind-form" disabled={f.saving || !canSave}>{f.saving ? t('common.saving') : t('common.save')}</Button>
           </>
         )}>
-        <form id="spell-kind-form" onSubmit={save}>
+        <form id="kind-form" onSubmit={save}>
           <fieldset disabled={f.saving}>
-            <Field label={t('kinds.name')} error={f.errors.name}>
+            <Field label={t(`${keys}.name`)} error={f.errors.name}>
               <TextInput value={f.values.name} onChange={e => f.set('name', e.target.value)} maxLength={60} data-autofocus="" />
             </Field>
           </fieldset>

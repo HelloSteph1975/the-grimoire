@@ -124,7 +124,34 @@ function TodayBody({ data, t, tc, language }) {
           </ul>
         </section>
       )}
-      <p className="muted today-later">{t('today.laterJournal')}</p>
+      <JournalToday rows={data.journal ?? []} />
     </div>
+  );
+}
+
+// Today's entries. The kinds are fetched only when an entry has nothing but cards to show.
+function JournalToday({ rows }) {
+  const { t, tc, language } = useT();
+  const needKinds = rows.some(r => !r.title && !r.excerpt);
+  const kinds = useResource(needKinds ? '/api/journal-kinds' : null);
+  const kindName = id => {
+    const kind = kinds.data?.find(k => k.id === id);
+    return kind ? starterText(tc, kind, 'name', kind.name) : t('journal.untitled');
+  };
+  return (
+    <section>
+      <h2>{t('today.journal')}</h2>
+      <p><Link to="/journal/new">{t('today.writeJournal')}</Link></p>
+      {rows.length > 0 && (
+        <ul className="today-rituals">
+          {rows.map(r => (
+            <li key={r.id}>
+              {r.time && <span className="today-ritual-when">{formatTime(r.time, language)}</span>}
+              <Link to={`/journal/${r.id}`}>{r.title || r.excerpt || kindName(r.kind_id)}</Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

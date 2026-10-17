@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CalendarCheck, Copy, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button.jsx';
 import { PageHeader } from '../../components/PageHeader.jsx';
 import { LoadState } from '../../components/LoadState.jsx';
-import { MoonIcon } from '../../components/MoonIcon.jsx';
+import { SkyLine } from '../../components/SkyLine.jsx';
 import { useConfirm } from '../../components/ConfirmProvider.jsx';
 import { useToast } from '../../components/ToastProvider.jsx';
 import { useResource } from '../../lib/useResource.js';
@@ -15,9 +15,6 @@ import { useT } from '../../i18n/I18nProvider.jsx';
 import { starterText } from '../correspondences/Correspondences.jsx';
 import { Stars } from './Rituals.jsx';
 import { FollowUps } from './FollowUps.jsx';
-
-// The moon grows from new to full through these phases; the rest wane.
-const WAXING = new Set(['new', 'waxing-crescent', 'first-quarter', 'waxing-gibbous']);
 
 export function RitualPageRoute() {
   const { id } = useParams();
@@ -49,7 +46,8 @@ function useSupplyTicks(ritual) {
   const live = useRef(true);
   const latest = useRef(ritual.data);
   latest.current = ritual.data;
-  useEffect(() => {
+  // Layout effect: its cleanup runs in the same commit as the route change, before any later fetch answer.
+  useLayoutEffect(() => {
     live.current = true;
     return () => { live.current = false; };
   }, []);
@@ -144,7 +142,7 @@ export function RitualPage({ id }) {
             {tradNames.length > 0 && (
               <dl className="entry-facts"><dt>{t('rituals.traditions')}</dt><dd>{tradNames.join(', ')}</dd></dl>
             )}
-            {r.sky && <Sky sky={r.sky} />}
+            {r.sky && <SkyLine sky={r.sky} title={t('rituals.sky')} />}
             {supplies.length > 0 && (
               <section className="spell-section">
                 <h2>{t('rituals.supplies')}</h2>
@@ -191,19 +189,5 @@ export function RitualPage({ id }) {
       </LoadState>
       <p><Link to="/rituals">{t('rituals.back')}</Link></p>
     </article>
-  );
-}
-
-function Sky({ sky }) {
-  const { t } = useT();
-  const phase = t(`timing.moon.${sky.moon}`);
-  return (
-    <section className="spell-section ritual-sky">
-      <h2>{t('rituals.sky')}</h2>
-      <div className="ritual-sky-body">
-        <MoonIcon lit={sky.lit} waxing={WAXING.has(sky.moon)} size={48} />
-        <p>{t('rituals.skyLine', { phase, n: Math.round(sky.lit * 100), weekday: t(`timing.day.${sky.weekday}`), planet: t(`timing.planet.${sky.planet}`) })}</p>
-      </div>
-    </section>
   );
 }

@@ -7,6 +7,7 @@ import { setLiveJoins } from './joins.js';
 import { invalid, collector, addErrors, text, checkDayRange, deletedForever } from './fields.js';
 import { getSettings } from './settings.js';
 import { dayInZone, skyAt } from './sky.js';
+import { fold } from './correspondences.js';
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 export const STATUSES = ['planned', 'done', 'skipped'];
@@ -221,4 +222,20 @@ export function spellRituals(db, spellId, now) {
     planned: pick("r.status = 'planned' AND r.date >= ?", ASC),
     past: pick("NOT (r.status = 'planned' AND r.date >= ?)", DESC),
   };
+}
+
+// Live rituals whose title, plan notes, changes, outcome, supply names or live follow-up texts
+// contain the folded needle, newest first.
+export function searchRituals(db, needle) {
+  const lines = sql => {
+    const by = new Map();
+    for (const r of db.prepare(sql).all()) by.set(r.id, [...(by.get(r.id) ?? []), r.s]);
+    return by;
+  };
+  const supplyNames = lines('SELECT s.ritual_id AS id, s.name AS s FROM ritual_supplies s JOIN rituals r ON r.id = s.ritual_id WHERE r.deleted_at IS NULL');
+  const followups = lines(`SELECT f.ritual_id AS id, f.text AS s FROM ritual_followups f JOIN rituals r ON r.id = f.ritual_id
+    WHERE r.deleted_at IS NULL AND f.deleted_at IS NULL`);
+  return db.prepare('SELECT id, title, date, status, plan_notes, changes, outcome FROM rituals WHERE deleted_at IS NULL ORDER BY date DESC, time DESC, id DESC').all()
+    .filter(r => [r.title, r.plan_notes, r.changes, r.outcome, ...(supplyNames.get(r.id) ?? []), ...(followups.get(r.id) ?? [])].some(x => fold(x).includes(needle)))
+    .map(({ id, title, date, status }) => ({ id, title, date, status }));
 }

@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Sun, BookOpen, Gem, CalendarDays, Flame, Feather, Trash2, Settings as Cog } from 'lucide-react';
 import { useT } from '../i18n/I18nProvider.jsx';
 import { useResource } from '../lib/useResource.js';
+import { SearchBox } from './SearchBox.jsx';
 
 export const SECTIONS = [
   { to: '/', key: 'nav.today', icon: Sun, end: true },
@@ -35,6 +36,7 @@ export function Sidebar({ id, open }) {
     <aside id={id} className={`sidebar${open ? ' is-open' : ''}`}>
       {health?.demo && <div className="demo-ribbon" role="note">{t('demo.ribbon')}</div>}
       <Brand />
+      <SearchBox />
       <nav aria-label={t('nav.label')}>
         <ul className="nav-main">{SECTIONS.map(link)}</ul>
         <ul className="nav-foot">{FOOT.map(link)}</ul>

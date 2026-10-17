@@ -43,6 +43,7 @@ function seedSimple(db, table, columns, rows) {
 
 const seedTraditions = (db, dir) => seedSimple(db, 'traditions', ['name', 'description', 'color', 'sort_order'], readJson(dir, 'traditions.json'));
 const seedKinds = (db, dir) => seedSimple(db, 'spell_kinds', ['name', 'sort_order'], readJson(dir, 'spell-kinds.json'));
+const seedJournalKinds = (db, dir) => seedSimple(db, 'journal_kinds', ['name', 'sort_order'], readJson(dir, 'journal-kinds.json'));
 const seedCategories = (db, dir) => seedSimple(db, 'categories', ['name', 'icon', 'sort_order'], readJson(dir, 'categories.json'));
 
 function setTraditions(db, corrId, keys = []) {
@@ -105,6 +106,7 @@ function applyUpdates(db, dir) {
     ['traditions', ['name', 'description', 'color'], readJson(dir, 'traditions.json')],
     ['categories', ['name', 'icon'], readJson(dir, 'categories.json')],
     ['spell_kinds', ['name'], readJson(dir, 'spell-kinds.json')],
+    ['journal_kinds', ['name'], readJson(dir, 'journal-kinds.json')],
   ];
   const stale = (table, e) => stmt(
     db, `SELECT id FROM ${table} WHERE starter_key = ? AND is_starter = 1 AND deleted_at IS NULL AND content_version < ?`,
@@ -129,10 +131,10 @@ function applyUpdates(db, dir) {
 
 // Tops up starter content. Never re-adds anything that exists (edited or in the Trash), was
 // deleted forever, or was an owner-removed link. Updates only untouched starter rows whose
-// content_version went up. Returns the number of traditions, categories, spell kinds and entries added (links are not counted).
+// content_version went up. Returns the number of traditions, categories, spell kinds, journal kinds and entries added (links are not counted).
 export function seedStarter(db, { content = CONTENT_DIR } = {}) {
   return transaction(db, () => {
-    const added = seedTraditions(db, content) + seedCategories(db, content) + seedKinds(db, content);
+    const added = seedTraditions(db, content) + seedCategories(db, content) + seedKinds(db, content) + seedJournalKinds(db, content);
     const inserted = seedEntries(db, content);
     seedLinks(db, content, inserted);
     applyUpdates(db, content);

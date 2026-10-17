@@ -100,6 +100,26 @@ describe('todayPage', () => {
   });
 });
 
+describe('journal on Today', () => {
+  it("lists only today's live entries in her zone, near midnight", async () => {
+    // 23:30 Friday in Chicago, already Saturday in UTC.
+    const now = new Date('2026-10-17T04:30:00Z');
+    t = makeTestContext({ now: () => now });
+    await t.http().put('/api/settings').send({ time_zone: 'America/Chicago' });
+    const post = body => t.http().post('/api/journal').send(body);
+    const late = (await post({ date: '2026-10-16', time: '21:00', title: 'Late' })).body;
+    const untimed = (await post({ date: '2026-10-16', text: 'x'.repeat(100) })).body;
+    const gone = (await post({ date: '2026-10-16', title: 'Gone' })).body;
+    await post({ date: '2026-10-17', title: 'Tomorrow in UTC' });
+    await post({ date: '2026-10-15', title: 'Yesterday' });
+    await t.http().delete(`/api/journal/${gone.id}`);
+    const page = (await t.http().get('/api/today')).body;
+    expect(page.day).toBe('2026-10-16');
+    expect(page.journal.map(e => e.id)).toEqual([untimed.id, late.id]);
+    expect(page.journal[0].excerpt).toHaveLength(80);
+  });
+});
+
 describe('rituals on Today', () => {
   // Noon in Chicago on that day.
   const noon = day => new Date(`${day}T17:00:00Z`);

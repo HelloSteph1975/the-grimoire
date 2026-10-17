@@ -5,6 +5,7 @@ import { createSpell } from '../services/spells.js';
 import { createOwnDate } from '../services/ownDates.js';
 import { createRitual } from '../services/rituals.js';
 import { createFollowup } from '../services/followups.js';
+import { createJournal } from '../services/journal.js';
 import { suggestDays } from '../services/suggestions.js';
 import { addDays } from '../services/calendar.js';
 import { getSettings } from '../services/settings.js';
@@ -15,7 +16,7 @@ export function seedDemo(ctx, { reset = false } = {}) {
   const db = ctx.db;
   transaction(db, () => {
     if (reset) {
-      db.exec('DELETE FROM ritual_followups; DELETE FROM ritual_supplies; DELETE FROM ritual_traditions; DELETE FROM rituals; DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM own_date_traditions; DELETE FROM own_dates; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
+      db.exec('DELETE FROM journal_cards; DELETE FROM journal_entry_tags; DELETE FROM journal_entries; DELETE FROM journal_kinds; DELETE FROM ritual_followups; DELETE FROM ritual_supplies; DELETE FROM ritual_traditions; DELETE FROM rituals; DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM own_date_traditions; DELETE FROM own_dates; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
     }
     const t = repos(db).traditions;
     const all = db.prepare('SELECT name FROM traditions').all().map(r => r.name);
@@ -29,6 +30,7 @@ export function seedDemo(ctx, { reset = false } = {}) {
   seedSpells(db);
   seedOwnDates(db);
   seedRituals(db, ctx.now ? ctx.now() : new Date());
+  seedJournal(db, ctx.now ? ctx.now() : new Date());
 }
 
 const SAMPLE_SPELLS = [
@@ -119,5 +121,40 @@ function seedRituals(db, now) {
       supplies: supplies.map(s => ({ ...s, checked: true })),
     });
     createFollowup(db, { ritual_id: ritual.id, date: addDays(today, -4), text: 'Still tidy by the door. I will light it again next week.' });
+  }
+}
+
+// Three sample journal entries, added once (matched by title): a dream from two days ago, a tarot
+// pull from yesterday and a sign from today. A kind that is missing is simply left off.
+function seedJournal(db, now) {
+  const have = new Set(db.prepare('SELECT title FROM journal_entries').all().map(r => r.title));
+  const today = dayInZone(now, getSettings(db).time_zone);
+  const kindOf = key => db.prepare('SELECT id FROM journal_kinds WHERE starter_key = ? AND deleted_at IS NULL').get(key)?.id;
+  const samples = [
+    {
+      key: 'journal-kind.dream', date: addDays(today, -2), time: '07:10', title: 'The house with the open windows',
+      text: 'I walked through a house I did not know, and every window was open. The curtains were moving and I could hear water running somewhere below.\n\nI woke up feeling calm and a little curious.',
+      tags: ['water', 'house'],
+    },
+    {
+      key: 'journal-kind.tarot', date: addDays(today, -1), time: '20:15', title: 'Three cards for the week',
+      text: 'A simple pull to set the tone for the days ahead. The reversed card made me smile, because it is the one I keep meaning to deal with.',
+      tags: ['weekly pull'],
+      cards: [
+        { name: 'The Star', position: 'The week ahead', reversed: false },
+        { name: 'Six of Cups', position: 'What to keep', reversed: false },
+        { name: 'Four of Swords', position: 'What to ease up on', reversed: true },
+      ],
+    },
+    {
+      key: 'journal-kind.sign', date: today, time: '09:00', title: 'A heron on the garden wall',
+      text: 'A grey heron stood on the wall for a full minute this morning, then lifted off without a sound. I took it as a nudge to slow down and notice things today.',
+      tags: ['birds'],
+    },
+  ];
+  for (const { key, ...entry } of samples) {
+    if (have.has(entry.title)) continue;
+    const kind_id = kindOf(key);
+    createJournal(db, kind_id ? { ...entry, kind_id } : entry);
   }
 }

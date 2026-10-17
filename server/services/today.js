@@ -1,6 +1,7 @@
 import { dayInZone, moonNow } from './sky.js';
 import { RITUAL_SCHEMA } from './rituals.js';
 import { calendarItems, addDays, daysBetween, MAX_RANGE_DAYS } from './calendar.js';
+import { journalOnDay } from './journal.js';
 
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const COMING = 3;
@@ -60,5 +61,6 @@ export function todayPage(db, now, settings) {
     coming: comingUp(db, day, settings),
     week: thisWeek(db, day),
     reminders: reminders(db, day),
+    journal: journalOnDay(db, day),
   };
 }

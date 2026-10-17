@@ -9,6 +9,8 @@ import { restoreEntry, purgeEntry } from './correspondences.js';
 import { restoreSpell, purgeSpell } from './spells.js';
 import { restoreRitual } from './rituals.js';
 import { restoreFollowup } from './followups.js';
+import { restoreJournal, journalTitle } from './journal.js';
+import { restoreJournalKind, purgeJournalKind } from './journalKinds.js';
 
 function recordRemoved(db, row) {
   if (row.starter_key) db.prepare('INSERT OR IGNORE INTO starter_removed (starter_key) VALUES (?)').run(row.starter_key);
@@ -37,12 +39,14 @@ function purgeCategory(db, row) {
 export const TRASH_TYPES = {
   followup: { repo: db => repos(db).followups, title: row => row.text.slice(0, 60), restore: restoreFollowup },
   ritual: { repo: db => repos(db).rituals, title: row => row.title, restore: restoreRitual },
+  journal: { repo: db => repos(db).journal, title: journalTitle, restore: restoreJournal },
   spell: { repo: db => repos(db).spells, title: row => row.title, restore: restoreSpell, purge: purgeSpell },
   date: { repo: db => repos(db).ownDates, title: row => row.title },
   tradition: { repo: db => repos(db).traditions, title: row => row.name, restore: restoreTradition },
   correspondence: { repo: db => repos(db).correspondences, title: row => row.name, restore: restoreEntry, purge: purgeEntry },
   category: { repo: db => repos(db).categories, title: row => row.name, restore: restoreCategory, purge: purgeCategory },
   kind: { repo: db => repos(db).spellKinds, title: row => row.name, restore: restoreKind, purge: purgeKind },
+  journalKind: { repo: db => repos(db).journalKinds, title: row => row.name, restore: restoreJournalKind, purge: purgeJournalKind },
 };
 
 function typeOf(type) {
