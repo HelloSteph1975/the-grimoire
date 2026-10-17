@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { SettingsProvider } from '../../client/src/components/SettingsProvider.jsx';
@@ -205,7 +205,12 @@ describe('Ritual page', () => {
     // Someone else saved meanwhile, so the first tick loses with a 409 and overwrites nothing.
     ritual = { ...ritual, version: 9 };
     gate.resolve();
-    await new Promise(r => setTimeout(r, 50));
+    // Wait for the first PATCH's 409 to come back, then let the queue and any toast run to the end.
+    await vi.waitFor(() => expect(calls('PATCH')).toHaveLength(1));
+    const patchIndex = fetch.mock.calls.findIndex(([, o]) => o?.method === 'PATCH');
+    const answer = await fetch.mock.results[patchIndex].value;
+    expect(answer.status).toBe(409);
+    await act(async () => { for (let i = 0; i < 5; i += 1) await new Promise(r => setTimeout(r, 0)); });
     expect(calls('PATCH')).toHaveLength(1);
     expect(ritual.version).toBe(9);
     expect(document.querySelector('.toast')).toBeNull();
