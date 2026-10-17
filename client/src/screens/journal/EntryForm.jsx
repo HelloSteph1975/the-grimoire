@@ -10,6 +10,7 @@ import { ConflictDialog } from '../../components/ConflictDialog.jsx';
 import { useResource } from '../../lib/useResource.js';
 import { useRecordForm } from '../../lib/useRecordForm.js';
 import { api } from '../../lib/api.js';
+import { fold } from '../../lib/fold.js';
 import { FIRST_DAY, LAST_DAY, dayInRange } from '../../lib/days.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 import { useSettings } from '../../components/SettingsProvider.jsx';
@@ -58,13 +59,20 @@ function startOf({ presetDate, zone, kinds }) {
   return { ...pick(null), kind_id, date: now.date, time: now.time };
 }
 
+// Text still in the tag box is sent as a tag too, so a tag the box refused (too long, one too
+// many) comes back from the server as an error instead of quietly going missing.
+function withPending(tags, pending) {
+  const word = pending.trim();
+  return word && !tags.some(t => fold(t) === fold(word)) ? [...tags, word] : tags;
+}
+
 const toBody = v => ({
   date: v.date,
   time: v.time || null,
   kind_id: v.kind_id ? Number(v.kind_id) : null,
   title: v.title,
   text: v.text,
-  tags: v.tags,
+  tags: withPending(v.tags, v.pending),
   cards: v.cards.map(({ name, position, reversed }) => ({ name, position, reversed })),
 });
 

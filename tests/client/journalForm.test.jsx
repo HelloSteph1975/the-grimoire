@@ -134,6 +134,23 @@ describe('Journal entry form', () => {
     expect(router.state.location.pathname).toBe('/journal/new');
   });
 
+  it('sends a tag left in the box when it is too long, and shows the error', async () => {
+    stub(); mount('/journal/new?date=2026-10-30');
+    await screen.findByLabelText('Title');
+    const long = 'x'.repeat(51);
+    override = (url, m, body) => (m === 'POST' ? json({
+      error: 'Please fix the highlighted fields.', code: 'invalid',
+      details: { 'tags.0': 'Too long' }, detailCodes: { 'tags.0': { code: 'too_long', max: 50 } },
+    }, 400) : null);
+    await userEvent.type(screen.getByLabelText('Entry'), 'Words.');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Tags' }), long);
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(sent('POST')).toHaveLength(1));
+    expect(sent('POST')[0].body.tags).toEqual([long]);
+    await vi.waitFor(() => expect(screen.getByText('Keep it to 50 characters or fewer')).toBeInTheDocument());
+    expect(router.state.location.pathname).toBe('/journal/new');
+  });
+
   it('shows a card error under the matching row', async () => {
     stub(); await loadEdit();
     override = (url, m) => (m === 'PATCH' ? json({
