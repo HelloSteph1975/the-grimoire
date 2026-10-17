@@ -31,6 +31,7 @@ function purgeCategory(db, row) {
 // entries before their categories. A spell's lines, steps, timing and joins go with it (foreign keys).
 export const TRASH_TYPES = {
   spell: { repo: db => repos(db).spells, title: row => row.title },
+  date: { repo: db => repos(db).ownDates, title: row => row.title },
   tradition: { repo: db => repos(db).traditions, title: row => row.name, restore: restoreTradition },
   correspondence: { repo: db => repos(db).correspondences, title: row => row.name, restore: restoreEntry, purge: purgeEntry },
   category: { repo: db => repos(db).categories, title: row => row.name, restore: restoreCategory, purge: purgeCategory },

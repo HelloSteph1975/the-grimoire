@@ -8,6 +8,10 @@ import { Placeholder } from './screens/Placeholder.jsx';
 import { NotFound } from './screens/NotFound.jsx';
 import { Settings } from './screens/Settings.jsx';
 import { Trash } from './screens/Trash.jsx';
+import { Today } from './screens/today/Today.jsx';
+import { Calendar } from './screens/calendar/Calendar.jsx';
+import { OwnDatePageRoute } from './screens/calendar/OwnDatePage.jsx';
+import { OwnDateFormRoute } from './screens/calendar/OwnDateForm.jsx';
 import { Correspondences } from './screens/correspondences/Correspondences.jsx';
 import { EntryPageRoute } from './screens/correspondences/EntryPage.jsx';
 import { EntryFormRoute } from './screens/correspondences/EntryForm.jsx';
@@ -33,7 +37,7 @@ export const routes = [
   {
     element: <Shell />,
     children: [
-      { path: '/', element: <Placeholder titleKey="nav.today" stage={4} /> },
+      { path: '/', element: <Today /> },
       { path: 'spells', element: <Spells /> },
       { path: 'spells/new', element: <SpellFormRoute /> },
       { path: 'spells/:id', element: <SpellPageRoute /> },
@@ -42,7 +46,10 @@ export const routes = [
       { path: 'correspondences/new', element: <EntryFormRoute /> },
       { path: 'correspondences/:id', element: <EntryPageRoute /> },
       { path: 'correspondences/:id/edit', element: <EntryFormRoute /> },
-      { path: 'calendar', element: <Placeholder titleKey="nav.calendar" stage={4} /> },
+      { path: 'calendar', element: <Calendar /> },
+      { path: 'calendar/dates/new', element: <OwnDateFormRoute /> },
+      { path: 'calendar/dates/:id', element: <OwnDatePageRoute /> },
+      { path: 'calendar/dates/:id/edit', element: <OwnDateFormRoute /> },
       { path: 'rituals', element: <Placeholder titleKey="nav.rituals" stage={5} /> },
       { path: 'journal', element: <Placeholder titleKey="nav.journal" stage={6} /> },
       { path: 'trash', element: <Trash /> },

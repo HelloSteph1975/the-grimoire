@@ -53,6 +53,16 @@ export const migrations = [
   CREATE INDEX idx_spell_feasts_corr ON spell_feasts(correspondence_id);
   CREATE INDEX idx_spell_traditions_tradition ON spell_traditions(tradition_id);
   `,
+  // 5: the owner's own calendar dates (with tradition joins), and a per-entry switch for showing it on the calendar.
+  `
+  CREATE TABLE own_dates (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, date TEXT NOT NULL,
+    yearly INTEGER NOT NULL DEFAULT 0, notes TEXT, ${TS});
+  CREATE TABLE own_date_traditions (own_date_id INTEGER NOT NULL REFERENCES own_dates(id) ON DELETE CASCADE,
+    tradition_id INTEGER NOT NULL REFERENCES traditions(id) ON DELETE CASCADE, PRIMARY KEY (own_date_id, tradition_id));
+  CREATE INDEX idx_own_dates_date ON own_dates(date);
+  CREATE INDEX idx_own_date_traditions_tradition ON own_date_traditions(tradition_id);
+  ALTER TABLE correspondences ADD COLUMN show_on_calendar INTEGER NOT NULL DEFAULT 1;
+  `,
 ];
 
 export function migrate(db) {

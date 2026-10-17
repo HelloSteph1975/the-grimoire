@@ -45,4 +45,23 @@ describe('demo seed', () => {
     expect(n('spell_steps')).toBe(5);
     expect(n('spell_ingredients')).toBe(5);
   });
+
+  it('adds the two sample dates once and puts them back after a reset', async () => {
+    t = makeTestContext();
+    seedDemo(t.ctx);
+    seedDemo(t.ctx);
+    const list = async () => (await t.http().get('/api/own-dates')).body;
+    const titles = async () => (await list()).map(d => d.title).sort();
+    expect(await titles()).toEqual(['Light a candle for the ancestors', 'Visit the old orchard']);
+    const candle = (await list()).find(d => d.title === 'Light a candle for the ancestors');
+    expect(candle.date.slice(5)).toBe('11-02');
+    expect(candle.yearly).toBe(1);
+    expect((await list()).find(d => d.title === 'Visit the old orchard').yearly).toBe(0);
+
+    await t.http().post('/api/own-dates').send({ title: 'Mine', date: '2026-05-01' });
+    expect(await list()).toHaveLength(3);
+    seedDemo(t.ctx, { reset: true });
+    expect(await titles()).toEqual(['Light a candle for the ancestors', 'Visit the old orchard']);
+    expect(t.ctx.db.prepare('SELECT count(*) n FROM own_date_traditions').get().n).toBe(0);
+  });
 });
