@@ -59,8 +59,14 @@ export function Rituals() {
     if (value) next.set(key, value); else next.delete(key);
     url.current.setParams(next, opts);
   };
-  useEffect(() => { if (!spellKnown) setParam('spell', '', { replace: true }); }, [spellKnown]);
-  useEffect(() => { if (!traditionKnown) setParam('tradition', '', { replace: true }); }, [traditionKnown]);
+  // Both unknown filters go in one update, so neither one's removal can bring back the other.
+  useEffect(() => {
+    if (spellKnown && traditionKnown) return;
+    const next = new URLSearchParams(url.current.params);
+    if (!spellKnown) next.delete('spell');
+    if (!traditionKnown) next.delete('tradition');
+    url.current.setParams(next, { replace: true });
+  }, [spellKnown, traditionKnown]);
 
   const spellById = new Map((spells.data ?? []).map(s => [s.id, s]));
   const sortedSpells = sortByName(spells.data ?? [], s => s.title, language);

@@ -96,6 +96,12 @@ describe('Rituals list', () => {
     await vi.waitFor(() => expect(urls()).toContain('/api/rituals?tab=log&spell=5&tradition=1&rating=3&from=2026-09-01&to=2026-09-30'));
   });
 
+  it('removes an unknown spell and an unknown tradition from the URL together', async () => {
+    stub(); mount('/rituals?tab=log&spell=999&tradition=999&rating=3');
+    await screen.findByText('Rest jar');
+    await vi.waitFor(() => expect(router.state.location.search).toBe('?tab=log&rating=3'));
+  });
+
   it('reads the filters from the URL and leaves them out on other tabs', async () => {
     stub(); mount('/rituals?tab=log&rating=4&from=2026-09-01');
     await screen.findByText('Rest jar');

@@ -5,6 +5,7 @@ import { invalid } from './fields.js';
 
 export const SUGGESTION_DAYS = 90;
 export const MAX_SUGGESTIONS = 10;
+const LAST_DAY = '2100-12-31';
 
 // The spell's timing codes by group, and its feasts whose entries are live.
 function preferences(db, spellId) {
@@ -21,8 +22,10 @@ export function suggestDays(db, spellId, fromDay, settings) {
   const want = preferences(db, spellId);
   const groups = Object.keys(want).filter(g => want[g].length);
   if (!groups.length) return [];
-  const range = { from: fromDay, to: addDays(fromDay, SUGGESTION_DAYS - 1) };
-  const days = Array.from({ length: SUGGESTION_DAYS }, (_, i) => addDays(fromDay, i));
+  // Only days a ritual can be dated on (up to the end of 2100).
+  const days = Array.from({ length: SUGGESTION_DAYS }, (_, i) => addDays(fromDay, i)).filter(d => d <= LAST_DAY);
+  if (!days.length) return [];
+  const range = { from: fromDay, to: days[days.length - 1] };
   const phases = want.moon.length ? moonPhasesOnDays(days, settings.time_zone) : {};
   const feastsOn = new Map();
   for (const { day, id } of feastDaysFor(db, want.feasts, range, settings)) feastsOn.set(day, [...(feastsOn.get(day) ?? []), id]);

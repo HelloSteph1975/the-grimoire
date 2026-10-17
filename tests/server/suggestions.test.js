@@ -121,4 +121,12 @@ describe('GET /api/spells/:id/suggestions', () => {
       expect(res.body.detailCodes).toEqual({ from: { code: 'bad_format' } });
     }
   });
+
+  it('stops at the last supported day, 2100-12-31', async () => {
+    const s = await spell({ timing: { day: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] } });
+    const list = suggest(s, '2100-12-25');
+    expect(list.length).toBeGreaterThan(0);
+    expect(list.every(x => x.day <= '2100-12-31')).toBe(true);
+    expect(suggest(s, '2100-12-31').map(x => x.day)).toEqual(['2100-12-31']);
+  });
 });

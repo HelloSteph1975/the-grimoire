@@ -150,13 +150,19 @@ function RitualForm({ record, start, spells, traditions, back, reloadLists, onCr
   const pickDay = day => { f.set('date', day); timeRef.current?.focus(); };
 
   const done = out => { if (out && !f.isDirtyNow()) navigate(`/rituals/${out.id}`); };
-  const save = async e => done(await f.onSubmit(e));
+  // A chosen spell is copied in when its record arrives; saving before then would lose the copy.
+  // If the record can't load, there is nothing to wait for.
+  const copying = Boolean(pending) && !spell.error;
+  const save = async e => {
+    if (copying) { e?.preventDefault?.(); return; }
+    done(await f.onSubmit(e));
+  };
   const keep = async () => done(await f.keepMine());
   // The latest ritual may use a spell or tradition added in another window, so reload those lists too.
   const takeTheirs = () => { setTarget(s => ({ ...s, version: f.conflict.version })); setPending(null); f.takeTheirs(pick); reloadLists(); };
   // The leave guard asks first if there are unsaved changes.
   const cancel = () => navigate(target ? `/rituals/${target.id}` : back);
-  const canSave = Boolean(v.title.trim()) && Boolean(v.date) && (!record || f.dirty);
+  const canSave = Boolean(v.title.trim()) && Boolean(v.date) && !copying && (!record || f.dirty);
   const lineLabel = (item, i) => item.name.trim() || t('spells.line', { n: i + 1 });
   const toggleTradition = id => f.set('traditions', v.traditions.includes(id) ? v.traditions.filter(x => x !== id) : [...v.traditions, id]);
   // A stored reminder that isn't one of the usual choices still shows.

@@ -141,6 +141,31 @@ describe('Ritual plan form', () => {
     }]);
   });
 
+  it('cannot save until a chosen spell has loaded and been copied', async () => {
+    stub();
+    let release;
+    const gate = new Promise(r => { release = r; });
+    override = (url, m) => (url === '/api/spells/5' && m === 'GET' ? gate.then(() => json(spellDetail[5])) : null);
+    mount('/rituals/new');
+    const title = await screen.findByLabelText('Title');
+    await userEvent.type(title, 'Mine');
+    fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-10-30' } });
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toBeEnabled();
+    await userEvent.selectOptions(screen.getByLabelText('Spell'), '5');
+    expect(save).toBeDisabled();
+    fireEvent.submit(save.closest('form'));
+    expect(sent('POST')).toEqual([]);
+    release();
+    await vi.waitFor(() => expect(screen.getByLabelText('Wiccan')).toBeChecked());
+    await vi.waitFor(() => expect(save).toBeEnabled());
+    await userEvent.click(save);
+    await vi.waitFor(() => expect(sent('POST')).toHaveLength(1));
+    const body = sent('POST')[0].body;
+    expect(body.traditions).toEqual([1]);
+    expect(body.supplies.map(l => l.name)).toEqual(['Jar', 'Salt']);
+  });
+
   it('keeps a typed title, supplies and ticked traditions when a spell is chosen', async () => {
     stub(); mount('/rituals/new');
     const title = await screen.findByLabelText('Title');
