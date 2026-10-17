@@ -3,6 +3,7 @@ import { repos } from '../db/repos.js';
 import { VersionConflict } from '../db/repo.js';
 import { HttpError, notFound } from '../http.js';
 import { validate } from '../validate.js';
+import { setLiveJoins } from './joins.js';
 import { fold } from './correspondences.js';
 import { TIMING, SABBAT_KEYS } from './timing.js';
 
@@ -199,18 +200,10 @@ function checkRefs(db, data, stored) {
   if (c.any()) throw invalid(c.errors, c.codes);
 }
 
-// Replaces the live joins in `table`; joins to rows in the Trash (not in `current`) are kept.
-function setLive(db, table, col, id, current, wanted) {
-  const drop = db.prepare(`DELETE FROM ${table} WHERE spell_id = ? AND ${col} = ?`);
-  for (const x of current) if (!wanted.includes(x)) drop.run(id, x);
-  const add = db.prepare(`INSERT OR IGNORE INTO ${table} (spell_id, ${col}) VALUES (?, ?)`);
-  for (const x of wanted) if (!current.includes(x)) add.run(id, x);
-}
-
 // Writes the lists that were sent; the ones left out stay as stored.
 function writeChildren(db, id, data) {
-  if (data.traditions) setLive(db, 'spell_traditions', 'tradition_id', id, liveTraditions(db, id), data.traditions);
-  if (data.feasts) setLive(db, 'spell_feasts', 'correspondence_id', id, liveFeasts(db, id).map(f => f.id), data.feasts);
+  if (data.traditions) setLiveJoins(db, { table: 'spell_traditions', ownerCol: 'spell_id', otherCol: 'tradition_id', otherTable: 'traditions' }, id, data.traditions);
+  if (data.feasts) setLiveJoins(db, { table: 'spell_feasts', ownerCol: 'spell_id', otherCol: 'correspondence_id', otherTable: 'correspondences' }, id, data.feasts);
   if (data.ingredients) {
     db.prepare('DELETE FROM spell_ingredients WHERE spell_id = ?').run(id);
     const add = db.prepare('INSERT INTO spell_ingredients (spell_id, position, name, amount, correspondence_id) VALUES (?, ?, ?, ?, ?)');

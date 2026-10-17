@@ -57,7 +57,8 @@ function stub() {
     if (m === 'PATCH') {
       if (body.version !== r.version) return json({ error: 'changed', code: 'conflict', current: r }, 409);
       const { version, ...rest } = body;
-      Object.assign(r, rest, { version: r.version + 1, links: linkRows(rest.links) });
+      Object.assign(r, rest, { version: r.version + 1, links: rest.links ? linkRows(rest.links) : r.links });
+      if ('show_on_calendar' in rest) r.show_on_calendar = rest.show_on_calendar ? 1 : 0;
       return json(r);
     }
     if (m === 'DELETE') { r.deleted = true; return json({ ok: true }); }
@@ -164,7 +165,7 @@ describe('Entry form', () => {
     expect(router.state.location.pathname).toBe('/correspondences/20');
     expect(sent('POST')[0]).toEqual({
       url: '/api/correspondences',
-      body: { name: 'Ruby', category_id: 2, summary: 'Deep red.', body: '', keywords: ['love', 'fire'], feast_day: '12-12', traditions: [1], links: [11] },
+      body: { name: 'Ruby', category_id: 2, summary: 'Deep red.', body: '', keywords: ['love', 'fire'], feast_day: '12-12', show_on_calendar: true, traditions: [1], links: [11] },
     });
   });
   it('sends no feast day when month and day are None', async () => {
@@ -191,7 +192,7 @@ describe('Entry form', () => {
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/correspondences/11'));
     expect(sent('PATCH')[0]).toEqual({
       url: '/api/correspondences/11',
-      body: { version: 2, name: 'Monday', category_id: 1, summary: 'The moon day. Silver.', body: 'First paragraph.\n\nSecond paragraph.', keywords: ['moon'], feast_day: '02-29', traditions: [1], links: [10] },
+      body: { version: 2, name: 'Monday', category_id: 1, summary: 'The moon day. Silver.', body: 'First paragraph.\n\nSecond paragraph.', keywords: ['moon'], feast_day: '02-29', show_on_calendar: true, traditions: [1], links: [10] },
     });
   });
   it('shows the conflict dialog on a stale save, and Reload the latest loads every field and its version', async () => {
@@ -288,6 +289,23 @@ describe('Entry form', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(await screen.findByText('Leave without saving?')).toBeInTheDocument();
   });
+  it('sends show_on_calendar, unticked under Show on the calendar', async () => {
+    stub(); mount('/correspondences/11/edit');
+    const show = await screen.findByLabelText('Show on the calendar');
+    expect(show).toBeChecked();
+    await userEvent.click(show);
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/correspondences/11'));
+    expect(sent('PATCH')[0].body).toMatchObject({ version: 2, show_on_calendar: false });
+  });
+  it('shows Show on the calendar only once the entry has a feast day', async () => {
+    stub(); mount('/correspondences/10/edit');
+    await vi.waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Red'));
+    expect(screen.queryByLabelText('Show on the calendar')).not.toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText('Month'), '12');
+    await userEvent.selectOptions(screen.getByLabelText('Day'), '12');
+    expect(screen.getByLabelText('Show on the calendar')).toBeChecked();
+  });
   it('leaves at once when nothing changed', async () => {
     stub(); mount('/correspondences/11/edit');
     await vi.waitFor(() => expect(screen.getByLabelText('Name')).toHaveValue('Monday'));
@@ -357,6 +375,42 @@ describe('Entry page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
     await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Cancel' }));
     expect(sent('DELETE')).toEqual([]);
+  });
+  it('turns Show on the calendar off with the version, and the switch follows', async () => {
+    stub(); mount('/correspondences/11');
+    const sw = await screen.findByRole('switch', { name: 'Show on the calendar' });
+    expect(sw).toHaveAttribute('aria-checked', 'true');
+    await userEvent.click(sw);
+    await vi.waitFor(() => expect(sw).toHaveAttribute('aria-checked', 'false'));
+    expect(sent('PATCH')).toEqual([{ url: '/api/correspondences/11', body: { show_on_calendar: false, version: 2 } }]);
+    await userEvent.click(sw);
+    await vi.waitFor(() => expect(sw).toHaveAttribute('aria-checked', 'true'));
+    expect(sent('PATCH')[1].body).toEqual({ show_on_calendar: true, version: 3 });
+  });
+  it('shows the conflict message and reloads when the switch meets a newer version', async () => {
+    stub(); mount('/correspondences/11');
+    const sw = await screen.findByRole('switch', { name: 'Show on the calendar' });
+    Object.assign(rows[11], { version: 7, name: 'Moon day', show_on_calendar: 0 });
+    await userEvent.click(sw);
+    expect(await screen.findByText('This was changed somewhere else.')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Moon day' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Show on the calendar' })).toHaveAttribute('aria-checked', 'false');
+  });
+  it('shows a toast when the switch cannot save', async () => {
+    stub(); mount('/correspondences/11');
+    const sw = await screen.findByRole('switch', { name: 'Show on the calendar' });
+    override = (url, m) => (m === 'PATCH' ? json({ error: 'Boom', code: 'server_error' }, 500) : null);
+    await userEvent.click(sw);
+    expect(await screen.findByText('Something went wrong on our side.')).toBeInTheDocument();
+    expect(sw).toHaveAttribute('aria-checked', 'true');
+  });
+  it('has no switch on an entry with no feast day, and one on a sabbat', async () => {
+    stub(); mount('/correspondences/10');
+    await screen.findByRole('heading', { name: 'Red' });
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    rows[12] = { ...rows[10], id: 12, name: 'Yule', starter_key: 'corr.sabbats-feasts.yule', show_on_calendar: 1 };
+    await act(async () => { router.navigate('/correspondences/12'); });
+    expect(await screen.findByRole('switch', { name: 'Show on the calendar' })).toHaveAttribute('aria-checked', 'true');
   });
   it('says when the entry is gone and links back', async () => {
     stub(); mount('/correspondences/99');

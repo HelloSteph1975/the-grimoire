@@ -25,6 +25,7 @@
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/eb-garamond": "^5.3.0",
+    "astronomy-engine": "2.1.19",
     "express": "^5.3.0",
     "lucide-react": "^1.57.0",
     "react": "^19.3.1",

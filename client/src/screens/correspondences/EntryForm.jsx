@@ -13,6 +13,7 @@ import { api } from '../../lib/api.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 import { useSettings } from '../../components/SettingsProvider.jsx';
 import { starterText, starterKeywords } from './Correspondences.jsx';
+import { isSabbat } from './EntryPage.jsx';
 
 const pad = n => String(n).padStart(2, '0');
 // Days per month in a leap year, so 02-29 can be picked.
@@ -31,6 +32,8 @@ const pickWith = tc => r => ({
   pending: '',
   month: r?.feast_day ? r.feast_day.slice(0, 2) : '',
   day: r?.feast_day ? r.feast_day.slice(3, 5) : '',
+  // Stored as 1 or 0; a new entry shows on the calendar.
+  show_on_calendar: r ? r.show_on_calendar !== 0 : true,
   traditions: r?.traditions ?? [],
   links: (r?.links ?? []).map(l => ({ id: l.id, name: starterText(tc, l, 'name', l.name) })),
 });
@@ -43,6 +46,7 @@ const toBody = v => ({
   body: v.body,
   keywords: v.keywords,
   feast_day: v.month || v.day ? `${v.month}-${v.day}` : null,
+  show_on_calendar: v.show_on_calendar,
   traditions: v.traditions,
   links: v.links.map(l => l.id),
 });
@@ -122,6 +126,8 @@ function EntryForm({ record, presetCategory, categories, traditions, onCreated }
     f.set('month', month);
     if (month && v.day && Number(v.day) > daysIn(month)) f.set('day', '');
   };
+  // Only a dated entry or a sabbat can show on the calendar, so only those offer the choice.
+  const datable = Boolean(v.month && v.day) || isSabbat(record);
   const toggleTradition = id => f.set('traditions', v.traditions.includes(id) ? v.traditions.filter(x => x !== id) : [...v.traditions, id]);
 
   return (
@@ -159,6 +165,9 @@ function EntryForm({ record, presetCategory, categories, traditions, onCreated }
               </div>
             </div>
             {groupError('feast_day')}
+            {datable && (
+              <Checkbox label={t('corr.showOnCalendar')} checked={v.show_on_calendar} onChange={e => f.set('show_on_calendar', e.target.checked)} />
+            )}
           </fieldset>
           <fieldset className="field field-group" aria-describedby={errId('traditions')}>
             <legend>{t('corr.traditions')}</legend>

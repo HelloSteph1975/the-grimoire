@@ -12,9 +12,9 @@ describe('database', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
     const db = openDb(dir);
     expect(db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
-    expect(migrations.length).toBe(4);
+    expect(migrations.length).toBe(5);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
-    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed', 'categories', 'correspondences', 'correspondence_traditions', 'correspondence_links', 'spell_kinds', 'spells', 'spell_traditions', 'spell_ingredients', 'spell_steps', 'spell_timing', 'spell_feasts']));
+    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed', 'categories', 'correspondences', 'correspondence_traditions', 'correspondence_links', 'spell_kinds', 'spells', 'spell_traditions', 'spell_ingredients', 'spell_steps', 'spell_timing', 'spell_feasts', 'own_dates', 'own_date_traditions']));
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -28,11 +28,26 @@ describe('database', () => {
     raw.prepare("INSERT INTO settings (key, value) VALUES ('theme', 'book-folk')").run();
     raw.close();
     const db = openDb(dir);
-    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(4);
+    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
     expect(db.prepare('SELECT name, description, version, content_version FROM traditions').all())
       .toEqual([{ name: 'Wiccan', description: 'Mine', version: 1, content_version: 1 }]);
     expect(db.prepare("SELECT value FROM settings WHERE key = 'theme'").get().value).toBe('book-folk');
     expect(db.prepare('SELECT count(*) n FROM categories').get().n).toBe(0);
+    db.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  it('migrates a version 4 database: show_on_calendar defaults to 1 on existing rows', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
+    const raw = new DatabaseSync(path.join(dir, 'grimoire.db'));
+    for (let i = 0; i < 4; i++) raw.exec(migrations[i]);
+    raw.exec('PRAGMA user_version = 4');
+    raw.exec("INSERT INTO categories (name) VALUES ('Herbs')");
+    raw.exec("INSERT INTO correspondences (category_id, name) VALUES (1, 'Rosemary')");
+    raw.close();
+    const db = openDb(dir);
+    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(5);
+    expect(db.prepare('SELECT name, show_on_calendar FROM correspondences').all()).toEqual([{ name: 'Rosemary', show_on_calendar: 1 }]);
+    expect(db.prepare('SELECT count(*) n FROM own_dates').get().n).toBe(0);
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
   });

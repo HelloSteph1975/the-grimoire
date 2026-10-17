@@ -7,9 +7,9 @@ import { createApp } from '../../server/app.js';
 
 export const BASE_CONTENT = path.join(import.meta.dirname, '..', 'fixtures', 'base-content');
 
-export function makeTestContext({ onShutdown, dataDir, contentDir = BASE_CONTENT } = {}) {
+export function makeTestContext({ onShutdown, dataDir, contentDir = BASE_CONTENT, now } = {}) {
   const dir = dataDir ?? fs.mkdtempSync(path.join(os.tmpdir(), 'grimoire-test-'));
-  const ctx = createContext({ dataDir: dir, port: 0, demo: false, contentDir });
+  const ctx = createContext({ dataDir: dir, port: 0, demo: false, contentDir, ...(now ? { now } : {}) });
   const app = createApp(ctx, { onShutdown });
   return {
     ctx, app, dataDir: dir,

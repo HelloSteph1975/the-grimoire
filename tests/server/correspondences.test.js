@@ -213,7 +213,7 @@ describe('/api/correspondences', () => {
     await makeEntry(t, cat.id, 'Alpha');
     const { body } = await t.http().get('/api/correspondences');
     expect(body.map(e => e.name)).toEqual(['Alpha', 'beta']);
-    expect(Object.keys(body[0]).sort()).toEqual(['category_id', 'feast_day', 'id', 'is_starter', 'name', 'starter_key', 'summary', 'version']);
+    expect(Object.keys(body[0]).sort()).toEqual(['category_id', 'feast_day', 'id', 'is_starter', 'name', 'show_on_calendar', 'starter_key', 'summary', 'version']);
   });
 
   it('searches name, summary, body and keywords, ignoring case and accents', async () => {
@@ -259,6 +259,30 @@ describe('/api/correspondences', () => {
     expect(same.body.is_starter).toBe(1);
     const linked = await patch(a.id, { version: same.body.version, links: [b.id] });
     expect(linked.body).toMatchObject({ is_starter: 0, starter_key: 'corr.test.a' });
+  });
+
+  it('shows on the calendar by default, and the switch keeps the Starter tag and the version rules', async () => {
+    const a = await makeEntry(t, cat.id, 'A');
+    expect(a.show_on_calendar).toBe(1);
+    t.ctx.db.prepare("UPDATE correspondences SET starter_key = 'corr.test.a', is_starter = 1 WHERE id = ?").run(a.id);
+    const off = await patch(a.id, { version: a.version, show_on_calendar: false });
+    expect(off.status).toBe(200);
+    expect(off.body).toMatchObject({ show_on_calendar: 0, version: a.version + 1, is_starter: 1 });
+    expect((await t.http().get('/api/correspondences')).body[0].show_on_calendar).toBe(0);
+    const stale = await patch(a.id, { version: a.version, show_on_calendar: true });
+    expect(stale.status).toBe(409);
+    expect(stale.body.current).toMatchObject({ show_on_calendar: 0 });
+    const on = await patch(a.id, { version: off.body.version, show_on_calendar: true, name: 'A' });
+    expect(on.body).toMatchObject({ show_on_calendar: 1, is_starter: 1 });
+    expect((await post({ name: 'B', show_on_calendar: false })).body.show_on_calendar).toBe(0);
+  });
+
+  it('rejects a null show_on_calendar and writes nothing', async () => {
+    const a = await makeEntry(t, cat.id, 'A');
+    const res = await patch(a.id, { version: a.version, show_on_calendar: null });
+    expect(res.status).toBe(400);
+    expect(res.body.detailCodes.show_on_calendar).toEqual({ code: 'required' });
+    expect(await get(a.id)).toEqual(a);
   });
 
   it('drops the Starter tag when traditions change', async () => {

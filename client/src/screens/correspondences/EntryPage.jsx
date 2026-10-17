@@ -1,3 +1,4 @@
+import { useId, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '../../components/Button.jsx';
@@ -10,6 +11,7 @@ import { useResource } from '../../lib/useResource.js';
 import { api } from '../../lib/api.js';
 import { errorText } from '../../lib/errors.js';
 import { sortByName } from '../../lib/collate.js';
+import { SABBAT_KEYS } from '../../lib/timing.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
 import { starterText, starterKeywords } from './Correspondences.jsx';
 
@@ -18,6 +20,9 @@ export function formatFeastDay(feastDay, language) {
   const [m, d] = feastDay.split('-').map(Number);
   return new Intl.DateTimeFormat(language, { month: 'long', day: 'numeric' }).format(new Date(2024, m - 1, d));
 }
+
+// A sabbat starter entry has no fixed feast day but still shows on the calendar.
+export const isSabbat = entry => SABBAT_KEYS.includes(entry?.starter_key);
 
 export function EntryPageRoute() {
   const { id } = useParams();
@@ -38,6 +43,27 @@ export function EntryPage({ id }) {
   const category = e && categories.data?.find(c => c.id === e.category_id);
   const tradNames = e && traditions.data ? traditions.data.filter(r => e.traditions.includes(r.id)).map(r => starterText(tc, r, 'name', r.name)) : [];
   const body = e ? starterText(tc, e, 'body', e.body) : null;
+
+  // Saves through the entry's own resource, so a read in flight never paints over the switch.
+  // A failed save reloads the entry there too, so after a conflict it shows the latest.
+  // It stays focusable while saving (a disabled button would drop the focus); clicks wait instead.
+  const [switching, setSwitching] = useState(false);
+  const busy = useRef(false);
+  const switchLabel = useId();
+  const shown = e?.show_on_calendar !== 0;
+  const toggleCalendar = async () => {
+    if (busy.current) return;
+    busy.current = true;
+    setSwitching(true);
+    try {
+      await entry.save({ show_on_calendar: !shown, version: e.version });
+    } catch (err) {
+      toast.show({ message: errorText(err, t) });
+    } finally {
+      busy.current = false;
+      setSwitching(false);
+    }
+  };
 
   const remove = async () => {
     if (!await confirm({ title: t('corr.deleteTitle', { name }), body: t('corr.deleteBody'), confirmLabel: t('common.delete'), danger: true })) return;
@@ -79,6 +105,12 @@ export function EntryPage({ id }) {
             {body && body.split(/\n\s*\n/).map((para, i) => <p key={i}>{para}</p>)}
             <dl className="entry-facts">
               {e.feast_day && <><dt>{t('corr.feastDay')}</dt><dd>{formatFeastDay(e.feast_day, language)}</dd></>}
+              {(e.feast_day || isSabbat(e)) && (
+                <><dt id={switchLabel}>{t('corr.showOnCalendar')}</dt><dd>
+                  <button type="button" role="switch" className="switch" aria-checked={shown} aria-labelledby={switchLabel}
+                    aria-disabled={switching || undefined} onClick={toggleCalendar}><span className="switch-knob" /></button>
+                </dd></>
+              )}
               {tradNames.length > 0 && <><dt>{t('corr.traditions')}</dt><dd>{tradNames.join(', ')}</dd></>}
               {starterKeywords(tc, e).length > 0 && (
                 <><dt>{t('corr.keywords')}</dt><dd><ul className="chips">{starterKeywords(tc, e).map(k => <li key={k} className="chip">{k}</li>)}</ul></dd></>

@@ -6,6 +6,7 @@ import { HttpError, notFound, notInTrash } from '../http.js';
 import { check } from '../validate.js';
 import { getSettings } from './settings.js';
 import { readPack } from './locales.js';
+import { setLiveJoins } from './joins.js';
 import { bumpSpellsUsing } from './spellLinks.js';
 import { SABBAT_KEYS } from './timing.js';
 
@@ -18,10 +19,12 @@ export const ENTRY_SCHEMA = {
   feast_day: { type: 'monthDay', hintKey: 'feast_day' },
   traditions: { type: 'ids', maxItems: 20 },
   links: { type: 'ids', maxItems: 50 },
+  show_on_calendar: { type: 'bool', nullable: false },
 };
 
-const FIELDS = ['category_id', 'name', 'summary', 'body', 'keywords', 'feast_day'];
+const FIELDS = ['category_id', 'name', 'summary', 'body', 'keywords', 'feast_day', 'show_on_calendar'];
 const R = db => repos(db).correspondences;
+const TRADITION_JOIN = { table: 'correspondence_traditions', ownerCol: 'correspondence_id', otherCol: 'tradition_id', otherTable: 'traditions' };
 
 const parseKeywords = json => {
   try { const v = JSON.parse(json ?? '[]'); return Array.isArray(v) ? v : []; } catch { return []; }
@@ -65,13 +68,7 @@ function checkRefs(db, data, selfId) {
 }
 
 // Replaces the live traditions; joins to traditions in the Trash are kept.
-function setTraditions(db, id, wanted) {
-  const current = liveTraditions(db, id);
-  const drop = db.prepare('DELETE FROM correspondence_traditions WHERE correspondence_id = ? AND tradition_id = ?');
-  for (const t of current) if (!wanted.includes(t)) drop.run(id, t);
-  const add = db.prepare('INSERT OR IGNORE INTO correspondence_traditions (correspondence_id, tradition_id) VALUES (?, ?)');
-  for (const t of wanted) if (!current.includes(t)) add.run(id, t);
-}
+const setTraditions = (db, id, wanted) => setLiveJoins(db, TRADITION_JOIN, id, wanted);
 
 // Replaces the live links, stored once as (lower id, higher id). Pairs with an entry in the
 // Trash are kept. Every entry that gained or lost a link gets a new version, so a stale save there gets a 409.
@@ -113,9 +110,9 @@ export function updateEntry(db, id, body, version) {
     if (stored.version !== version) throw new VersionConflict(shape(db, stored));
     checkRefs(db, data, id);
     const row = rowData(data);
-    // A save that changes nothing keeps the Starter tag.
+    // A save that changes nothing keeps the Starter tag. The calendar switch is the owner's setting, not an edit of the entry.
     if (stored.is_starter) {
-      const changed = Object.keys(row).some(k => row[k] !== stored[k])
+      const changed = Object.keys(row).some(k => k !== 'show_on_calendar' && row[k] !== stored[k])
         || (data.traditions && !sameSet(data.traditions, liveTraditions(db, id)))
         || (data.links && !sameSet(data.links, liveLinks(db, id).map(l => l.id)));
       if (changed) row.is_starter = 0;
@@ -211,7 +208,7 @@ export function listEntries(db, dataDir, { category, tradition, q, feasts } = {}
   if (category) { where.push('c.category_id = ?'); args.push(category); }
   if (tradition) { where.push('EXISTS (SELECT 1 FROM correspondence_traditions ct WHERE ct.correspondence_id = c.id AND ct.tradition_id = ?)'); args.push(tradition); }
   if (feasts) { where.push(`(c.feast_day IS NOT NULL OR c.starter_key IN (${SABBAT_KEYS.map(() => '?').join(', ')}))`); args.push(...SABBAT_KEYS); }
-  let rows = db.prepare(`SELECT c.id, c.category_id, c.name, c.summary, c.feast_day, c.is_starter, c.starter_key, c.version, c.body, c.keywords
+  let rows = db.prepare(`SELECT c.id, c.category_id, c.name, c.summary, c.feast_day, c.show_on_calendar, c.is_starter, c.starter_key, c.version, c.body, c.keywords
     FROM correspondences c WHERE ${where.join(' AND ')} ORDER BY c.name COLLATE NOCASE, c.id`).all(...args);
   const needle = fold(q).trim();
   if (needle) {

@@ -7,6 +7,7 @@ describe('timing codes', () => {
     expect(client.MOON_PHASES).toEqual(server.MOON_PHASES);
     expect(client.DAYS).toEqual(server.DAYS);
     expect(client.PLANETS).toEqual(server.PLANETS);
+    expect(client.SABBAT_KEYS).toEqual(server.SABBAT_KEYS);
     expect(client.TIMING).toEqual(server.TIMING);
   });
 });

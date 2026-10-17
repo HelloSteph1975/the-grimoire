@@ -117,6 +117,16 @@ describe('seedStarter', () => {
     expect(monday).toMatchObject({ summary: 'New text', content_version: 2, version: 2 });
     expect(db.prepare('SELECT summary FROM correspondences WHERE id = ?').get(moon.id).summary).toBe('Mine');
   });
+  it('never touches show_on_calendar when seeding or updating starter rows', () => {
+    seedStarter(db, { content: FIXTURE });
+    db.prepare("UPDATE correspondences SET show_on_calendar = 0 WHERE starter_key = 'corr.days.monday'").run();
+    seedStarter(db, { content: FIXTURE });
+    const bumped = copyFixtureWith({ 'correspondences/days.json': d => d.map(e => ({ ...e, summary: 'New text', content_version: 2 })) });
+    seedStarter(db, { content: bumped });
+    const monday = db.prepare("SELECT * FROM correspondences WHERE starter_key='corr.days.monday'").get();
+    expect(monday).toMatchObject({ summary: 'New text', content_version: 2, show_on_calendar: 0 });
+    expect(db.prepare("SELECT show_on_calendar FROM correspondences WHERE starter_key='corr.planets.moon'").get().show_on_calendar).toBe(1);
+  });
   it('updates the name of an untouched starter spell kind when content_version goes up, and leaves an edited one alone', () => {
     const kinds = JSON.parse(fs.readFileSync(path.join(BASE_CONTENT, 'spell-kinds.json'), 'utf8'));
     const bumped = copyFixtureWith({});

@@ -12,6 +12,7 @@ function open(dataDir, contentDir) {
 export function createContext(config) {
   const ctx = {
     config,
+    now: config.now ?? (() => new Date()),
     db: open(config.dataDir, config.contentDir),
     epoch: readEpoch(config.dataDir),
     reopen() { ctx.db = open(config.dataDir, config.contentDir); return ctx.db; },

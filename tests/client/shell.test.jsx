@@ -3,9 +3,13 @@ import { render, screen, within, fireEvent } from '@testing-library/react';
 import { App } from '../../client/src/App.jsx';
 
 const SETTINGS = { language: 'en', theme: 'book-folk', hemisphere: 'north', time_zone: 'UTC' };
+const TODAY = {
+  day: '2026-10-16', weekday: 'fri', planets: [], colors: [], coming: [],
+  moon: { code: 'new', angle: 0, lit: 0, waxing: true, next: [] },
+};
 function stubApi(overrides = {}) {
   vi.stubGlobal('fetch', vi.fn(async url => {
-    const body = overrides[url] ?? { '/api/settings': SETTINGS, '/api/health': { ok: true, demo: false } }[url] ?? [];
+    const body = overrides[url] ?? { '/api/settings': SETTINGS, '/api/health': { ok: true, demo: false }, '/api/today': TODAY }[url] ?? [];
     return new Response(JSON.stringify(body), { status: 200 });
   }));
 }

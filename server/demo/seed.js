@@ -2,13 +2,14 @@ import { repos } from '../db/repos.js';
 import { transaction } from '../db/connection.js';
 import { seedStarter } from '../services/starter.js';
 import { createSpell } from '../services/spells.js';
+import { createOwnDate } from '../services/ownDates.js';
 
 // Sample data for the demo folder only. Later stages add their own samples here.
 export function seedDemo(ctx, { reset = false } = {}) {
   const db = ctx.db;
   transaction(db, () => {
     if (reset) {
-      db.exec('DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
+      db.exec('DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM own_date_traditions; DELETE FROM own_dates; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
     }
     const t = repos(db).traditions;
     const all = db.prepare('SELECT name FROM traditions').all().map(r => r.name);
@@ -20,6 +21,7 @@ export function seedDemo(ctx, { reset = false } = {}) {
   });
   seedStarter(db, ctx.config?.contentDir ? { content: ctx.config.contentDir } : undefined);
   seedSpells(db);
+  seedOwnDates(db);
 }
 
 const SAMPLE_SPELLS = [
@@ -61,4 +63,18 @@ function seedSpells(db) {
     const kind_id = kindOf(kind);
     createSpell(db, kind_id ? { ...spell, kind_id } : spell);
   }
+}
+
+// Two sample dates, added once (matched by title): a yearly one on November 2 in this year, and a
+// one-time one in the middle of next month.
+function seedOwnDates(db, now = new Date()) {
+  const have = new Set(db.prepare('SELECT title FROM own_dates').all().map(r => r.title));
+  const y = now.getFullYear();
+  const next = new Date(y, now.getMonth() + 1, 15);
+  const pad = n => String(n).padStart(2, '0');
+  const samples = [
+    { title: 'Light a candle for the ancestors', date: `${y}-11-02`, yearly: true, notes: 'Set a small candle in the window at dusk and say their names.' },
+    { title: 'Visit the old orchard', date: `${next.getFullYear()}-${pad(next.getMonth() + 1)}-15`, yearly: false, notes: 'Bring a basket and a thermos of tea.' },
+  ];
+  for (const sample of samples) if (!have.has(sample.title)) createOwnDate(db, sample);
 }

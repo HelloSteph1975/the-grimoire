@@ -58,6 +58,8 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .page-corner.br { bottom: 8px; right: 8px; transform: scale(-1, -1); }
 .papel-picado { position: absolute; top: 0; left: 0; width: 100%; height: 40px; }
 [data-theme='book-folk'] .page { padding-top: 72px; }
+/* Room under the content for the corner flourishes. */
+.page { padding-bottom: 84px; }
 .page-header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap;
   border-bottom: 3px double var(--parchment-edge); margin-bottom: 24px; }
 .page-actions { display: flex; gap: 8px; }
@@ -110,7 +112,7 @@ section + section { margin-top: 36px; }
   .sidebar.is-open { transform: none; visibility: visible; transition: transform .2s, visibility 0s 0s; }
   .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 30; }
   .main { padding: 12px; }
-  .page { padding: 48px 16px; }
+  .page { padding: 48px 16px 84px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
@@ -151,6 +153,8 @@ section + section { margin-top: 36px; }
 .entry-form { max-width: 720px; }
 .entry-form > fieldset, .field-group { border: 0; margin: 0; padding: 0; min-width: 0; }
 .field-group legend { font-family: var(--font-head); font-weight: 600; font-size: 1.05rem; padding: 0; margin-bottom: 4px; }
+.entry-form > fieldset > .checkbox { display: block; margin-bottom: 14px; }
+.entry-form > fieldset > .field-group { margin-bottom: 14px; }
 .feast-day { display: flex; flex-wrap: wrap; gap: 12px; }
 .feast-day .field { margin-bottom: 0; }
 .checks { display: flex; flex-wrap: wrap; gap: 4px 20px; }
@@ -205,3 +209,77 @@ section + section { margin-top: 36px; }
   .spell-form .list-move { margin-left: auto; }
 }
 .spell-form fieldset.field-group { margin-bottom: 14px; }
+
+/* Today: a book page with a double gold rule under the heading. */
+.today .page-header { border-bottom: 3px double var(--gold); }
+.today h2 { font-size: 1.35rem; margin-top: 1.2em; }
+.today-moon { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+.moon-dark { fill: var(--leather-700); }
+.moon-lit { fill: var(--parchment); stroke: none; }
+.moon-rim { fill: none; stroke: var(--gold); stroke-width: 1.5; }
+.today-phase { font-family: var(--font-head); font-size: 1.6rem; color: var(--oxblood); margin: 0; }
+.today-lit { margin: 0 0 8px; color: var(--ink-soft); }
+.today-next { list-style: none; margin: 0; padding: 0; }
+.today-day { font-size: 1.1rem; }
+.today-coming { list-style: none; margin: 0; padding: 0; }
+.today-coming li { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px dotted var(--parchment-edge); }
+.today-coming li:last-child { border-bottom: 0; }
+.today-coming-when { color: var(--ink-soft); white-space: nowrap; }
+.today-later { margin-top: 2em; }
+
+/* Calendar: the same book page as Today. Marks are ink colors: oxblood for saints and deities,
+   accent ink for sabbats and feasts, leaf for her own dates. */
+.calendar .page-header { border-bottom: 3px double var(--gold); }
+.cal-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 12px; }
+.cal-nav { display: flex; align-items: center; gap: 8px; }
+.cal-nav h2 { margin: 0; font-size: 1.5rem; min-width: 8em; text-align: center; }
+.cal-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cal-views { display: flex; gap: 6px; }
+.cal-grid { width: 100%; table-layout: fixed; border-collapse: collapse; }
+.cal-grid th { font-family: var(--font-head); font-weight: 600; color: var(--ink-soft); padding: 4px 0; border-bottom: 1px solid var(--gold); }
+.cal-grid td { padding: 0; border: 1px solid var(--parchment-edge); vertical-align: top; }
+.cal-day { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-height: 84px; padding: 4px 6px;
+  font: inherit; text-align: left; color: var(--ink); background: transparent; border: 0; cursor: pointer; }
+.cal-day:hover:not(:disabled) { background: var(--parchment-deep); }
+.cal-day:disabled { cursor: default; }
+.cal-day[aria-pressed='true'] { background: var(--parchment-deep); box-shadow: inset 0 0 0 2px var(--accent-ink); }
+.cal-day.cal-today { box-shadow: inset 0 0 0 2px var(--oxblood); }
+.cal-day.cal-today[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--oxblood), inset 0 0 0 4px var(--accent-ink); }
+.cal-day.cal-today .cal-num { color: var(--oxblood); font-weight: 700; }
+.cal-out { color: var(--ink-soft); }
+.cal-out .cal-num { font-style: italic; }
+.cal-num { font-family: var(--font-head); font-size: 1.05rem; line-height: 1; }
+.cal-moon { display: inline-flex; }
+.cal-marks { display: flex; flex-direction: column; gap: 1px; width: 100%; min-width: 0; }
+.cal-mark { display: flex; align-items: center; gap: 4px; min-width: 0; font-size: .82rem; line-height: 1.2; }
+.cal-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.cal-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.cal-kind-saint .cal-dot { background: var(--oxblood); }
+.cal-kind-sabbat .cal-dot, .cal-kind-feast .cal-dot { background: var(--accent-ink); }
+.cal-kind-own .cal-dot { background: var(--leaf); }
+.cal-panel { margin-top: 20px; padding-top: 8px; border-top: 3px double var(--gold); }
+.cal-panel h2, .cal-list h3 { font-size: 1.25rem; margin: 0 0 6px; }
+.cal-items { list-style: none; margin: 0; padding: 0; }
+.cal-item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dotted var(--parchment-edge); }
+.cal-item:last-child { border-bottom: 0; }
+.cal-kind { color: var(--ink-soft); font-size: .9rem; }
+.cal-list { list-style: none; margin: 0; padding: 0; }
+.cal-list > li { padding: 10px 0; border-bottom: 1px solid var(--parchment-edge); }
+/* On a phone a day shows its number, a small moon and one dot per item; the panel lists the names. */
+@media (max-width: 560px) {
+  .cal-nav h2 { font-size: 1.2rem; min-width: 0; }
+  .cal-grid th { font-size: .8rem; }
+  .cal-day { min-height: 56px; padding: 3px; align-items: center; }
+  .cal-marks { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 2px; }
+  .cal-mark { gap: 0; }
+  .cal-name { display: none; }
+}
+
+/* On and off switch: the knob sits right and the track fills when it is on. */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; padding: 0; border: 1px solid var(--ink-soft); border-radius: 999px; background: transparent; cursor: pointer; vertical-align: middle; }
+.switch-knob { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--ink-soft); transition: left 0.15s; }
+.switch[aria-checked='true'] { background: var(--ink); border-color: var(--ink); }
+.switch[aria-checked='true'] .switch-knob { left: 23px; background: var(--parchment); }
+.switch[aria-disabled='true'] { opacity: 0.6; cursor: progress; }
+.switch:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .switch-knob { transition: none; } }

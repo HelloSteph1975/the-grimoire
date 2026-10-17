@@ -14,8 +14,9 @@ export function repos(db) {
       spellKinds: createRepo(db, 'spell_kinds', ['name', 'sort_order', 'starter_key', 'is_starter', 'content_version'],
         { orderBy: 'sort_order, name COLLATE NOCASE, id' }),
       spells: createRepo(db, 'spells', ['title', 'purpose', 'kind_id', 'notes', 'source'], { orderBy: 'title COLLATE NOCASE, id' }),
+      ownDates: createRepo(db, 'own_dates', ['title', 'date', 'yearly', 'notes'], { orderBy: 'date, title COLLATE NOCASE, id' }),
       correspondences: createRepo(db, 'correspondences',
-        ['category_id', 'name', 'summary', 'body', 'keywords', 'feast_day', 'starter_key', 'is_starter', 'content_version'],
+        ['category_id', 'name', 'summary', 'body', 'keywords', 'feast_day', 'show_on_calendar', 'starter_key', 'is_starter', 'content_version'],
         { orderBy: 'name COLLATE NOCASE, id' }),
     };
     cache.set(db, r);
