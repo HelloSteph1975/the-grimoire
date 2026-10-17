@@ -6,6 +6,8 @@ import { correspondencesRouter } from './correspondences.js';
 import { spellKindsRouter } from './spellKinds.js';
 import { spellsRouter } from './spells.js';
 import { ownDatesRouter } from './ownDates.js';
+import { ritualsRouter } from './rituals.js';
+import { followupsRouter } from './followups.js';
 import { calendarRouter } from './calendar.js';
 import { trashRouter } from './trash.js';
 import { systemRouter } from './system.js';
@@ -21,6 +23,8 @@ export function apiRouter(ctx, { onShutdown }) {
   r.use('/spell-kinds', spellKindsRouter(ctx));
   r.use('/spells', spellsRouter(ctx));
   r.use('/own-dates', ownDatesRouter(ctx));
+  r.use('/rituals', ritualsRouter(ctx));
+  r.use('/followups', followupsRouter(ctx));
   r.use(calendarRouter(ctx));
   r.use('/trash', trashRouter(ctx));
   r.use('/settings', settingsRouter(ctx));

@@ -32,7 +32,8 @@ const spell = {
   timing: { moon: ['full'], day: ['fri'], planet: [] },
 };
 
-function stub({ language = 'en', pack = {}, list = () => spells, one = spell, del = () => json({ ok: true }) } = {}) {
+const noRituals = { planned: [], past: [] };
+function stub({ language = 'en', pack = {}, list = () => spells, one = spell, del = () => json({ ok: true }), rituals = noRituals, usage = 0 } = {}) {
   vi.stubGlobal('fetch', vi.fn(async (url, init) => {
     if (url === '/api/settings') return json({ language, theme: 'old-book' });
     if (url === '/api/spell-kinds') return json(kinds);
@@ -40,6 +41,8 @@ function stub({ language = 'en', pack = {}, list = () => spells, one = spell, de
     if (url.startsWith('/api/locales/')) return json(url.endsWith('/ui') ? (pack.ui ?? {}) : (pack.content ?? {}));
     if (url.startsWith('/api/spells?')) return json(list(new URLSearchParams(url.split('?')[1])));
     if (url === '/api/spells/5' && init?.method === 'DELETE') return del();
+    if (url === '/api/spells/5/rituals') return typeof rituals === 'function' ? rituals() : json(rituals);
+    if (url === '/api/spells/5/usage') return typeof usage === 'function' ? usage() : json({ rituals: usage });
     if (url === '/api/spells/5/restore') return json({ ok: true });
     if (url === '/api/spells/5') return json(one);
     return json({ error: 'Not found', code: 'not_found' }, 404);
@@ -163,5 +166,59 @@ describe('Spell page', () => {
     expect(await screen.findByText('Moon jar is in the Trash.')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/spells/5'));
+  });
+});
+
+describe('Rituals on the spell page', () => {
+  const rituals = {
+    planned: [{ id: 11, title: 'Winter jar', date: '2026-12-21', time: '20:30', status: 'planned' }],
+    past: [{ id: 12, title: 'Autumn jar', date: '2026-09-22', time: null, status: 'done' }],
+  };
+  it('lists planned and past rituals with links and a Plan a ritual link', async () => {
+    stub({ rituals }); mount('/spells/5');
+    const section = (await screen.findByRole('heading', { name: 'Rituals' })).closest('section');
+    expect(await within(section).findByRole('link', { name: /Winter jar/ })).toHaveAttribute('href', '/rituals/11');
+    expect(within(section).getByRole('link', { name: /Autumn jar/ })).toHaveAttribute('href', '/rituals/12');
+    expect(within(section).getByText('Planned')).toBeInTheDocument();
+    expect(within(section).getByText('Past')).toBeInTheDocument();
+    expect(within(section).getByRole('link', { name: 'Plan a ritual' })).toHaveAttribute('href', '/rituals/new?spell=5');
+  });
+  it('leaves out an empty group but keeps the link', async () => {
+    stub({ rituals: { planned: [], past: rituals.past } }); mount('/spells/5');
+    const section = (await screen.findByRole('heading', { name: 'Rituals' })).closest('section');
+    await within(section).findByRole('link', { name: /Autumn jar/ });
+    expect(within(section).queryByText('Planned')).toBeNull();
+    expect(within(section).getByRole('link', { name: 'Plan a ritual' })).toBeInTheDocument();
+  });
+  it('asks with the count when rituals use the spell', async () => {
+    stub({ usage: 3 }); mount('/spells/5');
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    expect(await screen.findByText('Move Moon jar to the Trash? 3 rituals use it.')).toBeInTheDocument();
+  });
+  it('uses the singular for one ritual', async () => {
+    stub({ usage: 1 }); mount('/spells/5');
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    expect(await screen.findByText('Move Moon jar to the Trash? 1 ritual uses it.')).toBeInTheDocument();
+  });
+  it('still offers the plain delete question when the ritual count fails to load', async () => {
+    stub({ usage: () => json({ error: 'Something went wrong', code: 'internal' }, 500) }); mount('/spells/5');
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+    expect(await screen.findByText('Delete Moon jar?')).toBeInTheDocument();
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/spells'));
+    expect(fetch.mock.calls.filter(([u, o]) => u === '/api/spells/5' && o?.method === 'DELETE')).toHaveLength(1);
+  });
+  it('shows Try again when the rituals fail to load, and retrying loads them', async () => {
+    let fail = true;
+    stub({ rituals: () => (fail ? json({ error: 'Something went wrong', code: 'internal' }, 500) : json(rituals)) });
+    mount('/spells/5');
+    const section = (await screen.findByRole('heading', { name: 'Rituals' })).closest('section');
+    const retry = await within(section).findByRole('button', { name: 'Try again' });
+    expect(within(section).queryByRole('link', { name: /Winter jar/ })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'Moon jar', level: 1 })).toBeInTheDocument();
+    fail = false;
+    await userEvent.click(retry);
+    expect(await within(section).findByRole('link', { name: /Winter jar/ })).toHaveAttribute('href', '/rituals/11');
+    expect(within(section).queryByRole('button', { name: 'Try again' })).toBeNull();
   });
 });

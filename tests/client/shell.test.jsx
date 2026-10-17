@@ -32,10 +32,10 @@ describe('app shell', () => {
   });
   it('shows a placeholder for sections built later', async () => {
     stubApi();
-    window.history.pushState({}, '', '/rituals');
+    window.history.pushState({}, '', '/journal');
     render(<App />);
-    expect(await screen.findByRole('heading', { name: 'Rituals' })).toBeInTheDocument();
-    expect(screen.getByText(/Stage 5/)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Journal' })).toBeInTheDocument();
+    expect(screen.getByText(/Stage 6/)).toBeInTheDocument();
   });
   it('shows Not found for unknown pages', async () => {
     stubApi();

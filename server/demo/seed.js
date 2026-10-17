@@ -3,13 +3,19 @@ import { transaction } from '../db/connection.js';
 import { seedStarter } from '../services/starter.js';
 import { createSpell } from '../services/spells.js';
 import { createOwnDate } from '../services/ownDates.js';
+import { createRitual } from '../services/rituals.js';
+import { createFollowup } from '../services/followups.js';
+import { suggestDays } from '../services/suggestions.js';
+import { addDays } from '../services/calendar.js';
+import { getSettings } from '../services/settings.js';
+import { dayInZone } from '../services/sky.js';
 
 // Sample data for the demo folder only. Later stages add their own samples here.
 export function seedDemo(ctx, { reset = false } = {}) {
   const db = ctx.db;
   transaction(db, () => {
     if (reset) {
-      db.exec('DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM own_date_traditions; DELETE FROM own_dates; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
+      db.exec('DELETE FROM ritual_followups; DELETE FROM ritual_supplies; DELETE FROM ritual_traditions; DELETE FROM rituals; DELETE FROM spell_feasts; DELETE FROM spell_timing; DELETE FROM spell_steps; DELETE FROM spell_ingredients; DELETE FROM spell_traditions; DELETE FROM spells; DELETE FROM spell_kinds; DELETE FROM correspondence_links; DELETE FROM correspondence_traditions; DELETE FROM correspondences; DELETE FROM categories; DELETE FROM own_date_traditions; DELETE FROM own_dates; DELETE FROM traditions; DELETE FROM starter_removed; DELETE FROM settings;');
     }
     const t = repos(db).traditions;
     const all = db.prepare('SELECT name FROM traditions').all().map(r => r.name);
@@ -22,6 +28,7 @@ export function seedDemo(ctx, { reset = false } = {}) {
   seedStarter(db, ctx.config?.contentDir ? { content: ctx.config.contentDir } : undefined);
   seedSpells(db);
   seedOwnDates(db);
+  seedRituals(db, ctx.now ? ctx.now() : new Date());
 }
 
 const SAMPLE_SPELLS = [
@@ -77,4 +84,40 @@ function seedOwnDates(db, now = new Date()) {
     { title: 'Visit the old orchard', date: `${next.getFullYear()}-${pad(next.getMonth() + 1)}-15`, yearly: false, notes: 'Bring a basket and a thermos of tea.' },
   ];
   for (const sample of samples) if (!have.has(sample.title)) createOwnDate(db, sample);
+}
+
+// Two sample rituals from the calm-home spell, added once (matched by title): one planned on its
+// next suggested day, and one done a week ago with a rating and a follow-up.
+function seedRituals(db, now) {
+  const spell = db.prepare("SELECT id FROM spells WHERE title = 'A candle for a calm home' AND deleted_at IS NULL").get();
+  if (!spell) return;
+  const have = new Set(db.prepare('SELECT title FROM rituals').all().map(r => r.title));
+  const settings = getSettings(db);
+  const today = dayInZone(now, settings.time_zone);
+  const supplies = [
+    { name: 'White candle', amount: '1' },
+    { name: 'Matches', amount: '1' },
+    { name: 'Small dish of salt', amount: '1 pinch' },
+  ];
+  const planned = 'Calm home candle';
+  if (!have.has(planned)) {
+    const next = suggestDays(db, spell.id, addDays(today, 1), settings).map(s => s.day).sort()[0];
+    if (next) {
+      createRitual(db, {
+        title: planned, spell_id: spell.id, date: next, time: '19:30', reminder_days: 1, status: 'planned',
+        plan_notes: 'Tidy the front room first and open a window while the candle burns.',
+        supplies,
+      });
+    }
+  }
+  const done = 'Calm home candle, last week';
+  if (!have.has(done)) {
+    const ritual = createRitual(db, {
+      title: done, spell_id: spell.id, date: addDays(today, -7), time: '20:00', status: 'done', rating: 4,
+      changes: 'I used a green candle because the white one had burned down.',
+      outcome: 'The house felt quiet afterwards, and we had tea at the table.',
+      supplies: supplies.map(s => ({ ...s, checked: true })),
+    });
+    createFollowup(db, { ritual_id: ritual.id, date: addDays(today, -4), text: 'Still tidy by the door. I will light it again next week.' });
+  }
 }

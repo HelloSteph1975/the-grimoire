@@ -5,7 +5,7 @@ import { LoadState } from '../../components/LoadState.jsx';
 import { MoonIcon } from '../../components/MoonIcon.jsx';
 import { useResource } from '../../lib/useResource.js';
 import { sortByName } from '../../lib/collate.js';
-import { formatDay as fmtDay } from '../../lib/days.js';
+import { formatDay as fmtDay, formatTime } from '../../lib/days.js';
 import { useT, translate } from '../../i18n/I18nProvider.jsx';
 import { starterText } from '../correspondences/Correspondences.jsx';
 
@@ -50,6 +50,8 @@ function TodayBody({ data, t, tc, language }) {
   if (data.colors.length > 0) clauses.push(<Fragment key="c">{sentence('today.dayColors', ['colors'], { n: data.colors.length })}</Fragment>);
   const dayLine = clauses.length === 0 ? t('today.dayOnly', { weekday })
     : clauses.flatMap((c, i) => (i ? [' ', c] : [c]));
+  const week = data.week ?? [];
+  const reminders = data.reminders ?? [];
   const moon = data.moon;
   const phase = t(`timing.moon.${moon.code}`);
 
@@ -95,7 +97,34 @@ function TodayBody({ data, t, tc, language }) {
           </ul>
         )}
       </section>
-      <p className="muted today-later">{t('today.later')}</p>
+      {week.length > 0 && (
+        <section>
+          <h2>{t('today.week')}</h2>
+          <ul className="today-rituals">
+            {week.map(r => (
+              <li key={r.id}>
+                <span className="today-ritual-when">
+                  {fmtDay(r.date, language, { weekday: 'short', month: 'short', day: 'numeric' })}
+                </span>
+                {r.time && <span className="today-ritual-when">{formatTime(r.time, language)}</span>}
+                <Link to={`/rituals/${r.id}`}>{r.title}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {reminders.length > 0 && (
+        <section>
+          <h2>{t('today.reminders')}</h2>
+          <ul className="today-rituals">
+            {reminders.map(r => {
+              const when = r.days_away === 0 ? t('today.today') : t('today.inDays', { n: r.days_away });
+              return <li key={r.id}><Link to={`/rituals/${r.id}`}>{t('today.reminderLine', { title: r.title, when })}</Link></li>;
+            })}
+          </ul>
+        </section>
+      )}
+      <p className="muted today-later">{t('today.laterJournal')}</p>
     </div>
   );
 }

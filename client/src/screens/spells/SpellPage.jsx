@@ -12,6 +12,7 @@ import { useT } from '../../i18n/I18nProvider.jsx';
 import { starterText } from '../correspondences/Correspondences.jsx';
 import { formatFeastDay } from '../correspondences/EntryPage.jsx';
 import { sortByName } from '../../lib/collate.js';
+import { formatDay, formatTime } from '../../lib/days.js';
 
 const TIMING_GROUPS = [
   { key: 'moon', label: 'spells.moon' },
@@ -39,7 +40,15 @@ export function SpellPage({ id }) {
   const tradNames = s && traditions.data ? traditions.data.filter(r => s.traditions.includes(r.id)).map(r => starterText(tc, r, 'name', r.name)) : [];
 
   const remove = async () => {
-    if (!await confirm({ title: t('spells.deleteTitle', { name: s.title }), body: t('spells.deleteBody'), confirmLabel: t('common.delete'), danger: true })) return;
+    // The ritual count only adds to the question. If it fails to load, ask the plain one.
+    let used = 0;
+    try {
+      ({ rituals: used } = await api.get(`/api/spells/${s.id}/usage`));
+    } catch {
+      used = 0;
+    }
+    const title = used > 0 ? t('spells.deleteInUse', { name: s.title, n: used }) : t('spells.deleteTitle', { name: s.title });
+    if (!await confirm({ title, body: t('spells.deleteBody'), confirmLabel: t('common.delete'), danger: true })) return;
     const name = s.title;
     try {
       await api.del(`/api/spells/${s.id}`);
@@ -138,10 +147,43 @@ export function SpellPage({ id }) {
                 <p>{s.source}</p>
               </section>
             )}
+            <SpellRituals id={s.id} />
           </>
         )}
       </LoadState>
       <p><Link to="/spells">{t('spells.back')}</Link></p>
     </article>
+  );
+}
+
+// The rituals made from this spell. It loads on its own, so the spell stays readable if it fails.
+function SpellRituals({ id }) {
+  const { t, language } = useT();
+  const rituals = useResource(`/api/spells/${id}/rituals`);
+  const groups = [
+    { key: 'planned', label: 'spells.ritualsPlanned' },
+    { key: 'past', label: 'spells.ritualsPast' },
+  ];
+  return (
+    <section className="spell-section">
+      <h2>{t('spells.rituals')}</h2>
+      <LoadState loading={rituals.loading && !rituals.data} error={rituals.error} keepChildren={Boolean(rituals.data)} onRetry={rituals.reload}>
+        {rituals.data && groups.filter(g => rituals.data[g.key]?.length > 0).map(g => (
+          <div key={g.key}>
+            <h3>{t(g.label)}</h3>
+            <ul className="entry-links spell-rituals">
+              {rituals.data[g.key].map(r => (
+                <li key={r.id}>
+                  <Link to={`/rituals/${r.id}`}>{r.title}</Link>
+                  <span className="muted">{formatDay(r.date, language, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  {r.time && <span className="muted">{formatTime(r.time, language)}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </LoadState>
+      <p><Link to={`/rituals/new?spell=${id}`}>{t('spells.planRitual')}</Link></p>
+    </section>
   );
 }

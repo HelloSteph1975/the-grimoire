@@ -257,3 +257,36 @@ describe('Calendar', () => {
     expect(await grid()).toBeInTheDocument();
   });
 });
+
+describe('Calendar rituals', () => {
+  const RITUALS = [
+    { day: '2026-10-24', kind: 'ritual', ritual: { id: 31, title: 'Moon jar', status: 'planned', time: '20:30' } },
+    { day: '2026-10-24', kind: 'ritual', ritual: { id: 32, title: 'Moon jar', status: 'done', time: null } },
+  ];
+  it('shows ritual marks colored by status and links the panel to the ritual', async () => {
+    stub({ items: [...OCTOBER, ...RITUALS] }); mount();
+    await grid();
+    const marks = document.body.querySelectorAll('.cal-mark.cal-kind-ritual');
+    expect(marks).toHaveLength(2);
+    expect(marks[0]).toHaveClass('cal-ritual-planned');
+    expect(marks[1]).toHaveClass('cal-ritual-past');
+    await userEvent.click(screen.getByRole('button', { name: /October 24, 2026/ }));
+    const panel = screen.getByRole('region', { name: /October 24, 2026/ });
+    const links = within(panel).getAllByRole('link', { name: 'Moon jar' });
+    expect(links.map(a => a.getAttribute('href'))).toEqual(['/rituals/31', '/rituals/32']);
+    expect(links[0].closest('li')).toHaveTextContent(/8:30/);
+    expect(within(panel).getAllByText('Ritual')).toHaveLength(2);
+  });
+  it('names each ritual status in words, not by colour alone, in the panel and the list', async () => {
+    stub({ items: [...OCTOBER, ...RITUALS] }); mount();
+    await grid();
+    await userEvent.click(screen.getByRole('button', { name: /October 24, 2026/ }));
+    const panel = screen.getByRole('region', { name: /October 24, 2026/ });
+    const rows = within(panel).getAllByRole('link', { name: 'Moon jar' }).map(a => a.closest('li'));
+    expect(within(rows[0]).getByText('Planned')).toBeInTheDocument();
+    expect(within(rows[1]).getByText('Done')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'List' }));
+    const listRows = screen.getAllByRole('link', { name: 'Moon jar' }).map(a => a.closest('li'));
+    expect(listRows.map(li => within(li).queryByText(/^(Planned|Done)$/)?.textContent)).toEqual(['Planned', 'Done']);
+  });
+});

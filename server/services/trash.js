@@ -6,6 +6,9 @@ import { restoreCategory } from './categories.js';
 import { restoreTradition } from './traditions.js';
 import { restoreKind, purgeKind } from './spellKinds.js';
 import { restoreEntry, purgeEntry } from './correspondences.js';
+import { restoreSpell, purgeSpell } from './spells.js';
+import { restoreRitual } from './rituals.js';
+import { restoreFollowup } from './followups.js';
 
 function recordRemoved(db, row) {
   if (row.starter_key) db.prepare('INSERT OR IGNORE INTO starter_removed (starter_key) VALUES (?)').run(row.starter_key);
@@ -27,10 +30,14 @@ function purgeCategory(db, row) {
 }
 
 // Every kind of record that can be in the Trash. Later stages add theirs here.
-// Emptying the Trash goes in this order, so spells go before the kinds and entries they use, and
-// entries before their categories. A spell's lines, steps, timing and joins go with it (foreign keys).
+// Emptying the Trash goes in this order, so follow-ups go before their rituals, rituals before the
+// spells they use, spells before the kinds and entries they use, and entries before their
+// categories. A spell's lines, steps, timing and joins go with it (foreign keys), and so do a
+// ritual's supplies, joins and follow-ups.
 export const TRASH_TYPES = {
-  spell: { repo: db => repos(db).spells, title: row => row.title },
+  followup: { repo: db => repos(db).followups, title: row => row.text.slice(0, 60), restore: restoreFollowup },
+  ritual: { repo: db => repos(db).rituals, title: row => row.title, restore: restoreRitual },
+  spell: { repo: db => repos(db).spells, title: row => row.title, restore: restoreSpell, purge: purgeSpell },
   date: { repo: db => repos(db).ownDates, title: row => row.title },
   tradition: { repo: db => repos(db).traditions, title: row => row.name, restore: restoreTradition },
   correspondence: { repo: db => repos(db).correspondences, title: row => row.name, restore: restoreEntry, purge: purgeEntry },

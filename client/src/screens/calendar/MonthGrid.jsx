@@ -1,7 +1,8 @@
+import { Flame } from 'lucide-react';
 import { MoonIcon } from '../../components/MoonIcon.jsx';
 import { dayInRange, formatDay, gridDays, monthOf } from '../../lib/days.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
-import { QUARTER_MOON, itemKey, itemName } from './items.js';
+import { QUARTER_MOON, itemKey, itemName, markClass } from './items.js';
 
 const LONG = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const EMPTY = { moon: [], marks: [] };
@@ -47,8 +48,8 @@ export function MonthGrid({ month, days, today, selected, onSelect }) {
                     {marks.length > 0 && (
                       <span className="cal-marks">
                         {marks.map(item => (
-                          <span key={itemKey(item)} className={`cal-mark cal-kind-${item.kind}`}>
-                            <span className="cal-dot" aria-hidden="true" />
+                          <span key={itemKey(item)} className={`cal-mark ${markClass(item)}`}>
+                            {item.kind === 'ritual' ? <Flame className="cal-flame" size={12} aria-hidden="true" /> : <span className="cal-dot" aria-hidden="true" />}
                             <span className="cal-name">{itemName(item, t, tc)}</span>
                           </span>
                         ))}

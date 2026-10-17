@@ -12,9 +12,9 @@ describe('database', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
     const db = openDb(dir);
     expect(db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
-    expect(migrations.length).toBe(5);
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map(r => r.name);
-    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed', 'categories', 'correspondences', 'correspondence_traditions', 'correspondence_links', 'spell_kinds', 'spells', 'spell_traditions', 'spell_ingredients', 'spell_steps', 'spell_timing', 'spell_feasts', 'own_dates', 'own_date_traditions']));
+    expect(tables).toEqual(expect.arrayContaining(['settings', 'traditions', 'starter_removed', 'categories', 'correspondences', 'correspondence_traditions', 'correspondence_links', 'spell_kinds', 'spells', 'spell_traditions', 'spell_ingredients', 'spell_steps', 'spell_timing', 'spell_feasts', 'own_dates', 'own_date_traditions', 'rituals', 'ritual_traditions', 'ritual_supplies', 'ritual_followups']));
+    expect(migrations.length).toBe(6);
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -45,9 +45,28 @@ describe('database', () => {
     raw.exec("INSERT INTO correspondences (category_id, name) VALUES (1, 'Rosemary')");
     raw.close();
     const db = openDb(dir);
-    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(5);
+    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(migrations.length);
     expect(db.prepare('SELECT name, show_on_calendar FROM correspondences').all()).toEqual([{ name: 'Rosemary', show_on_calendar: 1 }]);
     expect(db.prepare('SELECT count(*) n FROM own_dates').get().n).toBe(0);
+    db.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+  it('migrates a version 5 database to 6: rituals start empty and spells keep their data', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'grim-db-'));
+    const raw = new DatabaseSync(path.join(dir, 'grimoire.db'));
+    for (let i = 0; i < 5; i++) raw.exec(migrations[i]);
+    raw.exec('PRAGMA user_version = 5');
+    raw.exec("INSERT INTO spells (title) VALUES ('Calm')");
+    raw.close();
+    const db = openDb(dir);
+    expect(db.prepare('PRAGMA user_version').get().user_version).toBe(6);
+    expect(db.prepare('SELECT title FROM spells').all()).toEqual([{ title: 'Calm' }]);
+    for (const table of ['rituals', 'ritual_traditions', 'ritual_supplies', 'ritual_followups']) {
+      expect(db.prepare(`SELECT count(*) n FROM ${table}`).get().n).toBe(0);
+    }
+    db.prepare("INSERT INTO rituals (title, date) VALUES ('R', '2026-10-31')").run();
+    expect(db.prepare('SELECT status, version FROM rituals').get()).toEqual({ status: 'planned', version: 1 });
+    expect(() => db.prepare("UPDATE rituals SET status = 'maybe'").run()).toThrow();
     db.close();
     fs.rmSync(dir, { recursive: true, force: true });
   });

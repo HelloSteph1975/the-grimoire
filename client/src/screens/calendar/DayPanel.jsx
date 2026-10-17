@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
+import { Flame } from 'lucide-react';
 import { MoonIcon } from '../../components/MoonIcon.jsx';
 import { useSettings } from '../../components/SettingsProvider.jsx';
-import { formatDay } from '../../lib/days.js';
+import { formatDay, formatTime } from '../../lib/days.js';
 import { useT } from '../../i18n/I18nProvider.jsx';
-import { QUARTER_MOON, itemKey, itemName } from './items.js';
+import { QUARTER_MOON, itemKey, itemName, itemPath, markClass } from './items.js';
 
 const LONG = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -32,9 +33,11 @@ export function ItemList({ day }) {
         </li>
       ))}
       {day.marks.map(item => (
-        <li key={itemKey(item)} className={`cal-item cal-kind-${item.kind}`}>
-          <span className="cal-dot" aria-hidden="true" />
-          <Link to={item.kind === 'own' ? `/calendar/dates/${item.date.id}` : `/correspondences/${item.entry.id}`}>{itemName(item, t, tc)}</Link>
+        <li key={itemKey(item)} className={`cal-item ${markClass(item)}`}>
+          {item.kind === 'ritual' ? <Flame className="cal-flame" size={16} aria-hidden="true" /> : <span className="cal-dot" aria-hidden="true" />}
+          <Link to={itemPath(item)}>{itemName(item, t, tc)}</Link>
+          {item.kind === 'ritual' && item.ritual.time && <span className="muted">{formatTime(item.ritual.time, language)}</span>}
+          {item.kind === 'ritual' && <span className="tag">{t(`rituals.status.${item.ritual.status}`)}</span>}
           <span className="cal-kind">{t(`calendar.kind.${item.kind}`)}</span>
         </li>
       ))}

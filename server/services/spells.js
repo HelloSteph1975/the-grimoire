@@ -1,9 +1,11 @@
 import { transaction } from '../db/connection.js';
 import { repos } from '../db/repos.js';
 import { VersionConflict } from '../db/repo.js';
-import { HttpError, notFound } from '../http.js';
+import { notFound, notInTrash } from '../http.js';
 import { validate } from '../validate.js';
 import { setLiveJoins } from './joins.js';
+import { invalid, collector, addErrors, text, deletedForever } from './fields.js';
+import { bumpRitualsUsing } from './ritualLinks.js';
 import { fold } from './correspondences.js';
 import { TIMING, SABBAT_KEYS } from './timing.js';
 
@@ -22,26 +24,6 @@ const MAX_STEPS = 50;
 const FIELDS = ['title', 'purpose', 'kind_id', 'notes', 'source'];
 const R = db => repos(db).spells;
 const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-const invalid = (errors, codes) => new HttpError(400, 'Please fix the highlighted fields.', errors, { code: 'invalid', detailCodes: codes });
-
-// Collects field errors as messages and codes, the way validate() reports them.
-function collector() {
-  const errors = {};
-  const codes = {};
-  const fail = (key, message, code, vars = {}) => { errors[key] = message; codes[key] = { code, ...vars }; };
-  return { errors, codes, fail, any: () => Object.keys(errors).length > 0 };
-}
-
-// Optional text, trimmed; blank means null. Returns undefined when it failed.
-function text(v, key, max, required, fail) {
-  if (v === undefined || v === null) v = '';
-  if (typeof v !== 'string') return fail(key, 'Must be text', 'not_text');
-  const s = v.trim();
-  if (required && !s) return fail(key, 'Required', 'required');
-  if (s.length > max) return fail(key, `Keep it to ${max} characters or fewer`, 'too_long', { max });
-  return s || null;
-}
-
 // Up to 50 lines of { name, amount, correspondence_id }. A line with no name, amount or link is
 // dropped, like a blank step. Errors go under ingredients.<index>.<field>, the index as sent, and
 // each kept line remembers that index in `at`.
@@ -93,7 +75,7 @@ function checkSpell(body, { partial = false } = {}) {
   const src = body ?? {};
   const r = validate(SPELL_SCHEMA, src, { partial });
   const c = collector();
-  if (r.errors) for (const k of Object.keys(r.errors)) c.fail(k, r.errors[k], r.codes[k].code, r.codes[k]);
+  addErrors(c, r);
   const data = r.data ?? {};
   for (const [key, checkList] of Object.entries(LISTS)) if (has(src, key)) data[key] = checkList(src[key], c.fail);
   if (c.any()) throw invalid(c.errors, c.codes);
@@ -146,14 +128,6 @@ export function getSpell(db, id) {
 
 // Every tradition or feast joined to this spell, the ones in the Trash too.
 const joined = (db, table, col, id) => db.prepare(`SELECT ${col} AS id FROM ${table} WHERE spell_id = ?`).all(id).map(r => r.id);
-
-// Ids are never reused (AUTOINCREMENT), so an id with no row that is at or below the table's
-// high-water mark was deleted forever, perhaps in another window after this form opened.
-function deletedForever(db, table, id) {
-  if (!Number.isInteger(id) || id < 1 || db.prepare(`SELECT 1 FROM ${table} WHERE id = ?`).get(id)) return false;
-  const seq = db.prepare('SELECT seq FROM sqlite_sequence WHERE name = ?').get(table)?.seq ?? 0;
-  return id <= seq;
-}
 
 // Drops the links to rows that were deleted forever, so a save never fails on them. An ingredient
 // line stays, with no link.
@@ -253,14 +227,34 @@ export function updateSpell(db, id, body, version) {
   });
 }
 
-// Plain soft delete and restore: lines, steps, timing and joins stay in place.
+// Soft delete and restore: lines, steps, timing and joins stay in place. The rituals that use the
+// spell get a new version, because the spell they show changed.
 export function deleteSpell(db, id) {
-  if (!transaction(db, () => R(db).remove(id))) throw notFound();
+  transaction(db, () => {
+    if (!R(db).remove(id)) throw notFound();
+    bumpRitualsUsing(db, { spells: [id] });
+  });
 }
 
 export function restoreSpell(db, id) {
-  if (!transaction(db, () => R(db).restore(id))) throw notFound('Nothing to restore');
-  return getSpell(db, id);
+  return transaction(db, () => {
+    if (!R(db).restore(id)) throw notInTrash();
+    bumpRitualsUsing(db, { spells: [id] });
+    return getSpell(db, id);
+  });
+}
+
+// Deleting forever leaves its rituals with no spell (the foreign key sets the link to null), so
+// they get a new version first.
+export function purgeSpell(db, row) {
+  bumpRitualsUsing(db, { spells: [row.id] });
+  R(db).purge(row.id);
+}
+
+// Live spells only. How many live rituals use it, for the delete confirm.
+export function spellUsage(db, id) {
+  if (!R(db).get(id)) throw notFound();
+  return { rituals: db.prepare('SELECT count(*) AS n FROM rituals WHERE spell_id = ? AND deleted_at IS NULL').get(id).n };
 }
 
 // Live spells ordered by title. `q` matches title, purpose, ingredient names, steps, notes and

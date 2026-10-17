@@ -64,4 +64,33 @@ describe('demo seed', () => {
     expect(await titles()).toEqual(['Light a candle for the ancestors', 'Visit the old orchard']);
     expect(t.ctx.db.prepare('SELECT count(*) n FROM own_date_traditions').get().n).toBe(0);
   });
+
+  it('adds the two sample rituals once and puts them back after a reset', async () => {
+    t = makeTestContext();
+    seedDemo(t.ctx);
+    seedDemo(t.ctx);
+    const list = async () => (await t.http().get('/api/rituals')).body;
+    const titles = async () => (await list()).map(r => r.title).sort();
+    expect(await titles()).toEqual(['Calm home candle', 'Calm home candle, last week']);
+    const rows = await list();
+    const planned = rows.find(r => r.title === 'Calm home candle');
+    const done = rows.find(r => r.title.endsWith('last week'));
+    expect(planned.status).toBe('planned');
+    expect(done).toMatchObject({ status: 'done', rating: 4 });
+    const today = (await t.http().get('/api/today')).body.day;
+    expect(planned.date > today).toBe(true);
+    expect(done.date).toBe(new Date(Date.parse(`${today}T00:00:00Z`) - 7 * 86400000).toISOString().slice(0, 10));
+    const followups = (await t.http().get(`/api/followups?ritual=${done.id}`)).body;
+    expect(followups).toHaveLength(1);
+    expect((await t.http().get(`/api/rituals/${planned.id}`)).body.supplies).toHaveLength(3);
+
+    await t.http().post('/api/rituals').send({ title: 'Mine', date: today });
+    expect(await list()).toHaveLength(3);
+    seedDemo(t.ctx, { reset: true });
+    expect(await titles()).toEqual(['Calm home candle', 'Calm home candle, last week']);
+    const n = table => t.ctx.db.prepare(`SELECT count(*) n FROM ${table}`).get().n;
+    expect(n('rituals')).toBe(2);
+    expect(n('ritual_followups')).toBe(1);
+    expect(n('ritual_supplies')).toBe(6);
+  });
 });
